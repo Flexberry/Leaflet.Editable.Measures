@@ -43,7 +43,10 @@
 <script>
 var centerPoint = [58.0060984592271,56.2445307230809];
 // Create leaflet map.
-var map = L.map('map', {editable: true}).setView(centerPoint, 12);
+var map = L.map('map', {
+  editable: true,
+  editOptions: {markerClass: L.Measure.Marker, markerEditorClass: L.Editable.MarkerEditor}
+  }).setView(centerPoint, 12);
 
 // Add OSM layer.
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -55,10 +58,10 @@ var measurementsLayerGroup = L.layerGroup().addTo(map);
 
 
 // Create custom measere tools instances.
-var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
-var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
-var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
-var polygonTool = L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
+// var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
+// var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
+// var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
+// var polygonTool = L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
 
 // Method to disable all custom measure tools.
 var disableAllTools = function() {
@@ -70,8 +73,9 @@ var disableAllTools = function() {
 
 // Method to enable custom coordinates measure tool.
 var enableMarkerTool = function() {
-  disableAllTools();
-  markerTool.enable();
+  map.editTools.startMarker();
+//   disableAllTools();
+//   markerTool.enable();
   };
 
 // Method to enable custom radius measure tool.
