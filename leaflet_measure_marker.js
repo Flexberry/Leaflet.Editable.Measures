@@ -109,12 +109,14 @@
        */
     enable: function () {
       this.editTool = this.enableEdit();
-      this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
+//       this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
 // //       this._map.on ('editable:dragstart',function() {alert('editable:dragstart');}, this);
 //       this._map.on ('editable:drawing:commit',function() {alert('editable:drawing:commit');}, this);
 
       //       this._map.on ('mouseover',function() {alert('over');});
       this._map.on ('editable:drag',this._setDragTooltipContent, this);
+      this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
+
       this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
       this._map.on ('editable:drawing:click', this._setLabel, this);
       this._map.on ('editable:dragend',this._setLabel, this);
@@ -129,7 +131,7 @@
       this.editTool = null;
     },
 
-    _setMoveTooltipContent: function() {
+    _setMoveTooltipContent: function(e) {
       var text = 'Кликните по карте, чтобы зафиксировать маркер';
       var coords = this._getLabelContent();
       text += "<br>" + coords;
@@ -144,7 +146,7 @@
       //       this.measureLayer.bindTooltip(text).openTooltip();
     },
 
-    _setDragTooltipContent: function() {
+    _setDragTooltipContent: function(e) {
       var text = 'Отпустите кнопку мыши, чтобы зафиксировать маркер';
       var coords = this._getLabelContent();
       text += "<br>" + coords;
@@ -154,7 +156,11 @@
       this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
     },
 
-    _setLabel: function() {
+    _setDragStartTooltipContent: function(e) {
+      this.measureLayer = e.layer;
+    },
+
+    _setLabel: function(e) {
       var coords = this._getLabelContent();
       text = "<b>" + coords + '</b>';
       if (this.measureLayer._tooltip) {
