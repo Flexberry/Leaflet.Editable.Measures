@@ -50,7 +50,7 @@
        */
     enable: function () {
       this.editTool = this.enableEdit();
-//       this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
+      this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
 // //       this._map.on ('editable:dragstart',function() {alert('editable:dragstart');}, this);
 //       this._map.on ('editable:drawing:commit',function() {alert('editable:drawing:commit');}, this);
 
@@ -59,8 +59,8 @@
       this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
 
       this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:drawing:click', this.showLabel, this);
-      this._map.on ('editable:dragend',this.showLabel, this);
+      this._map.on ('editable:drawing:click', this._setLabel, this);
+      this._map.on ('editable:dragend',this._setLabel, this);
       this.measureLayer = map.editTools.startMarker();
     },
 
@@ -79,15 +79,10 @@
       if (!this._map.hasLayer(this.measureLayer)) {
         this.measureLayer.addTo(this._map)
       }
-//       if (this.measureLayer._tooltip) {
-//         this.measureLayer._tooltip.setTooltipContent(text);
-//       } else {
-//         this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
-//       }
-      if (this.measureLayer._popup) {
-        this.measureLayer._popup.setLatLng(e.latlng).setContent(text);
+      if (this.measureLayer._tooltip) {
+        this.measureLayer._tooltip.setTooltipContent(text);
       } else {
-        this.measureLayer.bindPopup(text, {keepInView: true, autoClose:false, closeButton: false} ).openPopup();
+        this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
       }
       //       this.measureLayer.bindTooltip(text).openTooltip();
     },
@@ -99,36 +94,20 @@
       if (this.measureLayer._tooltip) {
         this.measureLayer.closeTooltip(this.measureLayer._tooltip);
       }
-//       this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
-//       if (this.measureLayer._popup) {
-//         this.measureLayer._popup.setLatLng(e.latlng).setContent(text);
-//       } else {
-        this.measureLayer.unbindPopup();
-        this.measureLayer.bindPopup(text, {keepInView: true, autoClose:false, closeButton: false} ).openPopup();
-//       }
-
+      this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
     },
 
     _setDragStartTooltipContent: function(e) {
       this.measureLayer = e.layer;
     },
 
-    showLabel: function(e) {
+    _setLabel: function(e) {
       var coords = this._getLabelContent();
-      var text = "<b>" + coords + '</b>';
-//       if (this.measureLayer._tooltip) {
-//         this.measureLayer.closeTooltip(this.measureLayer._tooltip);
-//       }
-//       if (this.measureLayer._popup) {
-//         this.measureLayer._popup.setLatLng(e.latlng).setContent(text);
-//       } else {
-//         this.measureLayer.bindPopup(text, {keepInView: true, autoClose:false, closeButton: false} ).openPopup();
-//       }
+      text = "<b>" + coords + '</b>';
       if (this.measureLayer._tooltip) {
-        this.measureLayer._tooltip.setTooltipContent(text);
-      } else {
-        this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.9});
+        this.measureLayer.closeTooltip(this.measureLayer._tooltip);
       }
+      this.measureLayer.bindTooltip(text,{permanent:true});
     },
 
 
