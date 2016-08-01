@@ -61,7 +61,7 @@
       this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
       this._map.on ('editable:drawing:click', this._setLabel, this);
       this._map.on ('editable:dragend',this._setLabel, this);
-      this.measureLayer = map.editTools.startMarker();
+      this.measureLayer = this._map.editTools.startMarker();
     },
 
       /**
