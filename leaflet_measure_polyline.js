@@ -84,8 +84,6 @@
       this.isDrawing = false;
       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
       this._map.on('editable:drawing:mousedown', this.showLabel, this);
-      //       this._map.on ('editable:vertex:dragstart', function() {this.isDrawing = true;}, this);
-//       this._map.on ('editable:vertex:dragend', this.showLabel, this);
       this.measureLayer = this._map.editTools.startPolyline();
     },
 

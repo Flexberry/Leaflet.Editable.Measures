@@ -58,7 +58,7 @@ var measurementsLayerGroup = L.layerGroup().addTo(map);
 var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
 var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
 var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
-// var polygonTool = L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
+var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
 
 // Method to disable all custom measure tools.
 var disableAllTools = function() {
