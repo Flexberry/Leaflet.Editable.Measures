@@ -77,44 +77,38 @@
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
       this._onActionsTest();
+      this.isDrawing = false;
       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:vertex:dragstart', this._setDrawingTolltipContent, this);
+      this._map.on ('editable:vertex:dragstart', function() {this.isDrawing = true;}, this);
       this._map.on ('editable:vertex:dragend', this.showLabel, this);
-//             this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
-//             this._map.on ('editable:editing', this._setDrawingTolltipContent, this);
       this.measureLayer = map.editTools.startCircle();
 
     },
 
     _setMoveTooltipContent: function(e) {
 //       alert('editable:drawing:move');
-      var text = 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
-      var popup = L.popup()
-      .setLatLng(e.latlng)
-      .setContent(text)
-      .openOn(this._map);
-
+      var text = this.isDrawing ?
+      'Отпустите кнопку мыши, чтобы зафиксировать круг.' :
+      'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
+      this.measurePopup = L.popup()
+      this.measurePopup.setLatLng(e.latlng)
+      .setContent(text);
+      this.measurePopup.openOn(this._map);
     },
 
     showLabel: function(e) {
-      var text =this._getLabelContent(e);
+      var text = '<b>' + this._getLabelContent(e) + '</b>';
+      if (this._map.hasLayer(this.measurePopup)) {
+        this._map.closePopup();
+        this._map.removeLayer(this.measurePopup);
+      }
       if (this.measureLayer._tooltip) {
         this.measureLayer.closeTooltip(this.measureLayer._tooltip);
       }
-      this.measureLayer.bindTooltip(text, {permanent: false, sticky: true, opacity: 0.9});
+      this.measureLayer.bindTooltip(text, {permanent: true, opacity: 0.9}).openTooltip();
+      this.measureLayer.addTo(this._map);
       this.measureLayer.label = this.measureLayer._tooltip;
-    },
-
-    _setDrawingTolltipContent: function(e) {
-      var text = 'Отпустите кнопку мыши, чтобы зафиксировать круг.';
-      if (!this._map.hasLayer(this.measureLayer)) {
-        this.measureLayer.addTo(this._map)
-      }
-      if (this.measureLayer._tooltip) {
-        this.measureLayer._tooltip.setTooltipContent(text);
-      } else {
-        this.measureLayer.bindTooltip(text, {permanent: false, sticky: true, opacity: 0.5}).openTooltip();
-      }
+      this._map.off('editable:drawing:move', this._setMoveTooltipContent, this);
 
     },
 
