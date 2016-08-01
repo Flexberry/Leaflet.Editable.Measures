@@ -51,7 +51,7 @@
 //       this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
 //       this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
 //       this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
-//       this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
+      //       this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
 //       this._map.on('editable:editing', function() {alert('editable:editing');}, this);
 //       this._map.on('editable:enable', function() {alert('editable:enable');}, this);
 //       this._map.on('editable:middlemarker:mousedown', function() {alert(editable:middlemarker:mousedown');}, this);
@@ -65,7 +65,7 @@
 //       this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
 //       this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
 //       this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
-      this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
+//       this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
 //       this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
 //       this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
 //       this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
@@ -76,7 +76,8 @@
     enable: function () {
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
-//       this._onActionsTest();
+      this._onActionsTest();
+      this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
       this._map.on ('editable:vertex:dragstart', this._setDrawingTolltipContent, this);
       this._map.on ('editable:vertex:dragend', this.showLabel, this);
 //             this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
@@ -85,12 +86,23 @@
 
     },
 
+    _setMoveTooltipContent: function(e) {
+//       alert('editable:drawing:move');
+      var text = 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
+      var popup = L.popup()
+      .setLatLng(e.latlng)
+      .setContent(text)
+      .openOn(this._map);
+
+    },
+
     showLabel: function(e) {
       var text =this._getLabelContent(e);
       if (this.measureLayer._tooltip) {
         this.measureLayer.closeTooltip(this.measureLayer._tooltip);
       }
-      this.measureLayer.bindTooltip(text, {permanent:true});
+      this.measureLayer.bindTooltip(text, {permanent: false, sticky: true, opacity: 0.9});
+      this.measureLayer.label = this.measureLayer._tooltip;
     },
 
     _setDrawingTolltipContent: function(e) {
@@ -106,19 +118,6 @@
 
     },
 
-    _setMoveTooltipContent: function(e) {
-      var text = 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
-//       this._map.openTooltip(text, e.latlng, {sticky: true, opacity: 0.5});
-//       if (!this._map.hasLayer(this.measureLayer)) {
-//         this.measureLayer.addTo(this._map)
-//       }
-//       if (this.measureLayer._tooltip) {
-//         this.measureLayer._tooltip.setTooltipContent(text);
-//       } else {
-//         this.measureLayer.bindTooltip(text,{permanent:true, opacity: 0.5});
-//       }
-      //       this.measureLayer.bindTooltip(text).openTooltip();
-    },
 
   });
 

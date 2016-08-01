@@ -77,7 +77,7 @@
       var coords = this._getLabelContent();
       text += "<br>" + coords;
       if (!this._map.hasLayer(this.measureLayer)) {
-        this.measureLayer.addTo(this._map)
+        this.measureLayer.addTo(this._map);
       }
       if (this.measureLayer._tooltip) {
         this.measureLayer._tooltip.setTooltipContent(text);
