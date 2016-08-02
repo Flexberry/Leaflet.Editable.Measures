@@ -36,7 +36,7 @@
       var latlngs;
       if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
         latlngs = e.layer.editor.getLatLngs()[0].slice();
-        if (!this.isDragging && e.latlng) {
+        if (!this.isDragging && !this.vertexDeleted && e.latlng) {
           var layerContainsLatLng = latlngs.filter(function(latlng) {
             return latlng.equals(e.latlng);
           }).length > 0;
@@ -52,12 +52,13 @@
       if (latlngs.length < 3) {
         return '';
       }
-      var ret = '';
-      for (i = 0; i < latlngs.length; i++) {
-        ret += latlngs[i].lat + ',' + latlngs[i].lng + ' ';
-      }
 
-      ret +=  '<br>Площадь: ' + L.Measure.getAreaText({
+      var ret = '';
+//       for (i = 0; i < latlngs.length; i++) {
+//         ret += latlngs[i].lat + ',' + latlngs[i].lng + '<br>';
+//       }
+
+      ret +=  'Площадь: ' + L.Measure.getAreaText({
         latlngs: latlngs
       });
       return ret;
@@ -74,6 +75,7 @@
     this._map.on('editable:drawing:mousedown', this._setCommitContent, this);
     this._map.on ('editable:vertex:dragstart', this._setDragStart, this);
     this._map.on ('editable:vertex:dragend', this._setDragEnd, this);
+    this._map.on('editable:vertex:deleted', this.setVertexDeleted, this);
     this.measureLayer = this._map.editTools.startPolygon();
   },
 
@@ -120,6 +122,12 @@
 
   },
 
+  setVertexDeleted: function(e) {
+    this.vertexDeleted = true;
+    this.showLabel(e);
+    this.vertexDeleted = false;
+  },
+
   _setCommitContent: function(e) {
     var latlngs = e.layer.editor.getLatLngs()[0];
     if (latlngs.length <= 1) return;
@@ -137,7 +145,8 @@
     this._map.closePopup();
     var text = '<b>' + this._getLabelContent(e) + '</b>';
     if (this.measureLayer.centerTooltip) {
-      this.measureLayer.centerTooltip.setContent(text);
+      var center = this.measureLayer.getCenter();
+      this.measureLayer.centerTooltip.setLatLng(center).setContent(text);
     } else {
      this.measureLayer.bindTooltip(text, {permanent: true, opacity: 0.75});
      this.measureLayer.centerTooltip = this.measureLayer._tooltip;
