@@ -33,24 +33,34 @@
 
      */
     _getLabelContent: function(e) {
-      var LatLngs = e.layer.editor.getLatLngs()[0];
-      var latlngs = e.layer ? LatLngs.slice() : [];
+      var latlngs;
+      if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
+        latlngs = e.layer.editor.getLatLngs()[0].slice();
+        if (!this.isDragging && e.latlng) {
+          var layerContainsLatLng = latlngs.filter(function(latlng) {
+            return latlng.equals(e.latlng);
+          }).length > 0;
 
-      var layerContainsLatLng = latlngs.filter(function(latlng) {
-        return latlng.equals(e.latlng);
-      }).length > 0;
-
-      if (!layerContainsLatLng) {
-        latlngs.push(e.latlng);
+          if (!layerContainsLatLng) {
+            latlngs.push(e.latlng);
+          }
+        }
+      } else {
+        latlngs = this.lastLatLng;
       }
 
       if (latlngs.length < 3) {
         return '';
       }
+      var ret = '';
+      for (i = 0; i < latlngs.length; i++) {
+        ret += latlngs[i].lat + ',' + latlngs[i].lng + ' ';
+      }
 
-      return 'Площадь: ' + L.Measure.getAreaText({
+      ret +=  '<br>Площадь: ' + L.Measure.getAreaText({
         latlngs: latlngs
       });
+      return ret;
     },
 
 
@@ -69,22 +79,21 @@
 
   _setMoveTooltipContent: function(e) {
     var text;
-    var LatLngs = e.layer.editor.getLatLngs()[0];
-    var nPoints = LatLngs.length;
-    if (nPoints > 1) {
+    var latlngs = e.layer.editor.getLatLngs()[0];
+    var nPoints = latlngs.length;
+    switch (nPoints) {
+    case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
+      break;
+    case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>';
+      break;
+    default:
       var square = this._getLabelContent(e);
-    }
-    if (this.isDragging) {
-      text = 'Переместите маркер и отпустите кнопку мыши.' + '<br>' + square;
-      this.lastLatLng = LatLngs;
-    } else {
-      switch (nPoints) {
-        case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
-          break;
-        case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>';
-          break;
-        default:
-          text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + square;
+      if (this.isDragging) {
+//         alert("nPoints=" + nPoints + 'square=' + square);
+        text = 'Переместите маркер и отпустите кнопку мыши.' + '<br>' + square;
+        this.lastLatLng = latlngs;
+      } else {
+        text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + square;
       }
     }
 
@@ -106,13 +115,14 @@
 
   },
   _setDragEnd: function(e) {
-    this.isDragging = false;
     this.showLabel(e);
+    this.isDragging = false;
 
   },
 
   _setCommitContent: function(e) {
-    if (e.layer.editor._drawnLatLngs.length <= 1) return;
+    var latlngs = e.layer.editor.getLatLngs()[0];
+    if (latlngs.length <= 1) return;
     var text = "Кликните на текущую вершину, чтобы зафиксировать фигуру";
     this.measurePopup.setContent(text);
     if (!this.measurePopup.isOpen()) {
@@ -122,7 +132,8 @@
   },
 
   showLabel: function(e) {
-    if (e.layer.editor._drawnLatLngs.length <= 0) return;
+    var latlngs = e.layer.editor.getLatLngs()[0];
+    if (latlngs.length <= 0) return;
     this._map.closePopup();
     var text = '<b>' + this._getLabelContent(e) + '</b>';
     if (this.measureLayer.centerTooltip) {
