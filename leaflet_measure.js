@@ -5,7 +5,6 @@
    */
   L.Measure = L.Measure || {
 
-
     /**
      * Количество знаков после десятичного разделителя для измерений в метрах.
        */
@@ -87,7 +86,7 @@
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
     getArea: function(e) {
-      return distance = parseFloat(L.GeometryUtil.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
+      return distance = parseFloat(this.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
     },
 
     /**
@@ -115,6 +114,33 @@
         dimension: 1
       });
     },
+
+  /**
+   Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
+   Возможно требует доработок для многоугольников с пересекающимис гранями и составных многоугольников с дырами (Holes)
+   @param {Object} latLngs  Массив точек многоугольника.
+   @returns {Number} Полощадь многоугольника (в метрах).
+   */
+    geodesicArea: function (latLngs) {
+      const DEG_TO_RAD = 0.017453292519943295;;
+      var pointsCount = latLngs.length,
+        area = 0.0,
+        d2r = DEG_TO_RAD,
+        p1, p2;
+
+      if (pointsCount > 2) {
+        for (var i = 0; i < pointsCount; i++) {
+          p1 = latLngs[i];
+          p2 = latLngs[(i + 1) % pointsCount];
+          area += ((p2.lng - p1.lng) * d2r) *
+              (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
+        }
+        area = area * 6378137.0 * 6378137.0 / 2.0;
+      }
+
+      return Math.abs(area);
+    },
+
 
 
   };
