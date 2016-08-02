@@ -32,7 +32,7 @@
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
 
      */
-    _getLabelContent: function(e, latlngs) {
+    _getLabelContent: function(e) {
       var LatLngs = e.layer.editor.getLatLngs()[0];
       var latlngs = e.layer ? LatLngs.slice() : [];
 
@@ -80,12 +80,11 @@
     } else {
       switch (nPoints) {
         case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
-                                        break;
-        case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>' + square;
-                                        break;
+          break;
+        case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>';
+          break;
         default:
           text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + square;
-          //           this.measureLayer.bindTooltip(square, {permanent: true, opacity: 0.9}).openTooltip();
       }
     }
 
