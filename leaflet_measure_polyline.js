@@ -9,6 +9,16 @@
 
     labels: [],
 
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMoveTooltipContent,
+          mousedown:  this.showLabel,
+          end: this.disable
+        },
+      };
+    },
+
     /**
      * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
      * @abstract
@@ -78,13 +88,18 @@
     },
 
     enable: function () {
-      this._latlng = this._map.getCenter();
+//       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
+      this.eventsOn( 'editable:', this.editableEventTree);
       this._onActionsTest();
       this.isDrawing = false;
-      this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on('editable:drawing:mousedown', this.showLabel, this);
+//       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
+//       this._map.on('editable:drawing:mousedown', this.showLabel, this);
       this.measureLayer = this._map.editTools.startPolyline();
+    },
+
+    disable: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
     },
 
     _setMoveTooltipContent: function(e) {

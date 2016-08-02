@@ -7,6 +7,22 @@
   L.Measure.Polygon = L.Polygon.extend({
     includes: L.Measure.Mixin,
 
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        vertex: {
+          dragstart: this._setDragStart,
+          dragend: this._setDragEnd,
+          deleted: this.setVertexDeleted
+        },
+        drawing: {
+          move: this._setMoveTooltipContent,
+          commit: this.showLabel,
+          mousedown:  this._setCommitContent,
+          end: this.disable
+        }
+      };
+    },
+
     /**
      Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
      @abstract
@@ -64,19 +80,17 @@
       return ret;
     },
 
-
   enable: function () {
 //     this._latlng = this._map.getCenter();
     this.editTool = this.enableEdit();
-    this._onActionsTest();
+//     this._onActionsTest();
     this.isDragging = false;
-    this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
-    this._map.on('editable:drawing:commit', this.showLabel, this);
-    this._map.on('editable:drawing:mousedown', this._setCommitContent, this);
-    this._map.on ('editable:vertex:dragstart', this._setDragStart, this);
-    this._map.on ('editable:vertex:dragend', this._setDragEnd, this);
-    this._map.on('editable:vertex:deleted', this.setVertexDeleted, this);
+    this.eventsOn( 'editable:', this.editableEventTree);
     this.measureLayer = this._map.editTools.startPolygon();
+  },
+
+  disable: function() {
+//     this.eventsOff( 'editable:', this.editableEventTree);
   },
 
   _setMoveTooltipContent: function(e) {
@@ -113,6 +127,7 @@
   },
 
   _setDragStart: function(e) {
+    this.measureLayer = e.layer;
     this.isDragging = true;
 
   },
