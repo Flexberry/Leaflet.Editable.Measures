@@ -7,6 +7,20 @@
   L.Measure.Circle = L.Circle.extend({
     includes: L.Measure.Mixin,
 
+        setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMoveTooltipContent,
+//           end: this.disable
+        },
+	vertex: {
+	  dragstart: function() {this.isDrawing = true;},
+	  dragend: this.showLabel
+	}
+      };
+    },
+
+
     _getDefaultOptions: function () {
       return {
         shapeOptions: {
@@ -39,11 +53,13 @@
     enable: function () {
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
-      this._onActionsTest();
+      this.eventOffByPrefix('editable:');
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+//      this._onActionsTest();
       this.isDrawing = false;
-      this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:vertex:dragstart', function() {this.isDrawing = true;}, this);
-      this._map.on ('editable:vertex:dragend', this.showLabel, this);
+//       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
+//       this._map.on ('editable:vertex:dragstart', function() {this.isDrawing = true;}, this);
+//       this._map.on ('editable:vertex:dragend', this.showLabel, this);
       this.measureLayer = this._map.editTools.startCircle();
 
     },

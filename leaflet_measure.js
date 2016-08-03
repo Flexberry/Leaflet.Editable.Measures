@@ -192,29 +192,6 @@
 
     },
 
-     eventsOn: function(prefix,eventTree) {
-      for (var eventSubName in eventTree) {
-        var func = eventTree[eventSubName];
-        var eventName = prefix + eventSubName;
-        if (typeof func == 'function') {
-          this._map.on(eventName, func, this);
-        } else {
-          this.eventsOn(eventName + ':', func);
-        }
-      }
-    },
-
-    eventsOff: function(prefix,eventTree) {
-      for (var eventSubName in eventTree) {
-        var func = eventTree[eventSubName];
-        var eventName = prefix + eventSubName;
-        if (typeof func == 'function') {
-          this._map.off(eventName);
-        } else {
-          this.eventsOff(eventName + ':', func);
-        }
-      }
-    },
 
     /**
      * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
@@ -421,7 +398,44 @@
       this.editTool = null;
     },
 
- _onActionsTest: function() {
+
+     eventsOn: function(prefix, eventTree, offBefore) {
+      for (var eventSubName in eventTree) {
+        var func = eventTree[eventSubName];
+        var eventName = prefix + eventSubName;
+        if (typeof func == 'function') {
+          if (!!offBefore) {
+            this._map.off(eventName);
+          }
+          this._map.on(eventName, func, this);
+        } else {
+          this.eventsOn(eventName + ':', func, offBefore);
+        }
+      }
+    },
+
+    eventsOff: function(prefix,eventTree) {
+      for (var eventSubName in eventTree) {
+        var func = eventTree[eventSubName];
+        var eventName = prefix + eventSubName;
+        if (typeof func == 'function') {
+          this._map.off(eventName);
+        } else {
+          this.eventsOff(eventName + ':', func);
+        }
+      }
+    },
+
+    eventOffByPrefix: function (prefix) {
+      var prefixLen = prefix.length;
+      for (var eventName in this._map._events) {
+        if (eventName.substr(0,prefixLen) == prefix) {
+          this._map.off(eventName);
+        }
+      }
+    },
+
+    _onActionsTest: function() {
 //          this._map.on('editable:created', function() {alert('editable:created');}, this);
    //       this._map.on('editable:disable', function() {alert('editable:disable');}, this);
 //          this._map.on('editable:drag', function() {alert('editable:drag');}, this);
@@ -436,12 +450,12 @@
 //          this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
 //          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
 //          this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
-         this._map.on('editable:editing', function() {alert('editable:editing');}, this);
-         this._map.on('editable:enable', function() {alert('editable:enable');}, this);
+//          this._map.on('editable:editing', function() {alert('editable:editing');}, this);
+//          this._map.on('editable:enable', function() {alert('editable:enable');}, this);
 //          this._map.on('editable:middlemarker:mousedown', function() {alert('editable:middlemarker:mousedown');}, this);
-         this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
-         this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
-         this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
+//          this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
+//          this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
+//          this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
 //          this._map.on('editable:vertex:altclick', function() {alert('editable:vertex:altclick');}, this);
 //          this._map.on('editable:vertex:click', function() {alert('editable:vertex:click');}, this);
 //          this._map.on('editable:vertex:clicked', function() {alert('editable:vertex:clicked');}, this);

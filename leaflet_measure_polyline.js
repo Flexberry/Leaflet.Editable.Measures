@@ -11,6 +11,11 @@
 
     setEvents: function (map, options) {
       this.editableEventTree = {
+        vertex: {
+          dragstart: this._setDragStart,
+          dragend: this._setDragEnd,
+          deleted: this.setVertexDeleted
+        },
         drawing: {
           move: this._setMoveTooltipContent,
           mousedown:  this.showLabel,
@@ -44,19 +49,32 @@
      * @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
     _getLabelContent: function(e) {
-      var latlngs = e.layer ? e.layer.editor._drawnLatLngs.slice() : [];
-      if (latlngs.length == 0 || latlngs[0].equals(e.latlng)) {
-        return '';
+//       var latlngs = e.layer ? e.layer.editor._drawnLatLngs.slice() : [];
+//       if (latlngs.length == 0 || latlngs[0].equals(e.latlng)) {
+//         return '';
+//       }
+//
+//       var layerContainsLatLng = latlngs.filter(function(latlng) {
+//         return latlng.equals(e.latlng);
+//       }).length > 0;
+//
+//       if (!layerContainsLatLng) {
+//         latlngs.push(e.latlng);
+//       }
+      if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
+        latlngs = e.layer.editor.getLatLngs().slice();
+        if (!this.isDragging && !this.vertexDeleted && e.latlng) {
+          var layerContainsLatLng = latlngs.filter(function(latlng) {
+            return latlng.equals(e.latlng);
+          }).length > 0;
+
+          if (!layerContainsLatLng) {
+            latlngs.push(e.latlng);
+          }
+        }
+      } else {
+        latlngs = this.lastLatLng;
       }
-
-      var layerContainsLatLng = latlngs.filter(function(latlng) {
-        return latlng.equals(e.latlng);
-      }).length > 0;
-
-      if (!layerContainsLatLng) {
-        latlngs.push(e.latlng);
-      }
-
       var distance = 0;
       var inc = 0;
       for(var i = 1, len = latlngs.length; i < len; i++) {
@@ -90,8 +108,9 @@
     enable: function () {
 //       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
-      this.eventsOn( 'editable:', this.editableEventTree);
-      this._onActionsTest();
+      this.eventOffByPrefix('editable:');
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+//      this._onActionsTest();
       this.isDrawing = false;
 //       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
 //       this._map.on('editable:drawing:mousedown', this.showLabel, this);
@@ -99,12 +118,13 @@
     },
 
     disable: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
+//       this.eventsOff( 'editable:', this.editableEventTree);
     },
 
     _setMoveTooltipContent: function(e) {
       var text;
-      var nPoints = e.layer.editor._drawnLatLngs.length;
+      var latlngs = e.layer.editor.getLatLngs();
+      var nPoints = latlngs.length;
       if (nPoints > 0) {
         var distances = this._getLabelContent(e);
 
@@ -133,7 +153,8 @@
     },
 
     showLabel: function(e) {
-      if (e.layer.editor._drawnLatLngs.length <= 0) return;
+      var latlngs = e.layer.editor.getLatLngs();
+      if (latlngs.length <= 0) return;
       this._map.closePopup();
       var text = '<b>' + this._getLabelContent(e) + '</b>';
       this.measureLayer.bindTooltip(text, {permanent: true, opacity: 0.75});
@@ -142,6 +163,7 @@
       this.labels.push(this._tooltip);
 
       var text = "Кликните на текущую вершину, чтобы зафиксировать линию";
+      var latlng = e.latlng? e.latlng : e.vertex.latlng;
       this.measurePopup.setLatLng(e.latlng).setContent(text);
       if (!this.measurePopup.isOpen()) {
         this.measurePopup.openOn(this._map);
@@ -149,6 +171,22 @@
 
     },
 
+    _setDragStart: function(e) {
+      this.measureLayer = e.layer;
+      this.isDragging = true;
+
+    },
+    _setDragEnd: function(e) {
+      this.showLabel(e);
+      this.isDragging = false;
+
+    },
+
+    setVertexDeleted: function(e) {
+      this.vertexDeleted = true;
+      this.showLabel(e);
+      this.vertexDeleted = false;
+    },
 
   });
 

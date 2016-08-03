@@ -85,7 +85,8 @@
     this.editTool = this.enableEdit();
 //     this._onActionsTest();
     this.isDragging = false;
-    this.eventsOn( 'editable:', this.editableEventTree);
+    this.eventOffByPrefix('editable:');
+    this.eventsOn( 'editable:', this.editableEventTree, true);
     this.measureLayer = this._map.editTools.startPolygon();
   },
 
