@@ -24,20 +24,6 @@
       drag: 'Кликните по карте, чтобы зафиксировать маркер',
     },
 
-
-    initialize: function (map, options) {
-//       alert('L.Measure.Marker');
-      L.Marker.prototype.initialize.call(this, map, L.Util.extend(this._getDefaultOptions(), options));
-      this._map = map;
-//       this.editTool = this.enableEdit(map);
-      this._map.on ('editable:drag',this._setDragTooltipContent, this);
-      this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
-      this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:drawing:click', this._setLabel, this);
-      this._map.on ('editable:dragend',this._setLabel, this);
-
-    },
-
     /**
      * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
      * @abstract

@@ -50,7 +50,6 @@
       });
     },
 
-
     enable: function () {
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
