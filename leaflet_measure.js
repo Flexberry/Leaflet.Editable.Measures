@@ -5,7 +5,6 @@
    */
   L.Measure = L.Measure || {
 
-
     /**
      * Количество знаков после десятичного разделителя для измерений в метрах.
        */
@@ -87,7 +86,7 @@
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
     getArea: function(e) {
-      return distance = parseFloat(L.GeometryUtil.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
+      return distance = parseFloat(this.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
     },
 
     /**
@@ -115,6 +114,33 @@
         dimension: 1
       });
     },
+
+  /**
+   Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
+   Возможно требует доработок для многоугольников с пересекающимис гранями и составных многоугольников с дырами (Holes)
+   @param {Object} latLngs  Массив точек многоугольника.
+   @returns {Number} Полощадь многоугольника (в метрах).
+   */
+    geodesicArea: function (latLngs) {
+      const DEG_TO_RAD = 0.017453292519943295;;
+      var pointsCount = latLngs.length,
+        area = 0.0,
+        d2r = DEG_TO_RAD,
+        p1, p2;
+
+      if (pointsCount > 2) {
+        for (var i = 0; i < pointsCount; i++) {
+          p1 = latLngs[i];
+          p2 = latLngs[(i + 1) % pointsCount];
+          area += ((p2.lng - p1.lng) * d2r) *
+              (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
+        }
+        area = area * 6378137.0 * 6378137.0 / 2.0;
+      }
+
+      return Math.abs(area);
+    },
+
 
 
   };
@@ -154,16 +180,18 @@
         this.basePrototype = L.Marker.prototype;
       } else if (this instanceof L.Circle) {
         this.basePrototype = L.Circle.prototype;
+      } else if (this instanceof L.Polygon) {
+        this.basePrototype = L.Polygon.prototype;
       } else if (this instanceof L.Polyline) {
         this.basePrototype = L.Polyline.prototype;
-      } else if (this instanceof L.Polygon) {
-        lthis.basePrototype = L.Polygon.prototype;
       } else {
         ;
       }
+      this.setEvents();
       this.basePrototype.initialize.call(this, map, L.Util.extend(this._getDefaultOptions(), options));
 
     },
+
 
     /**
      * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
@@ -371,8 +399,138 @@
     },
 
 
+     eventsOn: function(prefix, eventTree, offBefore) {
+      for (var eventSubName in eventTree) {
+        var func = eventTree[eventSubName];
+        var eventName = prefix + eventSubName;
+        if (typeof func == 'function') {
+          if (!!offBefore) {
+            this._map.off(eventName);
+          }
+          this._map.on(eventName, func, this);
+        } else {
+          this.eventsOn(eventName + ':', func, offBefore);
+        }
+      }
+    },
+
+    eventsOff: function(prefix,eventTree) {
+      for (var eventSubName in eventTree) {
+        var func = eventTree[eventSubName];
+        var eventName = prefix + eventSubName;
+        if (typeof func == 'function') {
+          this._map.off(eventName);
+        } else {
+          this.eventsOff(eventName + ':', func);
+        }
+      }
+    },
+
+    eventOffByPrefix: function (prefix) {
+      var prefixLen = prefix.length;
+      for (var eventName in this._map._events) {
+        if (eventName.substr(0,prefixLen) == prefix) {
+          this._map.off(eventName);
+        }
+      }
+    },
+
+    _onActionsTest: function() {
+//          this._map.on('editable:created', function() {alert('editable:created');}, this);
+   //       this._map.on('editable:disable', function() {alert('editable:disable');}, this);
+//          this._map.on('editable:drag', function() {alert('editable:drag');}, this);
+//          this._map.on('editable:dragend', function() {alert('editable:dragend');}, this);
+//          this._map.on('editable:dragstart', function() {alert('editable:dragstart');}, this);
+//          this._map.on('editable:drawing:cancel', function() {alert('editable:drawing:cancel');}, this);
+//          this._map.on('editable:drawing:click', function() {alert('editable:drawing:click');}, this);
+//          this._map.on('editable:drawing:clicked', function() {alert('editable:drawing:clicked');}, this);
+//          this._map.on('editable:drawing:commit', function() {alert('editable:drawing:commit');}, this);
+//          this._map.on('editable:drawing:end', function() {alert('editable:drawing:end');}, this);
+//          this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
+//          this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
+//          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
+//          this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
+//          this._map.on('editable:editing', function() {alert('editable:editing');}, this);
+//          this._map.on('editable:enable', function() {alert('editable:enable');}, this);
+//          this._map.on('editable:middlemarker:mousedown', function() {alert('editable:middlemarker:mousedown');}, this);
+//          this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
+//          this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
+//          this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
+//          this._map.on('editable:vertex:altclick', function() {alert('editable:vertex:altclick');}, this);
+//          this._map.on('editable:vertex:click', function() {alert('editable:vertex:click');}, this);
+//          this._map.on('editable:vertex:clicked', function() {alert('editable:vertex:clicked');}, this);
+//          this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
+//          this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
+//          this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
+//          this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
+//          this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
+//          this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
+//          this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
+//          this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
+//          this._map.on('editable:vertex:rawclick', function() {alert('editable:vertex:rawclick');}, this);
+//          this._map.on('editable:vertex:shiftclick', function() {alert('editable:vertex:shiftclick');}, this);
+ },
+
+ /* Events order:
+
+    Circle:
+      До первого клика
+      editable:enable
+      editable:drawing:start
+      editable:drawing:move
+    Клик и перемещение, изменение размера круга
+      editable:drawing:mousedown
+      editable:vertex:dragstart
+      editable:drawing:move
+      editable:vertex:drag
+      editable:editing
+     отпуск клавиши
+      editable:drawing:commit
+      editable:drawing:end
+      editable:vertex:dragend
 
 
+
+
+    Polyline:
+      До первого клика
+        editable:enable
+        editable:shape:new
+        editable:drawing:start
+        editable:drawing:move
+      1-й клик и последующие клики
+        editable:drawing:mousedown
+        editable:drawing:click
+        editable:editing
+        editable:drawing:clicked
+      Commit:
+        editable:vertex:mousedown
+        editable:vertex:click
+        editable:vertex:clicked
+        editable:drawing:commit
+        editable:drawing:end
+      Перетаскивание вершины:
+        editable:vertex:dragstart
+        editable:drawing:move
+        editable:vertex:dragend
+      Удаление вершины:
+        editable:vertex:click
+        editable:vertex:rawclick
+        editable:vertex:deleted
+        editable:vertex:clicked
+      Перетаскивание срединного маркера
+      editable:middlemarker:mousedown
+      editable:vertex:dragstart
+      editable:drawing:move
+      editable:vertex:dragend
+
+
+
+
+
+
+
+  * */
 
   };
 

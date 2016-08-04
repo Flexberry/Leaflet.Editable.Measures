@@ -7,6 +7,19 @@
   L.Measure.Marker = L.Marker.extend({
     includes: L.Measure.Mixin,
 
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMoveTooltipContent,
+          clicked: this.showLabel,
+//           end: this.disable
+        },
+        drag: this._setDragTooltipContent,
+        dragstart: this._setDragStartTooltipContent,
+        dragend: this.showLabel
+      };
+    },
+
     tooltipText: {
       drag: 'Кликните по карте, чтобы зафиксировать маркер',
     },
@@ -64,18 +77,15 @@
        */
     enable: function () {
       this.editTool = this.enableEdit();
-      this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
-// //       this._map.on ('editable:dragstart',function() {alert('editable:dragstart');}, this);
-//       this._map.on ('editable:drawing:commit',function() {alert('editable:drawing:commit');}, this);
-
-      //       this._map.on ('mouseover',function() {alert('over');});
-      this._map.on ('editable:drag',this._setDragTooltipContent, this);
-      this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
-
-      this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:drawing:click', this._setLabel, this);
-      this._map.on ('editable:dragend',this._setLabel, this);
-      this.measureLayer = map.editTools.startMarker();
+      this.eventOffByPrefix('editable:');
+      this.eventsOn('editable:', this.editableEventTree, true);
+//       this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
+//       this._map.on ('editable:drag',this._setDragTooltipContent, this);
+//       this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
+//       this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
+//       this._map.on ('editable:drawing:click', this._setLabel, this);
+//       this._map.on ('editable:dragend',this._setLabel, this);
+      this.measureLayer = this._map.editTools.startMarker();
     },
 
       /**
@@ -91,7 +101,7 @@
       var coords = this._getLabelContent();
       text += "<br>" + coords;
       if (!this._map.hasLayer(this.measureLayer)) {
-        this.measureLayer.addTo(this._map)
+        this.measureLayer.addTo(this._map);
       }
       if (this.measureLayer._tooltip) {
         this.measureLayer._tooltip.setTooltipContent(text);
@@ -115,7 +125,7 @@
       this.measureLayer = e.layer;
     },
 
-    _setLabel: function(e) {
+    showLabel: function(e) {
       var coords = this._getLabelContent();
       text = "<b>" + coords + '</b>';
       if (this.measureLayer._tooltip) {

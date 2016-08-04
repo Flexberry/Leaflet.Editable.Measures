@@ -6,11 +6,21 @@
    */
   L.Measure.Circle = L.Circle.extend({
     includes: L.Measure.Mixin,
-    /**
-     * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     * @abstract
-     * @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
+
+        setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMoveTooltipContent,
+//           end: this.disable
+        },
+	vertex: {
+	  dragstart: function() {this.isDrawing = true;},
+	  dragend: this.showLabel
+	}
+      };
+    },
+
+
     _getDefaultOptions: function () {
       return {
         shapeOptions: {
@@ -41,27 +51,48 @@
     },
 
 
-    /* Методы добавленные апи переходе на Editable */
-
-    /**
-     *        Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
-     */
     enable: function () {
+      this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
-      this._map.on ('editable:drawing:mouseup',function() {alert('editable:drawing:mouseup');}, this);
-      // //       this._map.on ('editable:dragstart',function() {alert('editable:dragstart');}, this);
-      //       this._map.on ('editable:drawing:commit',function() {alert('editable:drawing:commit');}, this);
+      this.eventOffByPrefix('editable:');
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+//      this._onActionsTest();
+      this.isDrawing = false;
+//       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
+//       this._map.on ('editable:vertex:dragstart', function() {this.isDrawing = true;}, this);
+//       this._map.on ('editable:vertex:dragend', this.showLabel, this);
+      this.measureLayer = this._map.editTools.startCircle();
 
-      //       this._map.on ('mouseover',function() {alert('over');});
-      this._map.on ('editable:drag',this._setDragTooltipContent, this);
-      this._map.on ('editable:dragstart',this._setDragStartTooltipContent, this);
-
-      this._map.on ('editable:drawing:move', this._setMoveTooltipContent, this);
-      this._map.on ('editable:drawing:click', this._setLabel, this);
-      this._map.on ('editable:dragend',this._setLabel, this);
-      this.measureLayer = map.editTools.startMarker();
     },
-    
+
+    _setMoveTooltipContent: function(e) {
+//       alert('editable:drawing:move');
+      var text = this.isDrawing ?
+      'Отпустите кнопку мыши, чтобы зафиксировать круг.' :
+      'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
+      this.measurePopup = L.popup()
+      this.measurePopup.setLatLng(e.latlng)
+      .setContent(text);
+      this.measurePopup.openOn(this._map);
+    },
+
+    showLabel: function(e) {
+      var text = '<b>' + this._getLabelContent(e) + '</b>';
+      if (this._map.hasLayer(this.measurePopup)) {
+        this._map.closePopup();
+        this._map.removeLayer(this.measurePopup);
+      }
+      if (this.measureLayer._tooltip) {
+        this.measureLayer.closeTooltip(this.measureLayer._tooltip);
+      }
+      this.measureLayer.bindTooltip(text, {permanent: true, opacity: 0.9}).openTooltip();
+      this.measureLayer.addTo(this._map);
+      this.measureLayer.label = this.measureLayer._tooltip;
+      this._map.off('editable:drawing:move', this._setMoveTooltipContent, this);
+
+    },
+
+
   });
 
   /**
