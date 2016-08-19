@@ -208,7 +208,7 @@
   * @param {Object[]} e.markers Массив маркеров, к которым должны быть привязаны лейблы.
   * @param {Object[]} e.hiddenMarkers Массив маркеров, для которых не нужно отображать лэйблы.
   */
- _updateLabels: function(e) {
+ _updateTooltips: function(e) {
    for (var i = 0; i < e.markers.length; i++) {
      var marker = e.markers[i];
      var latlng = marker.getLatLng();
@@ -216,28 +216,18 @@
 
      if (e.hiddenMarkers.indexOf(marker) < 0) {
        marker.bindTooltip(labelText, {permanent: true, opacity: 0.75});
-//        marker._tooltip.setLatLng(e.latlng);
+       marker._tooltip.setLatLng(latlng);
        marker.addTo(this._map);
      }
-//      if (!marker.label) {
-//        marker.bindLabel(labelText, {
-//          noHide: true,
-//          pane: 'popupPane'
-//        });
-//      }
-//
-//      marker.label.setContent(labelText);
-
-//      var showLabel = e.hiddenMarkers.filter(function(hiddenMarker) {
-//        return hiddenMarker.getLatLng().equals(latlng);
-//      }).length == 0;
-//
-//      if (showLabel) {
-//        marker.showLabel();
-//      } else {
-//        marker.hideLabel();
-//      }
    }
+   this._updateMeasureTooltip(e); //Обновить tooltip измеряемого объекта
+ },
+
+ /**
+ Метод обновления основного tooltip'а измеряемого объекта
+ @param {Object} e Аргументы метода.
+ */
+ _updateMeasureTooltip: function(e) {
  },
 
  /**
@@ -296,7 +286,7 @@
 //       });
 //
 //       editTool.enable();
-      this._updateLabels({
+      this._updateTooltips({
         layer: layer,
         markers: this._getEditToolMarkers(editor),
         hiddenMarkers: this._getEditToolHiddenMarkers(editor)
@@ -319,7 +309,7 @@
    _onEditToolMarkerDrag: function(e) {
      e.editTool._lastDraggedMarker = e.marker;
 
-     this._updateLabels({
+     this._updateTooltips({
        layer: e.layer,
        markers: this._getEditToolMarkers({
          editTool: e.editTool
@@ -366,7 +356,7 @@
         this._tooltip = null
       };
 
-      this._updateLabels({
+      this._updateTooltips({
         layer: e.layer,
         markers: this._getEditToolMarkers({
           editTool: e.editTool
