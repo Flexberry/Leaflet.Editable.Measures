@@ -117,7 +117,7 @@
 
   /**
    Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
-   Возможно требует доработок для многоугольников с пересекающимис гранями и составных многоугольников с дырами (Holes)
+   Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
    @param {Object} latLngs  Массив точек многоугольника.
    @returns {Number} Полощадь многоугольника (в метрах).
    */
@@ -161,9 +161,6 @@
       this._map = map;
 
       options = options || {};
-      if (options.repeatMode !== false) {
-        options.repeatMode = true;
-      }
       if (options.layerGroup) {
         this._layerGroup = options.layerGroup;
       } else {
@@ -215,29 +212,31 @@
    for (var i = 0; i < e.markers.length; i++) {
      var marker = e.markers[i];
      var latlng = marker.getLatLng();
-     var labelText = this._getLabelContent({
-       layer: e.layer,
-       latlng: latlng
-     });
+     var labelText = this._getLabelContent(e.layer, latlng);
 
-     if (!marker.label) {
-       marker.bindLabel(labelText, {
-         noHide: true,
-         pane: 'popupPane'
-       });
+     if (e.hiddenMarkers.indexOf(marker) < 0) {
+       marker.bindTooltip(labelText, {permanent: true, opacity: 0.75});
+//        marker._tooltip.setLatLng(e.latlng);
+       marker.addTo(this._map);
      }
+//      if (!marker.label) {
+//        marker.bindLabel(labelText, {
+//          noHide: true,
+//          pane: 'popupPane'
+//        });
+//      }
+//
+//      marker.label.setContent(labelText);
 
-     marker.label.setContent(labelText);
-
-     var showLabel = e.hiddenMarkers.filter(function(hiddenMarker) {
-       return hiddenMarker.getLatLng().equals(latlng);
-     }).length == 0;
-
-     if (showLabel) {
-       marker.showLabel();
-     } else {
-       marker.hideLabel();
-     }
+//      var showLabel = e.hiddenMarkers.filter(function(hiddenMarker) {
+//        return hiddenMarker.getLatLng().equals(latlng);
+//      }).length == 0;
+//
+//      if (showLabel) {
+//        marker.showLabel();
+//      } else {
+//        marker.hideLabel();
+//      }
    }
  },
 
@@ -264,7 +263,6 @@
 
    /**
      * Обработчик события, сигнализирующего о завершении отрисовки измерений.
-     * Переопределяет обработчик базового класса.
      */
     _fireCreatedEvent: function (created) {
       var layer = created.layer;
@@ -281,34 +279,28 @@
         layerType = 'unknown;'
       }
 
-
-
       this._layerGroup.addLayer(layer);
-
-      var editTool = this._createEditTool({
-        layer: layer
-      });
-      this.editTool = editTool;
+//       var editTool = this._createEditTool({
+//         layer: layer
+//       });
+//       this.editTool = editTool;
 
       layer.on('remove', function(e) {
-        editTool.disable();
+        this.editTool.disable();
       });
+      var editor = created.layer.editor;
 
-      this._attachEditHandlers({
-        layer: layer,
-        editTool: editTool
-      });
+//       this._attachEditHandlers({
+//         layer: layer,
+//         editTool: editTool
+//       });
 //
 //       editTool.enable();
-//       this._updateLabels({
-//         layer: layer,
-//         markers: this._getEditToolMarkers({
-//           editTool: editTool
-//         }),
-//         hiddenMarkers: this._getEditToolHiddenMarkers({
-//           editTool: editTool
-//         })
-//       });
+      this._updateLabels({
+        layer: layer,
+        markers: this._getEditToolMarkers(editor),
+        hiddenMarkers: this._getEditToolHiddenMarkers(editor)
+      });
 //
       this.fire('measure:created', {
         layer: layer,

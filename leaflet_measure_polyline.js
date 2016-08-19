@@ -18,8 +18,8 @@
         },
         drawing: {
           move: this._setMoveTooltipContent,
-          mousedown:  this.showLabel,
-          end: this.disable
+          clicked: this.showLabel,
+          end: this._fireCreatedEvent
         },
       };
     },
@@ -48,49 +48,39 @@
      * @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
      * @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
-    _getLabelContent: function(e) {
-//       var latlngs = e.layer ? e.layer.editor._drawnLatLngs.slice() : [];
-//       if (latlngs.length == 0 || latlngs[0].equals(e.latlng)) {
-//         return '';
-//       }
-//
-//       var layerContainsLatLng = latlngs.filter(function(latlng) {
-//         return latlng.equals(e.latlng);
-//       }).length > 0;
-//
-//       if (!layerContainsLatLng) {
-//         latlngs.push(e.latlng);
-//       }
-      if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
-        latlngs = e.layer.editor.getLatLngs().slice();
-        if (!this.isDragging && !this.vertexDeleted && e.latlng) {
-          var layerContainsLatLng = latlngs.filter(function(latlng) {
-            return latlng.equals(e.latlng);
-          }).length > 0;
-
-          if (!layerContainsLatLng) {
-            latlngs.push(e.latlng);
-          }
-        }
-      } else {
-        latlngs = this.lastLatLng;
+    _getLabelContent: function(layer, latlng) {
+      var latlngs = layer.editor.getLatLngs().slice();
+      var index =  latlngs.indexOf(latlng);
+      if (index < 0) {
+        latlngs.push(latlng);
+        index = latlngs.length - 1;
       }
+
+//       if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
+//         latlngs = e.layer.editor.getLatLngs().slice();
+//         if (!this.isDragging && !this.vertexDeleted && e.latlng) {
+//           var layerContainsLatLng = latlngs.filter(function(latlng) {
+//             return latlng.equals(e.latlng);
+//           }).length > 0;
+//
+//           if (!layerContainsLatLng) {
+//             latlngs.push(e.latlng);
+//           }
+//         }
+//       } else {
+//         latlngs = this.lastLatLng;
+//       }
       var distance = 0;
       var inc = 0;
-      for(var i = 1, len = latlngs.length; i < len; i++) {
+      var currentInc = 0;
+      for(var i = 1; i <= index; i++) {
         var prevLatLng = latlngs[i - 1];
         var currentLatLng = latlngs[i];
-        var currentInc = L.Measure.getDistance({
+        currentInc = L.Measure.getDistance({
           latlng1: prevLatLng,
           latlng2: currentLatLng
         });
-
         distance += currentInc;
-
-        if (currentLatLng.equals(e.latlng)) {
-          inc = currentInc;
-          break;
-        }
       }
 
       return L.Measure.getMeasureText({
@@ -99,11 +89,37 @@
       }) +
       '<br><span class="measure-path-label-incdistance">+' +
       L.Measure.getMeasureText({
-        value: inc,
+        value: currentInc,
         dimension: 1
       }) +
       '</span>';
     },
+
+    /**
+     * Метод для получения маркеров инструмента редактирования.
+     * @param {Object} editor Инструмент редактирования.
+     * @returns {Object[]} Массив маркеров инструмента редактирования.
+     */
+    _getEditToolMarkers: function(editor) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      for(var i = 0, len = latlngs.length; i < len; i++) {
+        markers.push(latlngs[i].__vertex);
+      }
+      return markers;
+    },
+
+    /**
+     * Метод для привязки обработчиков событий редактирования отрисованного слоя.
+     * @param {Object} editor Инструмент редактирования.
+     * @returns {Object[]} Массив маркеров редактируемого слоя, для которых не нужно отображать лейблы.
+     */
+    _getEditToolHiddenMarkers: function(editor) {
+      var latlngs = editor.getLatLngs();
+      if (latlngs.length <=0) return [];
+      return [latlngs[0].__vertex];
+    },
+
 
     enable: function () {
 //       this._latlng = this._map.getCenter();
@@ -126,8 +142,7 @@
       var latlngs = e.layer.editor.getLatLngs();
       var nPoints = latlngs.length;
       if (nPoints > 0) {
-        var distances = this._getLabelContent(e);
-
+        var distances = this._getLabelContent(e.layer, e.latlng);
       }
       switch (nPoints) {
         case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
@@ -156,11 +171,12 @@
       var latlngs = e.layer.editor.getLatLngs();
       if (latlngs.length <= 0) return;
       this._map.closePopup();
-      var text = '<b>' + this._getLabelContent(e) + '</b>';
-      this.measureLayer.bindTooltip(text, {permanent: true, opacity: 0.75});
-      this.measureLayer._tooltip.setLatLng(e.latlng);
-      this.measureLayer.addTo(this._map);
-      this.labels.push(this._tooltip);
+      var text = '<b>' + this._getLabelContent(e.layer, e.latlng) + '</b>';
+      var vertex = e.latlng.__vertex;
+      vertex.bindTooltip(text, {permanent: true, opacity: 0.75});
+      vertex._tooltip.setLatLng(e.latlng);
+      vertex.addTo(this._map);
+//       this.labels.push(this._tooltip);
 
       var text = "Кликните на текущую вершину, чтобы зафиксировать линию";
       var latlng = e.latlng? e.latlng : e.vertex.latlng;
