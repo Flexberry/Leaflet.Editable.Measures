@@ -17,7 +17,7 @@
           deleted: this._setVertexDeleted
         },
         drawing: {
-          move: this._setMoveTooltipContent,
+          move: this._setMove,
           clicked: this._setClicked,
           mousedown: this._setMouseDown,
           end: this._setDrawingEnd
@@ -119,7 +119,7 @@
 //       this.eventsOff( 'editable:', this.editableEventTree);
     },
 
-    _setMoveTooltipContent: function(e) {
+    _setMove: function(e) {
       var text;
       var latlngs = e.layer.editor.getLatLngs();
       var nPoints = latlngs.length;
@@ -158,7 +158,7 @@
       this._map.closePopup();
       var text = this._getLabelContent(e.layer, e.latlng);
       var vertex = e.latlng.__vertex;
-      this._showLabel(vertex, e.latlng, text);
+      this._showLabel(vertex, text, e.latlng);
     },
 
     _setDrawingEnd: function(e) {
@@ -174,8 +174,6 @@
       this.isDragging = false;
       this._fireEvent(e, 'editend');
     },
-
-
 
     _setVertexDeleted: function(e) {
       this._fireEvent(e, 'editend');

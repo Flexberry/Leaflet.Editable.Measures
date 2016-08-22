@@ -58,14 +58,17 @@ var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup }
 
 <script>
 function measureCreated(params) {
-  alert('measure:created layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-}
+//   alert('measure:created layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+  alert('measure:created layerType=' + params.layerType );
+  }
 function measureEdit(params) {
-//   alert('measure:edit layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-}
+  //   alert('measure:edit layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+//     alert('measure:edit layerType=' + params.layerType  );
+  }
 function measureEditend(params) {
-  alert('measure:editend layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-}
+//   alert('measure:editend layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+  alert('measure:editend layerType=' + params.layerType);
+  }
 
 map.on('measure:created', measureCreated);
 map.on('measure:edit', measureEdit);

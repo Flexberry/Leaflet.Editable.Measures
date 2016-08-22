@@ -186,7 +186,6 @@
       }
       this.setEvents();
       this.basePrototype.initialize.call(this, map, L.Util.extend(this._getDefaultOptions(), options));
-
     },
 
 
@@ -214,13 +213,7 @@
 //      var latlng = marker.getLatLng();
       var latlng = marker.latlng;
       var labelText = this._getLabelContent(layer, latlng);
-      this._showLabel(marker, latlng, labelText);
-//       if (!marker._tooltip) {
-//         marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
-//       } else {
-//         marker.setTooltipContent(labelText);
-//       }
-//       marker._tooltip.setLatLng(latlng);
+      this._showLabel(marker, labelText, latlng);
    }
    var unlabelledMarkers = this._unlabelledMarkers(editor);
    for (var i = 0; i < unlabelledMarkers.length; i++) {
@@ -230,13 +223,15 @@
    this._updateMeasureLabel(layer); //Обновить tooltip измеряемого объекта
  },
 
- _showLabel: function(marker, latlng, labelText) {
+ _showLabel: function(marker, labelText, latlng) {
    if (!marker._tooltip) {
      marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
    } else {
      marker.setTooltipContent(labelText);
    }
-   marker._tooltip.setLatLng(latlng);
+   if (latlng) {
+     marker._tooltip.setLatLng(latlng);
+   }
  },
 
  /**
@@ -291,13 +286,13 @@
     var layer = e.layer;
     var layerType;
     if (layer instanceof L.Marker) {
-      layerType = 'marker;'
+      layerType = 'marker'
     } else if (layer instanceof L.Circle) {
-      layerType = 'circle;'
+      layerType = 'circle'
     } else if (layer instanceof L.Polyline) {
-      layerType = 'polyline;'
+      layerType = 'polyline'
     } else if (layer instanceof L.Polygon) {
-      layerType = 'polygon;'
+      layerType = 'polygon'
     } else {
       layerType = 'unknown;'
     }
@@ -309,83 +304,13 @@
       });
     }
     this._updateLabels(layer);
-    this.fire('measure:'+ type, {
+    this._map.fire('measure:'+ type, {
       layer: layer,
       layerType: layerType
     });
     return true;
   },
 
-//  /**
-//  * Обработчик события, сигнализирующего о перемещении маркера на инструменте редактирования.
-//  * @param {Object} e Аргументы события.
-//  * @param {Object} e.layer Слой, к редактированию которого приводит перемещение маркера.
-//  * @param {Object} e.editTool Инструмент редактирования слоя.
-//  * @param {Object} e.marker Перемещаемый маркер.
-//  */
-//    _onEditToolMarkerDrag: function(e) {
-//      e.editTool._lastDraggedMarker = e.marker;
-//
-//      this._updateLabels({
-//        layer: e.layer,
-//        markers: this._getEditToolMarkers({
-//          editTool: e.editTool
-//        }),
-//        hiddenMarkers: this._getEditToolHiddenMarkers({
-//          editTool: e.editTool
-//        })
-//      });
-//
-//      if (e.marker.label) {
-//        e.marker.hideLabel();
-//      }
-//
-//      var tooltipSubtext = L.drawLocal.draw.handlers[this.type].tooltip;
-//      this._tooltip.updatePosition(e.marker.getLatLng());
-//      this._tooltip.updateContent({
-//        text: e.marker.label._content,
-//        subtext: tooltipSubtext.edit
-//        ? tooltipSubtext.edit
-//        : tooltipSubtext.end
-//      });
-//
-//      e.layer.fire('measure:edit');
-//    },
-//
-//     /**
-//      * Метод для привязки обработчиков событий редактирования отрисованного слоя.
-//      * @abstract
-//      * @param {Object} e Аргументы метода.
-//      * @param {Object} e.layer Слой, редактирование которого будет обрабатываться привязываемыми обработчиками.
-//      * @returns {Object} e.editTool Инструмент редактирования слоя.
-//      */
-//     _attachEditHandlers: function(e) {
-//     },
-//     /**
-//      * Обработчик события, сигнализирующего о завершении редактирования слоя.
-//      * @param {Object} e Аргументы события.
-//      * @param {Object} e.layer Отредактированный слой.
-//      * @param {Object} e editTool Инструмент редактирования слоя.
-//      */
-//     _onEditToolEditEnd: function(e) {
-//       if (this._tooltip) {
-//         this._tooltip.dispose();
-//         this._tooltip = null
-//       };
-//
-//       this._updateLabels({
-//         layer: e.layer,
-//         markers: this._getEditToolMarkers({
-//           editTool: e.editTool
-//         }),
-//         hiddenMarkers: this._getEditToolHiddenMarkers({
-//           editTool: e.editTool
-//         })
-//       });
-//       e.layer.fire('measure:editend');
-//     },
-
- /* МЕТОДЫ Leaflet.draw END */
 
 
     /* Методы добавленные при переходе на Editable */
@@ -494,8 +419,7 @@
     Circle:
       До первого клика
       editable:enable
-      editable:drawing:start      var text = '<b>' + this._getLabelContent(e.layer, e.latlng) + '</b>';
-      var vertex = e.latlng.__vertex;
+      editable:drawing:start
       editable:drawing:move
     Клик и перемещение, изменение размера круга
       editable:drawing:mousedown
@@ -503,7 +427,7 @@
       editable:drawing:move
       editable:vertex:drag
       editable:editing
-     отпуск клавиши
+    Отпуск клавиши
       editable:drawing:commit
       editable:drawing:end
       editable:vertex:dragend
