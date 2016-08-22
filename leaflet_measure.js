@@ -203,30 +203,37 @@
 
 
  /**
-  * Метод для обновления лейблов, содержащих результаты измерений.
-  * @param {Object} e Аргументы метода.
-  * @param {Object[]} e.markers Массив маркеров, к которым должны быть привязаны лейблы.
-  * @param {Object[]} e.hiddenMarkers Массив маркеров, для которых не нужно отображать лэйблы.
+  Метод для обновления лейблов, содержащих результаты измерений.
+  @param {Object} layer Редактируемый слой.
   */
- _updateTooltips: function(e) {
-   for (var i = 0; i < e.markers.length; i++) {
-     var marker = e.markers[i];
-     var latlng = marker.getLatLng();
-     if (e.hiddenMarkers.indexOf(marker) < 0) {
-       var labelText = this._getLabelContent(e.layer, latlng);
-       marker.bindTooltip(labelText, {permanent: true, opacity: 0.75});
-       marker._tooltip.setLatLng(latlng);
-       marker.addTo(this._map);
-     }
+ _updateLabels: function(layer) {
+    var editor = layer.editor;
+    var labelledMarkers = this._labelledMarkers(editor);
+    for (var i = 0; i < labelledMarkers.length; i++) {
+      var marker = labelledMarkers[i];
+//      var latlng = marker.getLatLng();
+      var latlng = marker.latlng;
+      var labelText = this._getLabelContent(layer, latlng);
+      if (!marker._tooltip) {
+        marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
+      } else {
+        marker.setTooltipContent(labelText);
+      }
+      marker._tooltip.setLatLng(latlng);
    }
-   this._updateMeasureTooltip(e); //Обновить tooltip измеряемого объекта
+   var unlabelledMarkers = this._unlabelledMarkers(editor);
+   for (var i = 0; i < unlabelledMarkers.length; i++) {
+     var marker = unlabelledMarkers[i];
+     marker.unbindTooltip();
+   }
+   this._updateMeasureLabel(layer); //Обновить tooltip измеряемого объекта
  },
 
  /**
- Метод обновления основного tooltip'а измеряемого объекта
- @param {Object} e Аргументы метода.
+ Метод обновления основного лейбла измеряемого объекта
+ @param {Object} layer Редактируемый слой.
  */
- _updateMeasureTooltip: function(e) {
+ _updateMeasureLabel: function(layer) {
  },
 
  /**
@@ -235,7 +242,7 @@
   * @param {Object} e Аргументы события.
   * @param {Object} e.latlng Точка на карте, соответствующая текущей точке курсора мыши.
   */
- _onDrawingStart: function(e) {
+ _onDrawingStart: function(layer) {
 //    this.basePrototype._onDrawingStart.call(this, e);
 
    this._tooltip.updateContent({
@@ -285,11 +292,7 @@
 //       });
 //
 //       editTool.enable();
-      this._updateTooltips({
-        layer: layer,
-        markers: this._getEditToolMarkers(editor),
-        hiddenMarkers: this._getEditToolHiddenMarkers(editor)
-      });
+      this._updateLabels(layer);
 //
       this.fire('measure:created', {
         layer: layer,
@@ -308,7 +311,7 @@
    _onEditToolMarkerDrag: function(e) {
      e.editTool._lastDraggedMarker = e.marker;
 
-     this._updateTooltips({
+     this._updateLabels({
        layer: e.layer,
        markers: this._getEditToolMarkers({
          editTool: e.editTool
@@ -355,7 +358,7 @@
         this._tooltip = null
       };
 
-      this._updateTooltips({
+      this._updateLabels({
         layer: e.layer,
         markers: this._getEditToolMarkers({
           editTool: e.editTool

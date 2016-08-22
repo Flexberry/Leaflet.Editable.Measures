@@ -94,30 +94,57 @@
       '</span>';
     },
 
-    /**
-     * Метод для получения маркеров инструмента редактирования.
-     * @param {Object} editor Инструмент редактирования.
-     * @returns {Object[]} Массив маркеров инструмента редактирования.
-     */
-    _getEditToolMarkers: function(editor) {
+
+    /*
+      Метод для получения маркеров инструмента редактирования, имеющих метки
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
+    */
+    _labelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
       var markers = [];
-      for(var i = 0, len = latlngs.length; i < len; i++) {
+      for(var i = 1, len = latlngs.length; i < len; i++) {
         markers.push(latlngs[i].__vertex);
       }
       return markers;
     },
 
-    /**
-     * Метод для привязки обработчиков событий редактирования отрисованного слоя.
-     * @param {Object} editor Инструмент редактирования.
-     * @returns {Object[]} Массив маркеров редактируемого слоя, для которых не нужно отображать лейблы.
-     */
-    _getEditToolHiddenMarkers: function(editor) {
+    /*
+      Метод для получения маркеров инструмента редактирования, не имеющих меток
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
+    _unlabelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
-      if (latlngs.length <=0) return [];
-      return [latlngs[0].__vertex];
+      var markers = [];
+      markers.push(latlngs[0].__vertex)
+      return markers;
     },
+
+//     /**
+//      * Метод для получения маркеров инструмента редактирования.
+//      * @param {Object} editor Инструмент редактирования.
+//      * @returns {Object[]} Массив маркеров инструмента редактирования.
+//      */
+//     _getEditToolMarkers: function(editor) {
+//       var latlngs = editor.getLatLngs();
+//       var markers = [];
+//       for(var i = 0, len = latlngs.length; i < len; i++) {
+//         markers.push(latlngs[i].__vertex);
+//       }
+//       return markers;
+//     },
+//
+//     /**
+//      * Метод для привязки обработчиков событий редактирования отрисованного слоя.
+//      * @param {Object} editor Инструмент редактирования.
+//      * @returns {Object[]} Массив маркеров редактируемого слоя, для которых не нужно отображать лейблы.
+//      */
+//     _getEditToolHiddenMarkers: function(editor) {
+//       var latlngs = editor.getLatLngs();
+//       if (latlngs.length <=0) return [];
+//       return [latlngs[0].__vertex];
+//     },
 
 
     enable: function () {
@@ -143,13 +170,9 @@
       if (this.isDragging) {
         var layer = e.layer;
         var editor = layer.editor;
-        this._updateTooltips({
-          layer: layer,
-          markers: this._getEditToolMarkers(editor),
-          hiddenMarkers: this._getEditToolHiddenMarkers(editor)
-        });
+        this._updateLabels(layer);
       } else {
-      if (nPoints > 0) {
+        if (nPoints > 0) {
           var distances = this._getLabelContent(e.layer, e.latlng);
         }
         switch (nPoints) {
@@ -200,8 +223,10 @@
       this.isDragging = true;
 
     },
+
     _setDragEnd: function(e) {
-      this.showLabel(e);
+      var layer = e.layer;
+      this._updateLabels(layer);
       this.isDragging = false;
 
     },
