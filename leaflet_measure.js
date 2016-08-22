@@ -236,139 +236,144 @@
  _updateMeasureLabel: function(layer) {
  },
 
- /**
-  * Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
-  * Переопределяет обработчик базового класса.
-  * @param {Object} e Аргументы события.
-  * @param {Object} e.latlng Точка на карте, соответствующая текущей точке курсора мыши.
-  */
- _onDrawingStart: function(layer) {
-//    this.basePrototype._onDrawingStart.call(this, e);
+//  /**
+//   * Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
+//   * Переопределяет обработчик базового класса.
+//   * @param {Object} e Аргументы события.
+//   * @param {Object} e.latlng Точка на карте, соответствующая текущей точке курсора мыши.
+//   */
+//  _onDrawingStart: function(layer) {
+// //    this.basePrototype._onDrawingStart.call(this, e);
+//
+//    this._tooltip.updateContent({
+//     text: this._getLabelContent({
+//       layer:e.layer,
+//       latlng: e.latlng
+//      }),
+//      subtext: this._currentShapeIsDrawing()
+//      ? L.drawLocal.draw.handlers[this.type].tooltip.end
+//      : L.drawLocal.draw.handlers[this.type].tooltip.start
+//    });
+//  },
 
-   this._tooltip.updateContent({
-    text: this._getLabelContent({
-      layer:e.layer,
-      latlng: e.latlng
-     }),
-     subtext: this._currentShapeIsDrawing()
-     ? L.drawLocal.draw.handlers[this.type].tooltip.end
-     : L.drawLocal.draw.handlers[this.type].tooltip.start
-   });
+
+ /**
+  Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
+  @param {String} text Отображаемый текст.
+  */
+ _onMouseMove: function(e, text) {
+   if (this.measurePopup) {
+     if (!this.measurePopup.isOpen()) {
+       this.measurePopup.openOn(this._map);
+     }
+     this.measurePopup.setLatLng(e.latlng).setContent(text);
+   } else {
+     this.measurePopup = L.popup()
+     this.measurePopup.setLatLng(e.latlng).setContent(text);
+     this.measurePopup.openOn(this._map);
+   }
  },
 
-
    /**
-     * Обработчик события, сигнализирующего о завершении отрисовки измерений.
+     * Обработчик события, сигнализирующий о редактировании слоя.
      */
-    _fireCreatedEvent: function (created) {
-      var layer = created.layer;
-      var layerType;
-      if (layer instanceof L.Marker) {
-        layerType = 'marker;'
-      } else if (layer instanceof L.Circle) {
-        layerType = 'circle;'
-      } else if (layer instanceof L.Polyline) {
-        layerType = 'polyline;'
-      } else if (layer instanceof L.Polygon) {
-        layerType = 'polygon;'
-      } else {
-        layerType = 'unknown;'
-      }
+  _fireEvent: function (e, type) {
+    var layer = e.layer;
+    var layerType;
+    if (layer instanceof L.Marker) {
+      layerType = 'marker;'
+    } else if (layer instanceof L.Circle) {
+      layerType = 'circle;'
+    } else if (layer instanceof L.Polyline) {
+      layerType = 'polyline;'
+    } else if (layer instanceof L.Polygon) {
+      layerType = 'polygon;'
+    } else {
+      layerType = 'unknown;'
+    }
 
+    if (type === 'created') {
       this._layerGroup.addLayer(layer);
-//       var editTool = this._createEditTool({
-//         layer: layer
-//       });
-//       this.editTool = editTool;
-
       layer.on('remove', function(e) {
         this.editTool.disable();
       });
-      var editor = created.layer.editor;
+    }
+    this._updateLabels(layer);
+    this.fire('measure:'+ type, {
+      layer: layer,
+      layerType: layerType
+    });
+    return true;
+  },
 
-//       this._attachEditHandlers({
-//         layer: layer,
-//         editTool: editTool
+//  /**
+//  * Обработчик события, сигнализирующего о перемещении маркера на инструменте редактирования.
+//  * @param {Object} e Аргументы события.
+//  * @param {Object} e.layer Слой, к редактированию которого приводит перемещение маркера.
+//  * @param {Object} e.editTool Инструмент редактирования слоя.
+//  * @param {Object} e.marker Перемещаемый маркер.
+//  */
+//    _onEditToolMarkerDrag: function(e) {
+//      e.editTool._lastDraggedMarker = e.marker;
+//
+//      this._updateLabels({
+//        layer: e.layer,
+//        markers: this._getEditToolMarkers({
+//          editTool: e.editTool
+//        }),
+//        hiddenMarkers: this._getEditToolHiddenMarkers({
+//          editTool: e.editTool
+//        })
+//      });
+//
+//      if (e.marker.label) {
+//        e.marker.hideLabel();
+//      }
+//
+//      var tooltipSubtext = L.drawLocal.draw.handlers[this.type].tooltip;
+//      this._tooltip.updatePosition(e.marker.getLatLng());
+//      this._tooltip.updateContent({
+//        text: e.marker.label._content,
+//        subtext: tooltipSubtext.edit
+//        ? tooltipSubtext.edit
+//        : tooltipSubtext.end
+//      });
+//
+//      e.layer.fire('measure:edit');
+//    },
+//
+//     /**
+//      * Метод для привязки обработчиков событий редактирования отрисованного слоя.
+//      * @abstract
+//      * @param {Object} e Аргументы метода.
+//      * @param {Object} e.layer Слой, редактирование которого будет обрабатываться привязываемыми обработчиками.
+//      * @returns {Object} e.editTool Инструмент редактирования слоя.
+//      */
+//     _attachEditHandlers: function(e) {
+//     },
+//     /**
+//      * Обработчик события, сигнализирующего о завершении редактирования слоя.
+//      * @param {Object} e Аргументы события.
+//      * @param {Object} e.layer Отредактированный слой.
+//      * @param {Object} e editTool Инструмент редактирования слоя.
+//      */
+//     _onEditToolEditEnd: function(e) {
+//       if (this._tooltip) {
+//         this._tooltip.dispose();
+//         this._tooltip = null
+//       };
+//
+//       this._updateLabels({
+//         layer: e.layer,
+//         markers: this._getEditToolMarkers({
+//           editTool: e.editTool
+//         }),
+//         hiddenMarkers: this._getEditToolHiddenMarkers({
+//           editTool: e.editTool
+//         })
 //       });
-//
-//       editTool.enable();
-      this._updateLabels(layer);
-//
-      this.fire('measure:created', {
-        layer: layer,
-        layerType: layerType
-      });
-      return true;
-    },
-
- /**
- * Обработчик события, сигнализирующего о перемещении маркера на инструменте редактирования.
- * @param {Object} e Аргументы события.
- * @param {Object} e.layer Слой, к редактированию которого приводит перемещение маркера.
- * @param {Object} e.editTool Инструмент редактирования слоя.
- * @param {Object} e.marker Перемещаемый маркер.
- */
-   _onEditToolMarkerDrag: function(e) {
-     e.editTool._lastDraggedMarker = e.marker;
-
-     this._updateLabels({
-       layer: e.layer,
-       markers: this._getEditToolMarkers({
-         editTool: e.editTool
-       }),
-       hiddenMarkers: this._getEditToolHiddenMarkers({
-         editTool: e.editTool
-       })
-     });
-
-     if (e.marker.label) {
-       e.marker.hideLabel();
-     }
-
-     var tooltipSubtext = L.drawLocal.draw.handlers[this.type].tooltip;
-     this._tooltip.updatePosition(e.marker.getLatLng());
-     this._tooltip.updateContent({
-       text: e.marker.label._content,
-       subtext: tooltipSubtext.edit
-       ? tooltipSubtext.edit
-       : tooltipSubtext.end
-     });
-
-     e.layer.fire('measure:edit');
-   },
-
-    /**
-     * Метод для привязки обработчиков событий редактирования отрисованного слоя.
-     * @abstract
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.layer Слой, редактирование которого будет обрабатываться привязываемыми обработчиками.
-     * @returns {Object} e.editTool Инструмент редактирования слоя.
-     */
-    _attachEditHandlers: function(e) {
-    },
-    /**
-     * Обработчик события, сигнализирующего о завершении редактирования слоя.
-     * @param {Object} e Аргументы события.
-     * @param {Object} e.layer Отредактированный слой.
-     * @param {Object} e editTool Инструмент редактирования слоя.
-     */
-    _onEditToolEditEnd: function(e) {
-      if (this._tooltip) {
-        this._tooltip.dispose();
-        this._tooltip = null
-      };
-
-      this._updateLabels({
-        layer: e.layer,
-        markers: this._getEditToolMarkers({
-          editTool: e.editTool
-        }),
-        hiddenMarkers: this._getEditToolHiddenMarkers({
-          editTool: e.editTool
-        })
-      });
-      e.layer.fire('measure:editend');
-    },
+//       e.layer.fire('measure:editend');
+//     },
 
  /* МЕТОДЫ Leaflet.draw END */
 

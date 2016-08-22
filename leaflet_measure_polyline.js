@@ -19,7 +19,7 @@
         drawing: {
           move: this._setMoveTooltipContent,
           clicked: this.showLabel,
-          end: this._fireCreatedEvent
+          end: this._setDrawingEnd
         },
       };
     },
@@ -168,9 +168,7 @@
       var latlngs = e.layer.editor.getLatLngs();
       var nPoints = latlngs.length;
       if (this.isDragging) {
-        var layer = e.layer;
-        var editor = layer.editor;
-        this._updateLabels(layer);
+        this._fireEvent(e, 'edit');
       } else {
         if (nPoints > 0) {
           var distances = this._getLabelContent(e.layer, e.latlng);
@@ -184,17 +182,7 @@
             text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + distances;
   //           this.measureLayer.bindTooltip(distances, {permanent: true, opacity: 0.9}).openTooltip();
         }
-
-        if (this.measurePopup) {
-          if (!this.measurePopup.isOpen()) {
-            this.measurePopup.openOn(this._map);
-          }
-          this.measurePopup.setLatLng(e.latlng).setContent(text);
-        } else {
-          this.measurePopup = L.popup()
-          this.measurePopup.setLatLng(e.latlng).setContent(text);
-          this.measurePopup.openOn(this._map);
-        }
+        this._onMouseMove(e, text);
       }
     },
 
@@ -218,6 +206,10 @@
 
     },
 
+    _setDrawingEnd: function(e) {
+      this._fireEvent(e, 'created');
+    },
+
     _setDragStart: function(e) {
       this.measureLayer = e.layer;
       this.isDragging = true;
@@ -225,16 +217,14 @@
     },
 
     _setDragEnd: function(e) {
-      var layer = e.layer;
-      this._updateLabels(layer);
       this.isDragging = false;
-
+      this._fireEvent(e, 'editend');
     },
 
+
+
     setVertexDeleted: function(e) {
-      this.vertexDeleted = true;
-      this.showLabel(e);
-      this.vertexDeleted = false;
+      this._fireEvent(e, 'editend');
     },
 
   });
