@@ -53,6 +53,23 @@ var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
 var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
 var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
 var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
+
+</script>
+
+<script>
+function measureCreated(params) {
+  alert('measure:created layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+}
+function measureEdit(params) {
+//   alert('measure:edit layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+}
+function measureEditend(params) {
+  alert('measure:editend layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
+}
+
+map.on('measure:created', measureCreated);
+map.on('measure:edit', measureEdit);
+map.on('measure:editend', measureEditend);
 </script>
 
 <button id="measureCoordinateBtn" onclick="markerTool.enable();">Измерить координаты</button>
