@@ -212,9 +212,8 @@
    for (var i = 0; i < e.markers.length; i++) {
      var marker = e.markers[i];
      var latlng = marker.getLatLng();
-     var labelText = this._getLabelContent(e.layer, latlng);
-
      if (e.hiddenMarkers.indexOf(marker) < 0) {
+       var labelText = this._getLabelContent(e.layer, latlng);
        marker.bindTooltip(labelText, {permanent: true, opacity: 0.75});
        marker._tooltip.setLatLng(latlng);
        marker.addTo(this._map);

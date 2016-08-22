@@ -50,10 +50,9 @@
      */
     _getLabelContent: function(layer, latlng) {
       var latlngs = layer.editor.getLatLngs().slice();
-      var index =  latlngs.indexOf(latlng);
-      if (index < 0) {
+      for (var index=0; index < latlngs.length && !latlngs[index].equals(latlng); index++);
+      if (index === latlngs.length) {
         latlngs.push(latlng);
-        index = latlngs.length - 1;
       }
 
 //       if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
@@ -141,35 +140,44 @@
       var text;
       var latlngs = e.layer.editor.getLatLngs();
       var nPoints = latlngs.length;
+      if (this.isDragging) {
+        var layer = e.layer;
+        var editor = layer.editor;
+        this._updateTooltips({
+          layer: layer,
+          markers: this._getEditToolMarkers(editor),
+          hiddenMarkers: this._getEditToolHiddenMarkers(editor)
+        });
+      } else {
       if (nPoints > 0) {
-        var distances = this._getLabelContent(e.layer, e.latlng);
-      }
-      switch (nPoints) {
-        case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
-          break;
-        case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>' + distances;
-          break;
-        default:
-          text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + distances;
-//           this.measureLayer.bindTooltip(distances, {permanent: true, opacity: 0.9}).openTooltip();
-      }
+          var distances = this._getLabelContent(e.layer, e.latlng);
+        }
+        switch (nPoints) {
+          case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
+            break;
+          case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>' + distances;
+            break;
+          default:
+            text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + distances;
+  //           this.measureLayer.bindTooltip(distances, {permanent: true, opacity: 0.9}).openTooltip();
+        }
 
-      if (this.measurePopup) {
-        if (!this.measurePopup.isOpen()) {
+        if (this.measurePopup) {
+          if (!this.measurePopup.isOpen()) {
+            this.measurePopup.openOn(this._map);
+          }
+          this.measurePopup.setLatLng(e.latlng).setContent(text);
+        } else {
+          this.measurePopup = L.popup()
+          this.measurePopup.setLatLng(e.latlng).setContent(text);
           this.measurePopup.openOn(this._map);
         }
-        this.measurePopup.setLatLng(e.latlng).setContent(text);
-      } else {
-        this.measurePopup = L.popup()
-        this.measurePopup.setLatLng(e.latlng).setContent(text);
-        this.measurePopup.openOn(this._map);
       }
-
     },
 
     showLabel: function(e) {
       var latlngs = e.layer.editor.getLatLngs();
-      if (latlngs.length <= 0) return;
+      if (latlngs.length <= 1) return;
       this._map.closePopup();
       var text = '<b>' + this._getLabelContent(e.layer, e.latlng) + '</b>';
       var vertex = e.latlng.__vertex;
