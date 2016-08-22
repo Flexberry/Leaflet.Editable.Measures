@@ -267,17 +267,20 @@
   @param {String} text Отображаемый текст.
   */
  _onMouseMove: function(e, text) {
+   this._showPopup(text, e.latlng);
+ },
+
+ _showPopup: function(text, latlng) {
    if (this.measurePopup) {
      if (!this.measurePopup.isOpen()) {
        this.measurePopup.openOn(this._map);
      }
-     this.measurePopup.setLatLng(e.latlng).setContent(text);
+     this.measurePopup.setLatLng(latlng).setContent(text);
    } else {
      this.measurePopup = L.popup()
-     this.measurePopup.setLatLng(e.latlng).setContent(text);
+     this.measurePopup.setLatLng(latlng).setContent(text);
      this.measurePopup.openOn(this._map);
-   }
- },
+   } },
 
    /**
      * Обработчик события, сигнализирующий о редактировании слоя.
