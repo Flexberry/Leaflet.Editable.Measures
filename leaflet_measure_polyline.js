@@ -14,11 +14,12 @@
         vertex: {
           dragstart: this._setDragStart,
           dragend: this._setDragEnd,
-          deleted: this.setVertexDeleted
+          deleted: this._setVertexDeleted
         },
         drawing: {
           move: this._setMoveTooltipContent,
-          clicked: this.showLabel,
+          clicked: this._setClicked,
+          mousedown: this._setMouseDown,
           end: this._setDrawingEnd
         },
       };
@@ -54,21 +55,6 @@
       if (index === latlngs.length) {
         latlngs.push(latlng);
       }
-
-//       if (e.layer && e.layer.editor && e.layer.editor.getLatLngs) {
-//         latlngs = e.layer.editor.getLatLngs().slice();
-//         if (!this.isDragging && !this.vertexDeleted && e.latlng) {
-//           var layerContainsLatLng = latlngs.filter(function(latlng) {
-//             return latlng.equals(e.latlng);
-//           }).length > 0;
-//
-//           if (!layerContainsLatLng) {
-//             latlngs.push(e.latlng);
-//           }
-//         }
-//       } else {
-//         latlngs = this.lastLatLng;
-//       }
       var distance = 0;
       var inc = 0;
       var currentInc = 0;
@@ -82,7 +68,7 @@
         distance += currentInc;
       }
 
-      return L.Measure.getMeasureText({
+      return '<b>' + L.Measure.getMeasureText({
         value: distance,
         dimension: 1
       }) +
@@ -91,7 +77,7 @@
         value: currentInc,
         dimension: 1
       }) +
-      '</span>';
+      '</span></b>';
     },
 
 
@@ -121,41 +107,11 @@
       return markers;
     },
 
-//     /**
-//      * Метод для получения маркеров инструмента редактирования.
-//      * @param {Object} editor Инструмент редактирования.
-//      * @returns {Object[]} Массив маркеров инструмента редактирования.
-//      */
-//     _getEditToolMarkers: function(editor) {
-//       var latlngs = editor.getLatLngs();
-//       var markers = [];
-//       for(var i = 0, len = latlngs.length; i < len; i++) {
-//         markers.push(latlngs[i].__vertex);
-//       }
-//       return markers;
-//     },
-//
-//     /**
-//      * Метод для привязки обработчиков событий редактирования отрисованного слоя.
-//      * @param {Object} editor Инструмент редактирования.
-//      * @returns {Object[]} Массив маркеров редактируемого слоя, для которых не нужно отображать лейблы.
-//      */
-//     _getEditToolHiddenMarkers: function(editor) {
-//       var latlngs = editor.getLatLngs();
-//       if (latlngs.length <=0) return [];
-//       return [latlngs[0].__vertex];
-//     },
-
-
     enable: function () {
-//       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
       this.eventOffByPrefix('editable:');
       this.eventsOn( 'editable:', this.editableEventTree, true);
-//      this._onActionsTest();
       this.isDrawing = false;
-//       this._map.on('editable:drawing:move', this._setMoveTooltipContent, this);
-//       this._map.on('editable:drawing:mousedown', this.showLabel, this);
       this.measureLayer = this._map.editTools.startPolyline();
     },
 
@@ -186,17 +142,8 @@
       }
     },
 
-    showLabel: function(e) {
-      var latlngs = e.layer.editor.getLatLngs();
-      if (latlngs.length <= 1) return;
-      this._map.closePopup();
-      var text = '<b>' + this._getLabelContent(e.layer, e.latlng) + '</b>';
-      var vertex = e.latlng.__vertex;
-      vertex.bindTooltip(text, {permanent: true, opacity: 0.75});
-      vertex._tooltip.setLatLng(e.latlng);
-      vertex.addTo(this._map);
-//       this.labels.push(this._tooltip);
-
+    _setMouseDown: function(e) {
+      if (e.layer.getLatLngs().length < 1) return;
       var text = "Кликните на текущую вершину, чтобы зафиксировать линию";
       var latlng = e.latlng? e.latlng : e.vertex.latlng;
       this.measurePopup.setLatLng(e.latlng).setContent(text);
@@ -206,6 +153,14 @@
 
     },
 
+    _setClicked: function(e) {
+      if (e.layer.getLatLngs().length < 2) return;
+      this._map.closePopup();
+      var text = this._getLabelContent(e.layer, e.latlng);
+      var vertex = e.latlng.__vertex;
+      this._showLabel(vertex, e.latlng, text);
+    },
+
     _setDrawingEnd: function(e) {
       this._fireEvent(e, 'created');
     },
@@ -213,7 +168,6 @@
     _setDragStart: function(e) {
       this.measureLayer = e.layer;
       this.isDragging = true;
-
     },
 
     _setDragEnd: function(e) {
@@ -223,7 +177,7 @@
 
 
 
-    setVertexDeleted: function(e) {
+    _setVertexDeleted: function(e) {
       this._fireEvent(e, 'editend');
     },
 
