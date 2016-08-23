@@ -97,10 +97,10 @@
     _setMove: function(e) {
       if (this.isDrawing || this.isDragging) {
         this._fireEvent(e, 'edit');
-        return;
+      } else {
+        var text = 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
+        this._onMouseMove(e, text);
       }
-      var text = 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг ';
-      this._onMouseMove(e, text);
     },
 
     _setDrawingEnd: function(e) {

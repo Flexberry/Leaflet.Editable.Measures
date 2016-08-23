@@ -218,14 +218,15 @@
   Метод для обновления лейблов, содержащих результаты измерений.
   @param {Object} layer Редактируемый слой.
   */
- _updateLabels: function(layer) {
+ _updateLabels: function(e) {
+   var layer = e.layer;
     var editor = layer.editor;
-    var labelledMarkers = this._labelledMarkers(editor);
+    var labelledMarkers = this._labelledMarkers(editor, e);
     for (var i = 0; i < labelledMarkers.length; i++) {
       var marker = labelledMarkers[i];
 //      var latlng = marker.getLatLng();
       var latlng = marker.latlng;
-      var labelText = this._getLabelContent(layer, latlng);
+      var labelText = this._getLabelContent(layer, latlng, e.latlng);
       this._showLabel(marker, labelText, latlng);
    }
    var unlabelledMarkers = this._unlabelledMarkers(editor);
@@ -233,7 +234,7 @@
      var marker = unlabelledMarkers[i];
      marker.unbindTooltip();
    }
-   this._updateMeasureLabel(layer); //Обновить tooltip измеряемого объекта
+   this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
  },
 
  _showLabel: function(marker, labelText, latlng) {
@@ -287,7 +288,7 @@
         this.editTool.disable();
       });
     }
-    this._updateLabels(layer);
+    this._updateLabels(e);
     this._map.fire('measure:'+ type, {
       layer: layer,
       layerType: layerType
@@ -298,15 +299,15 @@
     _layerType: function (layer) {
       var layerType;
       if (layer instanceof L.Marker) {
-        layerType = 'marker'
+        layerType = 'marker';
       } else if (layer instanceof L.Circle) {
-        layerType = 'circle'
-      } else if (layer instanceof L.Polyline) {
-        layerType = 'polyline'
+        layerType = 'circle';
       } else if (layer instanceof L.Polygon) {
-        layerType = 'polygon'
+        layerType = 'polygon';
+      } else if (layer instanceof L.Polyline) {
+        layerType = 'polyline';
       } else {
-        layerType = 'unknown;'
+        layerType = 'unknown';
       }
       return layerType;
     },
@@ -386,7 +387,7 @@
          this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
          this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
          this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
-//          this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
+         this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
          this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
          this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
          this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
@@ -403,7 +404,7 @@
       editable:enable
       editable:drawing:start
       editable:drawing:move
-    1-й клик  и последующие клики
+      1-й клик  и последующие кликиeditable:created
       editable:drawing:mousedown
       editable:drawing:click
       editable:drawing:clicked
@@ -466,6 +467,18 @@
       editable:drawing:move
       editable:vertex:dragend
 
+   Polygon:
+      До первого клика
+        editable:enable
+        editable:created
+        editable:enable
+        editable:drawing:start
+        editable:shape:new
+        editable:drawing:move
+      1-й клик
+        editable:vertex:mousedown
+
+      и последующие клики
 
 
 

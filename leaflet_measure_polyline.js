@@ -56,7 +56,6 @@
         latlngs.push(latlng);
       }
       var distance = 0;
-      var inc = 0;
       var currentInc = 0;
       for(var i = 1; i <= index; i++) {
         var prevLatLng = latlngs[i - 1];
@@ -110,7 +109,7 @@
     enable: function () {
       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startPolyline();
-      this.eventOffByPrefix('editable:');
+//       this.eventOffByPrefix('editable:');
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDrawing = false;
     },
