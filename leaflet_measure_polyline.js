@@ -147,10 +147,6 @@
       var text = "Кликните на текущую вершину, чтобы зафиксировать линию";
       var latlng = e.latlng? e.latlng : e.vertex.latlng;
       this._showPopup(text, latlng);
-//       this.measurePopup.setLatLng(e.latlng).setContent(text);
-//       if (!this.measurePopup.isOpen()) {
-//         this.measurePopup.openOn(this._map);
-//       }
     },
 
     _setClicked: function(e) {

@@ -90,10 +90,10 @@
     },
 
     /**
-     * Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.latlngs Массив точек многоугольника.
-     * @returns {Number} Текстовое представление площади.
+    Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.latlngs Массив точек многоугольника.
+    @returns {Number} Текстовое представление площади.
      */
     getAreaText: function(e) {
       return L.Measure.getMeasureText({
@@ -103,11 +103,11 @@
     },
 
     /**
-     * Возвращает текстовое представление для радуиса с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.radius Значение радиуса в метрах.
-     * @returns {Number} Текстовое представление радиуса.
-     */
+    Возвращает текстовое представление для радиуса с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {Number} Текстовое представление радиуса.
+      */
     getRadiusText: function(e) {
       return L.Measure.getMeasureText({
         value: e.radius,
@@ -115,6 +115,19 @@
       });
     },
 
+    /**
+    Возвращает текстовое представление площади круга с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {Number} Текстовое представление радиуса.
+      */
+    getCircleAreaText: function(e) {
+      var area = Math.PI * e.radius * e.radius;
+      return L.Measure.getMeasureText({
+        value: area,
+        dimension: 2
+      });
+    },
   /**
    Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
    Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
@@ -151,11 +164,11 @@
    */
   L.Measure.Mixin = {
     /**
-     * Инициализирует новый инструмент измерений.
-     * @param {Object} map Используемая карта.
-     * @param {Object} [options] Настройки инструмента ().
-     * @param {Boolean} [options.repeatMode = true] Флаг, показывающий должен ли инструмент оставаться включенным после фиксации измерений на карте.
-     * @param {Object} [options.layerGroup = map] Группа слоев на карте, в которой будут отображаться результаты измерений.
+    Инициализирует новый инструмент измерений.
+    @param {Object} map Используемая карта.
+    @param {Object} [options] Настройки инструмента ().
+    @param {Boolean} [options.repeatMode = true] Флаг, показывающий должен ли инструмент оставаться включенным после фиксации измерений на карте.
+    @param {Object} [options.layerGroup = map] Группа слоев на карте, в которой будут отображаться результаты измерений.
      */
     initialize: function (map, options) {
       this._map = map;
@@ -190,9 +203,9 @@
 
 
     /**
-     * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     * @abstract
-     * @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+    Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+    @abstract
+    @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
      */
     _getDefaultOptions: function () {
       return {};
@@ -241,26 +254,6 @@
  _updateMeasureLabel: function(layer) {
  },
 
-//  /**
-//   * Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
-//   * Переопределяет обработчик базового класса.
-//   * @param {Object} e Аргументы события.
-//   * @param {Object} e.latlng Точка на карте, соответствующая текущей точке курсора мыши.
-//   */
-//  _onDrawingStart: function(layer) {
-// //    this.basePrototype._onDrawingStart.call(this, e);
-//
-//    this._tooltip.updateContent({
-//     text: this._getLabelContent({
-//       layer:e.layer,
-//       latlng: e.latlng
-//      }),
-//      subtext: this._currentShapeIsDrawing()
-//      ? L.drawLocal.draw.handlers[this.type].tooltip.end
-//      : L.drawLocal.draw.handlers[this.type].tooltip.start
-//    });
-//  },
-
 
  /**
   Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
@@ -283,7 +276,7 @@
    } },
 
    /**
-     * Обработчик события, сигнализирующий о редактировании слоя.
+    Обработчик события, сигнализирующий о редактировании слоя.
      */
   _fireEvent: function (e, type) {
     var layer = e.layer;
@@ -375,7 +368,7 @@
          this._map.on('editable:drawing:end', function() {alert('editable:drawing:end');}, this);
          this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
          this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
-         this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
+//          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
          this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
          this._map.on('editable:editing', function() {alert('editable:editing');}, this);
          this._map.on('editable:enable', function() {alert('editable:enable');}, this);
@@ -389,7 +382,7 @@
          this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
          this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
          this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
-         this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
+//          this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
          this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
          this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
          this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
@@ -424,15 +417,16 @@
       editable:enable
       editable:drawing:start
       editable:drawing:move
-    Клик и перемещение, изменение размера круга
+    1-й клик
       editable:drawing:mousedown
+      editable:drawing:commit
+      editable:drawing:end
+    Перемещение, изменение размера круга
       editable:vertex:dragstart
       editable:drawing:move
       editable:vertex:drag
       editable:editing
     Отпуск клавиши
-      editable:drawing:commit
-      editable:drawing:end
       editable:vertex:dragend
 
 
