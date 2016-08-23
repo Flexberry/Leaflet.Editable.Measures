@@ -280,19 +280,7 @@
      */
   _fireEvent: function (e, type) {
     var layer = e.layer;
-    var layerType;
-    if (layer instanceof L.Marker) {
-      layerType = 'marker'
-    } else if (layer instanceof L.Circle) {
-      layerType = 'circle'
-    } else if (layer instanceof L.Polyline) {
-      layerType = 'polyline'
-    } else if (layer instanceof L.Polygon) {
-      layerType = 'polygon'
-    } else {
-      layerType = 'unknown;'
-    }
-
+    var layerType = this._layerType(layer);
     if (type === 'created') {
       this._layerGroup.addLayer(layer);
       layer.on('remove', function(e) {
@@ -306,6 +294,22 @@
     });
     return true;
   },
+
+    _layerType: function (layer) {
+      var layerType;
+      if (layer instanceof L.Marker) {
+        layerType = 'marker'
+      } else if (layer instanceof L.Circle) {
+        layerType = 'circle'
+      } else if (layer instanceof L.Polyline) {
+        layerType = 'polyline'
+      } else if (layer instanceof L.Polygon) {
+        layerType = 'polygon'
+      } else {
+        layerType = 'unknown;'
+      }
+      return layerType;
+    },
 
 
 
