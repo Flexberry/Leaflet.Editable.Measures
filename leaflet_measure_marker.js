@@ -60,11 +60,11 @@
        */
     enable: function () {
       this.editTool = this.enableEdit();
-//       this._onActionsTest();
-      this.eventOffByPrefix('editable:');
+      this.measureLayer = this._map.editTools.startMarker();
+      //       this._onActionsTest();
+//       this.eventOffByPrefix('editable:');
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
-      this.measureLayer = this._map.editTools.startMarker();
     },
 
       /**

@@ -84,13 +84,13 @@
     },
 
     enable: function () {
+      this.measureLayer = this._map.editTools.startCircle();
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
-      this.eventOffByPrefix('editable:');
+//       this.eventOffByPrefix('editable:');
       this.eventsOn( 'editable:', this.editableEventTree, true);
 //      this._onActionsTest();
       this.isDrawing = false;
-      this.measureLayer = this._map.editTools.startCircle();
 
     },
 

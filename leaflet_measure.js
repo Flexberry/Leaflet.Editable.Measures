@@ -331,24 +331,24 @@
           if (!!offBefore) {
             this._map.off(eventName);
           }
-          this._map.on(eventName, func, this);
+          this.measureLayer.on(eventName, func, this);
         } else {
           this.eventsOn(eventName + ':', func, offBefore);
         }
       }
     },
 
-    eventsOff: function(prefix,eventTree) {
-      for (var eventSubName in eventTree) {
-        var func = eventTree[eventSubName];
-        var eventName = prefix + eventSubName;
-        if (typeof func == 'function') {
-          this._map.off(eventName);
-        } else {
-          this.eventsOff(eventName + ':', func);
-        }
-      }
-    },
+//     eventsOff: function(prefix,eventTree) {
+//       for (var eventSubName in eventTree) {
+//         var func = eventTree[eventSubName];
+//         var eventName = prefix + eventSubName;
+//         if (typeof func == 'function') {
+//           this._map.off(eventName);
+//         } else {
+//           this.eventsOff(eventName + ':', func);
+//         }
+//       }
+//     },
 
     eventOffByPrefix: function (prefix) {
       var prefixLen = prefix.length;

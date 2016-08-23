@@ -109,10 +109,10 @@
 
     enable: function () {
       this.editTool = this.enableEdit();
+      this.measureLayer = this._map.editTools.startPolyline();
       this.eventOffByPrefix('editable:');
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDrawing = false;
-      this.measureLayer = this._map.editTools.startPolyline();
     },
 
     disable: function() {
