@@ -4,8 +4,8 @@
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Marker = L.Marker.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker ],
+  L.Measure.Marker = L.Measure.Mixin.Marker.extend({
+    includes: [ L.Measure.Mixin ],
 
     /*
      * Метод для получения маркеров инструмента редактирования, имеющих метки

@@ -317,18 +317,6 @@
       return layerType;
     },
 
-
-
-    /* Методы добавленные при переходе на Editable */
-    enable: function () {
-    },
-
-    disable: function () {
-      this.disableEdit();
-      this.editTool = null;
-    },
-
-
      eventsOn: function(prefix, eventTree, offBefore) {
       for (var eventSubName in eventTree) {
         var func = eventTree[eventSubName];
@@ -412,7 +400,7 @@
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
    */
-  L.Measure.Mixin.Marker = {
+  L.Measure.Mixin.Marker = L.Marker.extend({
 
     popupText: {
       move: 'Кликните по карте, чтобы зафиксировать маркер',
@@ -519,7 +507,7 @@
     _setCommit: function(e) {
       this._fireEvent(e, 'created');
     },
-  };
+  });
 
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования круга
