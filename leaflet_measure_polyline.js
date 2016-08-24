@@ -5,49 +5,39 @@
    * Класс инструмента для измерения координат.
    */
   L.Measure.Polyline = L.Polyline.extend({
-    includes: L.Measure.Mixin,
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Polyline ],
 
-    labels: [],
-
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        vertex: {
-          dragstart: this._setDragStart,
-          dragend: this._setDragEnd,
-          deleted: this._setVertexDeleted
-        },
-        drawing: {
-          move: this._setMove,
-          clicked: this._setClicked,
-          mousedown: this._setMouseDown,
-          end: this._setDrawingEnd
-        },
-      };
-    },
-
-    /**
-     * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     * @abstract
-     * @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+    /*
+     Метод для получения маркеров инструмента редактирования, имеющих метки
+     @param {Object} editor Инструмент редактирования
+     @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
      */
-    _getDefaultOptions: function () {
-      return {
-        shapeOptions: {
-          stroke: true,
-          color: 'green',
-          weight: 2,
-          opacity: 0.5,
-          fill: false,
-          clickable: true
-        }
-      };
+    _labelledMarkers: function(editor) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      for(var i = 1, len = latlngs.length; i < len; i++) {
+        markers.push(latlngs[i].__vertex);
+      }
+      return markers;
+    },
+
+    /*
+     Метод для получения маркеров инструмента редактирования, не имеющих меток
+     @param {Object} editor Инструмент редактирования
+     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+     */
+    _unlabelledMarkers: function(editor) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      markers.push(latlngs[0].__vertex)
+      return markers;
     },
 
     /**
-     * Метод для получения текстового описания результатов измерений.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
-     * @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
+     Метод для получения текстового описания результатов измерений.
+     @param {Object} e Аргументы метода.
+     @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
+     @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
     _getLabelContent: function(layer, latlng) {
       var latlngs = layer.editor.getLatLngs().slice();
@@ -79,105 +69,10 @@
       '</span></b>';
     },
 
-
-    /*
-      Метод для получения маркеров инструмента редактирования, имеющих метки
-      @param {Object} editor Инструмент редактирования
-      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-    */
-    _labelledMarkers: function(editor) {
-      var latlngs = editor.getLatLngs();
-      var markers = [];
-      for(var i = 1, len = latlngs.length; i < len; i++) {
-        markers.push(latlngs[i].__vertex);
-      }
-      return markers;
-    },
-
-    /*
-      Метод для получения маркеров инструмента редактирования, не имеющих меток
-      @param {Object} editor Инструмент редактирования
-      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-    */
-    _unlabelledMarkers: function(editor) {
-      var latlngs = editor.getLatLngs();
-      var markers = [];
-      markers.push(latlngs[0].__vertex)
-      return markers;
-    },
-
-    enable: function () {
-      this.editTool = this.enableEdit();
-      this.measureLayer = this._map.editTools.startPolyline();
-//       this.eventOffByPrefix('editable:');
-      this.eventsOn( 'editable:', this.editableEventTree, true);
-      this.isDrawing = false;
-    },
-
-    disable: function() {
-//       this.eventsOff( 'editable:', this.editableEventTree);
-    },
-
-    _setMove: function(e) {
-      var text;
-      var latlngs = e.layer.editor.getLatLngs();
-      var nPoints = latlngs.length;
-      if (this.isDragging) {
-        this._fireEvent(e, 'edit');
-      } else {
-        if (nPoints > 0) {
-          var distances = this._getLabelContent(e.layer, e.latlng);
-        }
-        switch (nPoints) {
-          case 0: text = 'Кликните по карте, чтобы добавить начальную вершину.';
-            break;
-          case 1: text = 'Кликните по карте, чтобы добавить новую вершину.' + '<br>' + distances;
-            break;
-          default:
-            text = 'Кликните по карте, чтобы добавить новую вершину'  + '<br>' + distances;
-  //           this.measureLayer.bindTooltip(distances, {permanent: true, opacity: 0.9}).openTooltip();
-        }
-        this._onMouseMove(e, text);
-      }
-    },
-
-    _setMouseDown: function(e) {
-      if (e.layer.getLatLngs().length < 1) return;
-      var text = "Кликните на текущую вершину, чтобы зафиксировать линию";
-      var latlng = e.latlng? e.latlng : e.vertex.latlng;
-      this._showPopup(text, latlng);
-    },
-
-    _setClicked: function(e) {
-      if (e.layer.getLatLngs().length < 2) return;
-      this._map.closePopup();
-      var text = this._getLabelContent(e.layer, e.latlng);
-      var vertex = e.latlng.__vertex;
-      this._showLabel(vertex, text, e.latlng);
-    },
-
-    _setDrawingEnd: function(e) {
-      this._fireEvent(e, 'created');
-    },
-
-    _setDragStart: function(e) {
-      this.measureLayer = e.layer;
-      this.isDragging = true;
-    },
-
-    _setDragEnd: function(e) {
-      this.isDragging = false;
-      this._fireEvent(e, 'editend');
-    },
-
-    _setVertexDeleted: function(e) {
-      this._fireEvent(e, 'editend');
-    },
-
   });
 
   /**
-   * Фабричный метод для создания экземпляра инструмента измерения координат.
+   Фабричный метод для создания экземпляра инструмента измерения координат.
    */
   L.Measure.polyline = function(map, options) {
     return new L.Measure.Polyline(map, options);

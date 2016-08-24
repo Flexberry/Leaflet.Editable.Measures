@@ -5,7 +5,7 @@
    * Класс инструмента для измерения координат.
    */
   L.Measure.Marker = L.Marker.extend({
-    includes: [L.Measure.Mixin, L.Measure.Mixin.Marker],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker ],
 
     /*
      * Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -44,7 +44,6 @@
         text = "<b>" + coords + '</b>';
         this._showLabel(layer, text);
     },
-
 
   });
 

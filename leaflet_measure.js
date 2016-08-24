@@ -160,7 +160,7 @@
 
 
   /**
-   * Примесь, переопределяющая базовые методы инструментов плагина leaflet.draw, превращая их в инструменты измерений.
+   * Примесь, переопределяющая базовые методы инструментов плагина Leaflet.Editable, превращая их в инструменты измерений.
    */
   L.Measure.Mixin = {
     /**
@@ -397,102 +397,14 @@
          this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
          this._map.on('editable:vertex:rawclick', function() {alert('editable:vertex:rawclick');}, this);
          this._map.on('editable:vertex:shiftclick', function() {alert('editable:vertex:shiftclick');}, this);
- },
-
- /* Events order:
-
-    Marker:
-    До первого клика
-      editable:created
-      editable:enable
-      editable:drawing:start
-      editable:drawing:move
-      1-й клик  и последующие кликиeditable:created
-      editable:drawing:mousedown
-      editable:drawing:click
-      editable:drawing:clicked
-      editable:drawing:commit
-      editable:drawing:end
-    Перетаскивание вершины:
-      editable:editing
-      editable:dragstart
-      editable:drag
-      editable:dragend
-
-
-    Circle:
-      До первого клика
-      editable:enable
-      editable:drawing:start
-      editable:drawing:move
-    1-й клик
-      editable:drawing:mousedown
-      editable:drawing:commit
-      editable:drawing:end
-    Перемещение, изменение размера круга
-      editable:vertex:dragstart
-      editable:drawing:move
-      editable:vertex:drag
-      editable:editing
-    Отпуск клавиши
-      editable:vertex:dragend
-
-
-    Polyline:
-      До первого клика
-        editable:enable
-        editable:shape:new
-        editable:drawing:start
-        editable:drawing:move
-      1-й клик и последующие клики
-        editable:drawing:mousedown
-        editable:drawing:click
-        editable:editing
-        editable:drawing:clicked
-      Commit:
-        editable:vertex:mousedown
-        editable:vertex:click
-        editable:vertex:clicked
-        editable:drawing:commit
-        editable:drawing:end
-      Перетаскивание вершины:
-        editable:vertex:dragstart
-        editable:drawing:move
-        editable:vertex:dragend
-      Удаление вершины:
-        editable:vertex:click
-        editable:vertex:rawclick
-        editable:vertex:deleted
-        editable:vertex:clicked
-      Перетаскивание срединного маркера
-      editable:middlemarker:mousedown
-      editable:vertex:dragstart
-      editable:drawing:move
-      editable:vertex:dragend
-
-   Polygon:
-      До первого клика
-        editable:enable
-        editable:created
-        editable:enable
-        editable:drawing:start
-        editable:shape:new
-        editable:drawing:move
-      1-й клик
-        editable:vertex:mousedown
-
-      и последующие клики
-
-
-
-
-
-
-  * */
+ }
 
   };
 
 
+  /**
+   * Примесь, обеспечивающая поддержку основных обытий редактирования маркера
+   */
   L.Measure.Mixin.Marker = {
 
     popupText: {
@@ -500,44 +412,10 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
     },
 
-    /** Events order:
-     *
-      До первого клика
-        editable:created
-        editable:enable
-        editable:drawing:start
-        editable:drawing:move
-
-      1-й клик  и последующие клики
-        editable:created
-        editable:drawing:mousedown
-        editable:drawing:click
-        editable:drawing:clicked
-        editable:drawing:commit
-        editable:drawing:end
-      Перетаскивание вершины:
-      
-        editable:editing
-        editable:dragstart
-        editable:drag
-        editable:dragend
-      */
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        drawing: {
-          move: this._setMove,
-          commit: this._setCommit,
-        },
-        drag: this._setDrag,
-        dragstart: this._setDragStart,
-        dragend: this._setDragend
-      };
-    },
-
     /**
-     * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     * @abstract
-     * @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     @abstract
+     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
      */
     _getDefaultOptions: function () {
       return {
@@ -552,10 +430,50 @@
         })
       };
     },
-      /**
-        Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
-       */
-    enable: function () {
+
+    /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событийEvents в Leaflet.Editable:
+
+        До первого клика
+          editable:created
+          editable:enable
+          editable:drawing:start
+          editable:drawing:move
+
+        1-й клик  и последующие клики
+          editable:created
+          editable:drawing:mousedown
+          editable:drawing:click
+          editable:drawing:clicked
+          editable:drawing:commit
+          editable:drawing:end
+        Перетаскивание вершины:
+
+          editable:editing
+          editable:dragstart
+          editable:drag
+          editable:dragend
+     */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMove,
+          commit: this._setCommit,
+        },
+        drag: this._setDrag,
+        dragstart: this._setDragStart,
+        dragend: this._setDragend
+      };
+    },
+
+    /**
+      Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
+      */
+    enable: function  /**
+    * Примесь, обеспечивающая поддержку основных обытий редактирования маркера
+    */ () {
       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startMarker();
       //       this._onActionsTest();
@@ -594,6 +512,373 @@
     _setCommit: function(e) {
       this._fireEvent(e, 'created');
     },
+  };
+
+  /**
+   * Примесь, обеспечивающая поддержку основных обытий редактирования круга
+   */
+  L.Measure.Mixin.Circle = {
+
+    popupText: {
+      move: 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг',
+      drag: 'Отпустите кнопку мыши, чтобы зафиксировать круг.'
+    },
+
+    /**
+     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     @abstractthis.popupText.move
+     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     */
+    _getDefaultOptions: function () {
+      return {
+        shapeOptions: {
+          stroke: true,
+          color: 'green',
+          weight: 2,
+          opacity: 0.5,
+          fill: true,
+          clickable: true
+        }
+      };
+    },
+
+     /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событийEvents в Leaflet.Editable:
+      До первого клика
+          editable:enable
+          editable:drawing:start
+          editable:drawing:move
+        1-й клик
+          editable:drawing:mousedown
+          editable:drawing:commit
+          editable:drawing:end
+        Перемещение, изменение размера круга
+          editable:vertex:dragstart
+          editable:drawing:move
+          editable:vertex:drag
+          editable:editing
+        Отпуск клавиши
+          editable:vertex:dragend
+     */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMove,
+          end: this._setDrawingEnd
+        },
+        vertex: {
+          dragstart: this._setDragstart,
+          drag: this._setDrag,
+          dragend: this._setDragend
+        }
+      };
+    },
+
+     enable: function () {
+      this.measureLayer = this._map.editTools.startCircle();
+      this._latlng = this._map.getCenter();
+      this.editTool = this.enableEdit();
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.isDrawing = false;
+    },
+
+    _setMove: function(e) {
+      if (this.isDrawing || this.isDragging) {
+        this._fireEvent(e, 'edit');
+      } else {
+        var text = this.popupText.move;
+        this._onMouseMove(e, text);
+      }
+    },
+
+    _setDrawingEnd: function(e) {
+      this.isDrawing = true;
+    },
+
+    _setDragstart: function(e) {
+      if (this.isDrawing) return;
+      this.isDragging = true;
+    },
+
+    _setDragend: function(e) {
+      this._map.closePopup();
+      if (this.isDrawing) {
+        this._fireEvent(e, 'created');
+        this.isDrawing = false;
+      } else {
+        this._fireEvent(e, 'editend');
+        this.isDragging = false;
+      }
+    },
+
+    _setDrag: function(e) {
+      var text = this.popupText.drag;
+      this._onMouseMove(e, text);
+    },
+  };
+
+  /**
+   * Примесь, обеспечивающая поддержку основных обытий редактирования ломаной
+   */
+  L.Measure.Mixin.Polyline = {
+
+    popupText: {
+      move: 'Кликните по карте, чтобы добавить начальную вершину.',
+      add: 'Кликните по карте, чтобы добавить новую вершину.',
+      commit: 'Кликните на текущую вершину, чтобы зафиксировать линию',
+      drag: ''
+    },
+    /**
+     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     @abstract
+     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     */
+    _getDefaultOptions: function () {
+      return {
+        shapeOptions: {
+          stroke: true,
+          color: 'green',
+          weight: 2,
+          opacity: 0.5,
+          fill: false,
+          clickable: true
+        }
+      };
+    },
+
+     /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событийEvents в Leaflet.Editable:
+        До первого клика
+          editable:enable
+          editable:shape:new
+          editable:drawing:start
+          editable:drawing:move
+        1-й клик и последующие клики
+          editable:drawing:mousedown
+          editable:drawing:click
+          editable:editing
+          editable:drawing:clicked
+        Commit:
+          editable:vertex:mousedown
+          editable:vertex:click
+          editable:vertex:clicked
+          editable:drawing:commit
+          editable:drawing:end
+        Перетаскивание вершины:
+          editable:vertex:dragstart
+          editable:drawing:move
+          editable:vertex:dragend
+        Удаление вершины:
+          editable:vertex:click
+          editable:vertex:rawclick
+          editable:vertex:deleted
+          editable:vertex:clicked
+        Перетаскивание срединного маркера
+        editable:middlemarker:mousedown
+        editable:vertex:dragstart
+        editable:drawing:move
+        editable:vertex:dragend
+     */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        vertex: {
+          dragstart: this._setDragStart,
+          dragend: this._setDragEnd,
+          deleted: this._setVertexDeleted
+        },
+        drawing: {
+          move: this._setMove,
+          clicked: this._setClicked,
+          mousedown: this._setMouseDown,
+          end: this._setDrawingEnd
+        },
+      };
+    },
+    enable: function () {
+      this.editTool = this.enableEdit();
+      this.measureLayer = this._map.editTools.startPolyline();
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.isDrawing = false;
+    },
+
+    disable: function() {
+//       this.eventsOff( 'editable:', this.editableEventTree);
+    },
+
+    _setMove: function(e) {
+      var text;
+      var latlngs = e.layer.editor.getLatLngs();
+      var nPoints = latlngs.length;
+      if (this.isDragging) {
+        this._fireEvent(e, 'edit');
+      } else {
+        if (nPoints > 0) {
+          var distances = this._getLabelContent(e.layer, e.latlng);
+          text = this.popupText.add + '<br>' + distances;
+        } else {
+          text = this.popupText.move;
+        }
+        this._onMouseMove(e, text);
+      }
+    },
+
+    _setMouseDown: function(e) {
+      if (e.layer.getLatLngs().length < 1) return;
+      var text = this.popupText.commit;
+      var latlng = e.latlng? e.latlng : e.vertex.latlng;
+      this._showPopup(text, latlng);
+    },
+
+    _setClicked: function(e) {
+      if (e.layer.getLatLngs().length < 2) return;
+      this._map.closePopup();
+      var text = this._getLabelContent(e.layer, e.latlng);
+      var vertex = e.latlng.__vertex;
+      this._showLabel(vertex, text, e.latlng);
+    },
+
+    _setDrawingEnd: function(e) {
+      this._fireEvent(e, 'created');
+    },
+
+    _setDragStart: function(e) {
+      this.measureLayer = e.layer;
+      this.isDragging = true;
+    },
+
+    _setDragEnd: function(e) {
+      this.isDragging = false;
+      this._fireEvent(e, 'editend');
+    },
+
+    _setVertexDeleted: function(e) {
+      this._fireEvent(e, 'editend');
+    },
+
+  };
+
+  /**
+   * Примесь, обеспечивающая поддержку основных обытий редактирования многоугольника
+   */
+  L.Measure.Mixin.Polygon = {
+
+    popupText: {
+      move: 'Кликните по карте, чтобы добавить начальную вершину.',
+      add: 'Кликните по карте, чтобы добавить новую вершину.',
+      commit: 'Кликните на текущую вершину, чтобы зафиксировать многоугольник',
+      drag: ''
+    },
+
+     /**
+     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     @abstract
+     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     */
+    _getDefaultOptions: function () {
+      return {
+        shapeOptions: {
+          stroke: true,
+          color: 'green',
+          weight: 2,
+          opacity: 0.5,
+          fill: true,
+          clickable: true
+        }
+      };
+    },
+
+    /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событийEvents в Leaflet.Editable:
+        До первого клика
+          editable:enable
+          editable:created
+          editable:enable
+          editable:drawing:start
+          editable:shape:new
+          editable:drawing:move
+        1-й клик
+          editable:vertex:mousedown
+          ???
+        и последующие клики
+        ???
+      */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        vertex: {
+          dragstart: this._setDragStart,
+          dragend: this._setDragEnd,
+          deleted: this.setVertexDeleted
+        },
+        drawing: {
+          move: this._setMove,
+          commit: this._setCommit,
+          mousedown: this._setMouseDown,
+          end: this.disable
+        }
+      };
+    },
+
+    enable: function () {
+      this.editTool = this.enableEdit();
+      this.measureLayer = this._map.editTools.startPolygon();
+      this.isDragging = false;
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+    },
+
+    disable: function() {
+  //     this.eventsOff( 'editable:', this.editableEventTree);
+    },
+
+    _setMove: function(e) {
+      var text;
+      var latlngs = e.layer.editor.getLatLngs()[0];
+      var nPoints = latlngs.length;
+      if (nPoints < 2) {
+        text = nPoints == 0 ? this.popupText.move : this.popupText.add;
+        this._onMouseMove(e, text);
+      } else {
+        this._fireEvent(e, 'edit');
+      }
+    },
+
+    _setDragStart: function(e) {
+      this.measureLayer = e.layer;
+      this.isDragging = true;
+
+    },
+    _setDragEnd: function(e) {
+      this._fireEvent(e, 'editend');
+  //     this.showLabel(e);
+      this.isDragging = false;
+
+    },
+
+    setVertexDeleted: function(e) {
+      this.vertexDeleted = true;
+      this._fireEvent(e, 'editend');
+  //     this.showLabel(e);
+      this.vertexDeleted = false;
+    },
+
+    _setMouseDown: function(e) {
+      var latlngs = e.layer.editor.getLatLngs()[0];
+      if (latlngs.length <= 1) return;
+      var text = this.popupText.commit;
+      var latlng = e.latlng? e.latlng : e.vertex.latlng;
+      this._showPopup(text, latlng);
+    },
+
+    _setCommit: function(e) {
+      this._fireEvent(e, 'created');
+    },
+
+
   };
 
 })(L);
