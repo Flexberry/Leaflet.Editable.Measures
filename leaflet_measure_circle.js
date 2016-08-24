@@ -48,7 +48,7 @@
     Метод обновления основного лейбла измеряемого объекта
     @param {Object} layer Редактируемый слой.
     */
-    _updateMeasureLabel: function(layer) {
+    _updateMeasureLabel: function(layer, e) {
       var radius = layer.getRadius();
       var areaText = '<b>Площадь: ' + L.Measure.getCircleAreaText({radius: radius}) + '</b>';
       var latlngs = layer.editor.getLatLngs();

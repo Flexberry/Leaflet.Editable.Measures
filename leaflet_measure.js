@@ -252,7 +252,7 @@
  Метод обновления основного лейбла измеряемого объекта
  @param {Object} layer Редактируемый слой.
  */
- _updateMeasureLabel: function(layer) {
+ _updateMeasureLabel: function(layer, e) {
  },
 
 
@@ -305,6 +305,8 @@
         layerType = 'marker';
       } else if (layer instanceof L.Circle) {
         layerType = 'circle';
+      } else if (layer instanceof L.Rectangle) {
+        layerType = 'rectangle';
       } else if (layer instanceof L.Polygon) {
         layerType = 'polygon';
       } else if (layer instanceof L.Polyline) {
@@ -401,9 +403,14 @@
 
   };
 
+  /**
+   * Примесь, обеспечивающая поддержку основных методов редактирования пути
+   */
+  L.Measure.Mixin.Path = L.Class.extend({
+  });
 
   /**
-   * Примесь, обеспечивающая поддержку основных обытий редактирования маркера
+   * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
    */
   L.Measure.Mixin.Marker = {
 
@@ -434,7 +441,7 @@
     /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
-      Порядок событийEvents в Leaflet.Editable:
+      Порядок событий в Leaflet.Editable:
 
         До первого клика
           editable:created
@@ -472,7 +479,7 @@
       Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
       */
     enable: function  /**
-    * Примесь, обеспечивающая поддержку основных обытий редактирования маркера
+    * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
     */ () {
       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startMarker();
@@ -492,7 +499,7 @@
 
 
     _setMove: function(e) {
-      var text = this.isDragging ? this.popupText.drag : this.popupText.move + '<br>' + this._getLabelContent();
+      var text = this.isDragging ? this.popupText.drag : this.popupText.move + '<br>' + this._getLabelContent(e.layer, e.latlng);
       this._onMouseMove(e, text);
     },
 
@@ -515,18 +522,18 @@
   };
 
   /**
-   * Примесь, обеспечивающая поддержку основных обытий редактирования круга
+   * Примесь, обеспечивающая поддержку основных cобытий редактирования круга
    */
   L.Measure.Mixin.Circle = {
 
     popupText: {
-      move: 'Зажмите кнопку мыши и переметите курсор, чтобы нарисовать круг',
+      move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать круг.'
     },
 
     /**
      Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstractthis.popupText.move
+     @abstract
      @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
      */
     _getDefaultOptions: function () {
@@ -545,7 +552,7 @@
      /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
-      Порядок событийEvents в Leaflet.Editable:
+      Порядок событий в Leaflet.Editable:
       До первого клика
           editable:enable
           editable:drawing:start
@@ -619,8 +626,113 @@
     },
   };
 
+    /**
+   * Примесь, обеспечивающая поддержку основных cобытий редактирования прямоугольника
+   */
+  L.Measure.Mixin.Rectangle = {
+
+    popupText: {
+      move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать прямоугольник',
+      drag: 'Отпустите кнопку мыши, чтобы зафиксировать прямоугольник.'
+    },
+
+    /**
+     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     @abstract
+     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     */
+    _getDefaultOptions: function () {
+      return {
+        shapeOptions: {
+          stroke: true,
+          color: 'green',
+          weight: 2,
+          opacity: 0.5,
+          fill: true,
+          clickable: true
+        }
+      };
+    },
+
+     /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событий в Leaflet.Editable:
+      До первого клика
+          editable:enable
+          editable:drawing:start
+          editable:drawing:move
+        1-й клик
+          editable:drawing:mousedown
+          editable:drawing:commit
+          editable:drawing:end
+        Перемещение, изменение размера прямоугольника
+          editable:vertex:dragstart
+          editable:drawing:move
+          editable:vertex:drag
+          editable:editing
+        Отпуск клавиши
+          editable:vertex:dragend
+     */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMove,
+          end: this._setDrawingEnd
+        },
+        vertex: {
+          dragstart: this._setDragstart,
+          drag: this._setDrag,
+          dragend: this._setDragend
+        }
+      };
+    },
+
+     enable: function () {
+      this.measureLayer = this._map.editTools.startRectangle();
+      this._latlng = this._map.getCenter();
+      this.editTool = this.enableEdit();
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.isDrawing = false;
+    },
+
+    _setMove: function(e) {
+      if (this.isDrawing || this.isDragging) {
+        this._fireEvent(e, 'edit');
+      } else {
+        var text = this.popupText.move;
+        this._onMouseMove(e, text);
+      }
+    },
+
+    _setDrawingEnd: function(e) {
+      this.isDrawing = true;
+    },
+
+    _setDragstart: function(e) {
+      if (this.isDrawing) return;
+      this.isDragging = true;
+    },
+
+    _setDragend: function(e) {
+      this._map.closePopup();
+      if (this.isDrawing) {
+        this._fireEvent(e, 'created');
+        this.isDrawing = false;
+      } else {
+        this._fireEvent(e, 'editend');
+        this.isDragging = false;
+      }
+    },
+
+    _setDrag: function(e) {
+      var text = this.popupText.drag;
+      this._onMouseMove(e, text);
+    },
+  };
+
   /**
-   * Примесь, обеспечивающая поддержку основных обытий редактирования ломаной
+   * Примесь, обеспечивающая поддержку основных cобытий редактирования ломаной
    */
   L.Measure.Mixin.Polyline = {
 
@@ -651,7 +763,7 @@
      /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
-      Порядок событийEvents в Leaflet.Editable:
+      Порядок событий в Leaflet.Editable:
         До первого клика
           editable:enable
           editable:shape:new
@@ -762,7 +874,7 @@
   };
 
   /**
-   * Примесь, обеспечивающая поддержку основных обытий редактирования многоугольника
+   * Примесь, обеспечивающая поддержку основных cобытий редактирования многоугольника
    */
   L.Measure.Mixin.Polygon = {
 
@@ -794,7 +906,7 @@
     /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
-      Порядок событийEvents в Leaflet.Editable:
+      Порядок событий в Leaflet.Editable:
         До первого клика
           editable:enable
           editable:created

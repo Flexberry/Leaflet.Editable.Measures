@@ -28,8 +28,8 @@
     /**
      * Метод для получения текстового описания результатов измерений.
      */
-    _getLabelContent: function() {
-      var fixedLatLng = L.Measure.getFixedLatLng(this.measureLayer._latlng);
+    _getLabelContent: function(layer, latlng) {
+      var fixedLatLng = L.Measure.getFixedLatLng(latlng);
       var fixedLat = fixedLatLng.lat;
       var fixedLng = fixedLatLng.lng;
       return Math.abs(fixedLat).toFixed(5) + (fixedLat >= 0 ? ' с.ш. ' : ' ю.ш. ') + Math.abs(fixedLng).toFixed(5) + (fixedLng >= 0 ? ' в.д.' : ' з.д. ');
@@ -39,8 +39,8 @@
      Метод обновления основного лейбла измеряемого объекта
      @param {Object} layer Редактируемый слой.
      */
-    _updateMeasureLabel: function(layer) {
-        var coords = this._getLabelContent();
+    _updateMeasureLabel: function(layer, e) {
+        var coords = this._getLabelContent(layer, e.latlng);
         text = "<b>" + coords + '</b>';
         this._showLabel(layer, text);
     },
