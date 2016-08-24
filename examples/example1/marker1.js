@@ -4,8 +4,7 @@
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Marker = L.Measure.Mixin.Marker.extend({
-    includes: [ L.Measure.Mixin ],
+  L.Measure.Marker1 = L.Measure.Marker.extend({
 
     /*
      * Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -50,8 +49,8 @@
   /**
    * Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.marker = function(map, options) {
-    return new L.Measure.Marker(map, options);
+  L.Measure.marker1 = function(map, options) {
+    return new L.Measure.Marker1(map, options);
   };
 
 

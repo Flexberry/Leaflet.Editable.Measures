@@ -4,8 +4,7 @@
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Polyline = L.Polyline.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Polyline ],
+  L.Measure.Rectangle1 = L.Measure.Rectangle.extend({
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -13,9 +12,9 @@
      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
      */
     _labelledMarkers: function(editor) {
-      var latlngs = editor.getLatLngs();
+      var latlngs = editor.getLatLngs()[0];
       var markers = [];
-      for(var i = 1, len = latlngs.length; i < len; i++) {
+      for(var i = 0, len = latlngs.length; i < len; i++) {
         markers.push(latlngs[i].__vertex);
       }
       return markers;
@@ -27,9 +26,8 @@
      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
      */
     _unlabelledMarkers: function(editor) {
-      var latlngs = editor.getLatLngs();
+      var latlngs = editor.getLatLngs()[0];
       var markers = [];
-      markers.push(latlngs[0].__vertex)
       return markers;
     },
 
@@ -40,33 +38,22 @@
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
     _getLabelContent: function(layer, latlng) {
-      var latlngs = layer.editor.getLatLngs().slice();
-      for (var index=0; index < latlngs.length && !latlngs[index].equals(latlng); index++);
-      if (index === latlngs.length) {
-        latlngs.push(latlng);
-      }
-      var distance = 0;
-      var currentInc = 0;
-      for(var i = 1; i <= index; i++) {
-        var prevLatLng = latlngs[i - 1];
-        var currentLatLng = latlngs[i];
-        currentInc = L.Measure.getDistance({
-          latlng1: prevLatLng,
-          latlng2: currentLatLng
-        });
-        distance += currentInc;
-      }
+      var fixedLatLng = L.Measure.getFixedLatLng(latlng);
+      var fixedLat = fixedLatLng.lat;
+      var fixedLng = fixedLatLng.lng;
+      return Math.abs(fixedLat).toFixed(5) + (fixedLat >= 0 ? ' с.ш. ' : ' ю.ш. ') + Math.abs(fixedLng).toFixed(5) + (fixedLng >= 0 ? ' в.д.' : ' з.д. ');
+    },
 
-      return '<b>' + L.Measure.getMeasureText({
-        value: distance,
-        dimension: 1
-      }) +
-      '<br><span class="measure-path-label-incdistance">+' +
-      L.Measure.getMeasureText({
-        value: currentInc,
-        dimension: 1
-      }) +
-      '</span></b>';
+     /**
+    Метод обновления основного лейбла измеряемого объекта
+    @param {Object} layer Редактируемый слой.
+    */
+    _updateMeasureLabel: function(layer, e) {
+      var center = layer.getCenter();
+      var latlngs = layer.editor.getLatLngs()[0];
+      var areaText = 'Площадь: ' + L.Measure.getAreaText({latlngs: latlngs});
+      areaText = '<b>' + areaText + '</b>';
+      this._showLabel(layer, areaText, center);
     },
 
   });
@@ -74,8 +61,8 @@
   /**
    Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.polyline = function(map, options) {
-    return new L.Measure.Polyline(map, options);
+  L.Measure.rectangle1 = function(map, options) {
+    return new L.Measure.Rectangle1(map, options);
   };
 
 })(L);

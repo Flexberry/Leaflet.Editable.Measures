@@ -26,11 +26,11 @@
 
 <!-- Measure scripts-->
 <script src="../../leaflet_measure.js"></script>
-<script src="leaflet_measure_marker.js"></script>
-<script src="leaflet_measure_rectangle.js"></script>
-<script src="leaflet_measure_circle.js"></script>
-<script src="leaflet_measure_polyline.js"></script>
-<script src="leaflet_measure_polygon.js"></script>
+<script src="marker1.js"></script>
+<script src="rectangle1.js"></script>
+<script src="circle1.js"></script>
+<script src="polyline1.js"></script>
+<script src="polygon1.js"></script>
 
 </head>
 <body>
@@ -50,11 +50,11 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 var measurementsLayerGroup = L.layerGroup().addTo(map);
 
 // Create custom measere tools instances.
-var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
-var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
-var rectangleTool = L.Measure.rectangle(map, { layerGroup: measurementsLayerGroup });
-var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
-var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
+var marker1Tool = L.Measure.marker1(map, { layerGroup: measurementsLayerGroup });
+var circle1Tool = L.Measure.circle1(map, { layerGroup: measurementsLayerGroup });
+var rectangle1Tool = L.Measure.rectangle1(map, { layerGroup: measurementsLayerGroup });
+var polyline1Tool = L.Measure.polyline1(map, { layerGroup: measurementsLayerGroup });
+var polygon1Tool =  L.Measure.polygon1(map, { layerGroup: measurementsLayerGroup });
 
 </script>
 
@@ -77,11 +77,11 @@ map.on('measure:edit', measureEdit);
 map.on('measure:editend', measureEditend);
 </script>
 
-<button id="measureMarkerBtn" onclick="markerTool.enable();">Измерить координаты</button>
-<button id="measureRectangleBtn" onclick="rectangleTool.enable();">Измерить прямоугольник</button>
-<button id="measureCircleBtn" onclick="circleTool.enable();">Измерить круг</button>
-<button id="measurePolilineBtn" onclick="polylineTool.enable();">Измерить ломаную</button>
-<button id="measurePolygonBtn" onclick="polygonTool.enable();">Измерить многоугольник</button>
+<button id="measureMarkerBtn" onclick="marker1Tool.enable();">Измерить координаты</button>
+<button id="measureRectangleBtn" onclick="rectangle1Tool.enable();">Измерить прямоугольник</button>
+<button id="measureCircleBtn" onclick="circle1Tool.enable();">Измерить круг</button>
+<button id="measurePolilineBtn" onclick="polyline1Tool.enable();">Измерить ломаную</button>
+<button id="measurePolygonBtn" onclick="polygon1Tool.enable();">Измерить многоугольник</button>
 
 </body>
 </html>

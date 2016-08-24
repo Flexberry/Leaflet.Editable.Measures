@@ -400,7 +400,8 @@
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
    */
-  L.Measure.Mixin.Marker = L.Marker.extend({
+  L.Measure.Marker = L.Marker.extend({
+    includes: [ L.Measure.Mixin ],
 
     popupText: {
       move: 'Кликните по карте, чтобы зафиксировать маркер',
@@ -512,7 +513,8 @@
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования круга
    */
-  L.Measure.Mixin.Circle = {
+  L.Measure.Circle = L.Circle.extend({
+    includes: [ L.Measure.Mixin ],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',
@@ -612,12 +614,13 @@
       var text = this.popupText.drag;
       this._onMouseMove(e, text);
     },
-  };
+  });
 
-    /**
+  /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования прямоугольника
    */
-  L.Measure.Mixin.Rectangle = {
+  L.Measure.Rectangle = L.Rectangle.extend({
+    includes: [ L.Measure.Mixin ],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать прямоугольник',
@@ -642,7 +645,7 @@
       };
     },
 
-     /**
+    /**Measure
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
       Порядок событий в Leaflet.Editable:
@@ -717,12 +720,13 @@
       var text = this.popupText.drag;
       this._onMouseMove(e, text);
     },
-  };
+  });
 
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования ломаной
    */
-  L.Measure.Mixin.Polyline = {
+  L.Measure.Polyline = L.Polyline.extend({
+    includes: [ L.Measure.Mixin ],
 
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
@@ -807,7 +811,8 @@
 
     disable: function() {
 //       this.eventsOff( 'editable:', this.editableEventTree);
-    },
+    },    includes: [ L.Measure.Mixin ],
+
 
     _setMove: function(e) {
       var text;
@@ -859,13 +864,14 @@
       this._fireEvent(e, 'editend');
     },
 
-  };
+  });
 
   /**
    * Примесь, обеспечивающая поддержку основных cобытий редактирования многоугольника
    */
-  L.Measure.Mixin.Polygon = {
-
+  L.Measure.Polygon =  L.Polygon.extend({
+    includes: [ L.Measure.Mixin ],
+    
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
       add: 'Кликните по карте, чтобы добавить новую вершину.',
@@ -979,6 +985,6 @@
     },
 
 
-  };
+  });
 
 })(L);

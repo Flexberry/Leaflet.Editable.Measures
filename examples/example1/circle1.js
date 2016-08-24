@@ -4,8 +4,7 @@
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Circle = L.Circle.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Circle ],
+  L.Measure.Circle1 = L.Measure.Circle.extend({
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -61,8 +60,8 @@
   /**
    Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.circle = function(map, options) {
-    return new L.Measure.Circle(map, options);
+  L.Measure.circle1 = function(map, options) {
+    return new L.Measure.Circle1(map, options);
   };
 
 })(L);
