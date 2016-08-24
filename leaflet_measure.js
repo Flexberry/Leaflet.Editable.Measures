@@ -10,16 +10,9 @@
        */
     precition: 0,
 
-    _fireEditingEvent: function (editing) {
-      ;
-    },
-
-
-
-
-
-
-
+//     _fireEditingEvent: function (editing) {
+//       ;
+//     },
   };
 
 
@@ -66,6 +59,19 @@
     },
 
 
+     _getLabelContent: function(layer, latlng) {
+       return '';
+    },
+
+     _labelledMarkers: function(editor) {
+      return [];
+    },
+
+     _unlabelledMarkers: function(editor) {
+      return [];
+    },
+
+
     /**
     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
     @abstract
@@ -74,8 +80,6 @@
     _getDefaultOptions: function () {
       return {};
     },
-
-  /* МЕТОДЫ Leaflet.draw BEGIN*/
 
 
  /**
@@ -157,6 +161,7 @@
     }
     this._updateLabels(e);
     this._map.fire('measure:'+ type, {
+      measurer: this,
       layer: layer,
       layerType: layerType
     });
@@ -166,15 +171,15 @@
     _layerType: function (layer) {
       var layerType;
       if (layer instanceof L.Marker) {
-        layerType = 'marker';
+        layerType = 'Marker';
       } else if (layer instanceof L.Circle) {
-        layerType = 'circle';
+        layerType = 'Circle';
       } else if (layer instanceof L.Rectangle) {
-        layerType = 'rectangle';
+        layerType = 'Rectangle';
       } else if (layer instanceof L.Polygon) {
-        layerType = 'polygon';
+        layerType = 'Polygon';
       } else if (layer instanceof L.Polyline) {
-        layerType = 'polyline';
+        layerType = 'Polyline';
       } else {
         layerType = 'unknown';
       }
@@ -1032,5 +1037,40 @@
 
 
   });
+
+  /**
+   Фабричный метод для создания экземпляра инструмента измерения маркера.
+   */
+  L.Measure.marker = function(map, options) {
+    return new L.Measure.Marker(map, options);
+  };
+
+  /**
+   Фабричный метод для создания экземпляра инструмента измерения прямоугольника.
+   */
+  L.Measure.rectangle = function(map, options) {
+    return new L.Measure.Rectangle(map, options);
+  };
+
+  /**
+   Фабричный метод для создания экземпляра инструмента измерения круга.
+   */
+  L.Measure.circle = function(map, options) {
+    return new L.Measure.Circle(map, options);
+  };
+
+  /**
+   Фабричный метод для создания экземпляра инструмента измерения ломаной.
+   */
+  L.Measure.polyline = function(map, options) {
+    return new L.Measure.Polyline(map, options);
+  };
+
+  /**
+   Фабричный метод для создания экземпляра инструмента измерения многоугольника.
+   */
+  L.Measure.polygon = function(map, options) {
+    return new L.Measure.Polygon(map, options);
+  };
 
 })(L);
