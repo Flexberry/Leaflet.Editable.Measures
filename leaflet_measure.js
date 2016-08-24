@@ -500,6 +500,28 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
     },
 
+    /** Events order:
+     *
+      До первого клика
+        editable:created
+        editable:enable
+        editable:drawing:start
+        editable:drawing:move
+
+      1-й клик  и последующие клики
+        editable:created
+        editable:drawing:mousedown
+        editable:drawing:click
+        editable:drawing:clicked
+        editable:drawing:commit
+        editable:drawing:end
+      Перетаскивание вершины:
+      
+        editable:editing
+        editable:dragstart
+        editable:drag
+        editable:dragend
+      */
     setEvents: function (map, options) {
       this.editableEventTree = {
         drawing: {
