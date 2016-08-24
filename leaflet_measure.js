@@ -489,4 +489,19 @@
 
   };
 
+
+  L.Measure.Mixin.Marker = {
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMove,
+          commit: this._setCommit,
+        },
+        drag: this._setDrag,
+        dragstart: this._setDragStart,
+        dragend: this._setDragend
+      };
+    },
+  };
+
 })(L);

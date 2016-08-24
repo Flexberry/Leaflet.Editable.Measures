@@ -5,19 +5,18 @@
    * Класс инструмента для измерения координат.
    */
   L.Measure.Marker = L.Marker.extend({
-    includes: L.Measure.Mixin,
-
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        drawing: {
-          move: this._setMove,
-          commit: this._setCommit,
-        },
-        drag: this._setDrag,
-        dragstart: this._setDragStart,
-        dragend: this._setDragend
-      };
-    },
+    includes: [L.Measure.Mixin, L.Measure.Mixin.Marker],
+//     setEvents: function (map, options) {
+//       this.editableEventTree = {
+//         drawing: {
+//           move: this._setMove,
+//           commit: this._setCommit,
+//         },
+//         drag: this._setDrag,
+//         dragstart: this._setDragStart,
+//         dragend: this._setDragend
+//       };
+//     },
 
     tooltipText: {
       drag: 'Кликните по карте, чтобы зафиксировать маркер',
