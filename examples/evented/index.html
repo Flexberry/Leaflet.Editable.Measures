@@ -63,6 +63,12 @@ function measureCreated(params) {
       document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
       document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
       break;
+    case 'Rectangle':
+      document.getElementById('rectangleState').innerHTML='Создан';
+      break;
+    case 'Circle':
+      document.getElementById('circleState').innerHTML='Создан';
+      break;
   }
 }
 
@@ -77,6 +83,12 @@ function measureEdit(params) {
       document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
       document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
       break;
+    case 'Rectangle':
+      document.getElementById('rectangleState').innerHTML='Изменяется';
+      break;
+    case 'Circle':
+      document.getElementById('circleState').innerHTML='Изменяется';
+      break;
   }
 }
 
@@ -90,6 +102,12 @@ function measureEditend(params) {
       document.getElementById('markerState').innerHTML='Перемещен';
       document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
       document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
+      break;
+    case 'Rectangle':
+      document.getElementById('rectangleState').innerHTML='Изменен';
+      break;
+    case 'Circle':
+      document.getElementById('circleState').innerHTML='Изменен';
       break;
   }
 
@@ -128,8 +146,47 @@ map.on('measure:editend', measureEditend);
         </tr>
       </table>
     </td>
-
   </tr>
+
+  <tr valign='top'>
+    <th>Прямоугольник</th>
+    <td id='rectangleState'>&nbsp;</td>
+        <td>
+      <table>
+        <tr>
+          <th width='200'>Центр</th>
+          <th width='400'>Границы</th>
+          <th width='100'>Ширина</th>
+          <th width='100'>Высота</th>
+          <th width='100'>Периметр</th>
+          <th width='100'>Площадь</th>
+          </tr>
+        <tr>
+
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr valign='top'>
+    <th>Круг</th>
+    <td id='circleState'>&nbsp;</td>
+        <td>
+      <table>
+        <tr>
+          <th width='200'>Центр</th>
+          <th width='400'>Границы</th>
+          <th width='100'>Радиус</th>
+          <th width='100'>Периметр</th>
+          <th width='100'>Площадь</th>
+          </tr>
+        <tr>
+
+        </tr>
+      </table>
+    </td>
+  </tr>
+
 </table>
 
 </body>
