@@ -38,7 +38,7 @@
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
     _getLabelContent: function(layer, latlng) {
-      var fixedLatLng = L.Measure.getFixedLatLng(latlng);
+      var fixedLatLng = this.getFixedLatLng(latlng);
       var fixedLat = fixedLatLng.lat;
       var fixedLng = fixedLatLng.lng;
       return Math.abs(fixedLat).toFixed(5) + (fixedLat >= 0 ? ' с.ш. ' : ' ю.ш. ') + Math.abs(fixedLng).toFixed(5) + (fixedLng >= 0 ? ' в.д.' : ' з.д. ');
@@ -51,7 +51,7 @@
     _updateMeasureLabel: function(layer, e) {
       var center = layer.getCenter();
       var latlngs = layer.editor.getLatLngs()[0];
-      var areaText = 'Площадь: ' + L.Measure.getAreaText({latlngs: latlngs});
+      var areaText = 'Площадь: ' + this.getAreaText({latlngs: latlngs});
       areaText = '<b>' + areaText + '</b>';
       this._showLabel(layer, areaText, center);
     },

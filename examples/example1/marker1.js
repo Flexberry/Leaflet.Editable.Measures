@@ -28,7 +28,7 @@
      * Метод для получения текстового описания результатов измерений.
      */
     _getLabelContent: function(layer, latlng) {
-      var fixedLatLng = L.Measure.getFixedLatLng(latlng);
+      var fixedLatLng = this.getFixedLatLng(latlng);
       var fixedLat = fixedLatLng.lat;
       var fixedLng = fixedLatLng.lng;
       return Math.abs(fixedLat).toFixed(5) + (fixedLat >= 0 ? ' с.ш. ' : ' ю.ш. ') + Math.abs(fixedLng).toFixed(5) + (fixedLng >= 0 ? ' в.д.' : ' з.д. ');

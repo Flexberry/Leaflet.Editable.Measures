@@ -15,144 +15,8 @@
     },
 
 
-    /**
-     * Приводит значение координат точки, которые могут принимать любые действительные значения,
-     * к значениям, лежещим в отрезках [-90; 90], для широты, [-180, 180] для долготы.
-     * @param {Object} latlng Точка, содержащая координаты.
-     * @param {Number} periodRadius Радиус периода координатной оси.
-     * @returns {Number} Точка со скорректированными координатами.
-     */
-    getFixedLatLng: function(latlng) {
-      var getFixedCoordinate = function(coordinate, periodRadius) {
-        var divCoordinate = Math.floor(Math.abs(coordinate) / periodRadius);
-        var fixCoefficient = divCoordinate % 2 ? (divCoordinate + 1) : divCoordinate;
 
-        return (coordinate >= 0) ? coordinate - (periodRadius * fixCoefficient) : coordinate + (periodRadius * fixCoefficient);
-      };
 
-      return L.latLng(getFixedCoordinate(latlng.lat, 90), getFixedCoordinate(latlng.lng, 180));
-    },
-
-    /**
-     * Получить текстовое представление произведенных измерений.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.value Результат измерений в метрах.
-     * @param {Object} e.dimension Размерность измерений (1 - линейные расстояния, 2- площади).
-     * @returns {string} Текстовое представление произведенных измерений.
-     */
-    getMeasureText: function(e) {
-      var value = parseFloat(e.value.toFixed(L.Measure.precition));
-      var metersInOneKm = Math.pow(1000, e.dimension);
-      var kmPrecition = L.Measure.precition + e.dimension * 3;
-      var valueInKm = parseFloat((value / metersInOneKm).toFixed(kmPrecition));
-
-      var dimensionText = (e.dimension > 1) ? '<sup>' + e.dimension + '</sup>' : '';
-      var kmRoundingBound = 1.0 / Math.pow(10, e.dimension - 1);
-
-      return (valueInKm >= kmRoundingBound)
-          ? valueInKm.toFixed(kmPrecition) + ' км' + dimensionText
-          : value.toFixed(L.Measure.precition) + ' м' + dimensionText;
-    },
-
-    /**
-     * Вычисляет расстояние между двумя точками (в метрах) с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.latlng1 Первая точка.
-     * @param {Object} e.latlng2 Вторая точка.
-     * @returns {Number} Полученное расстояние (в метрах).
-     */
-    getDistance: function(e) {
-      return parseFloat(e.latlng1.distanceTo(e.latlng2).toFixed(L.Measure.precition));
-    },
-
-    /**
-     * Вычисляет расстояние между двумя точками и возвращает его текстовое представление с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.latlng1 Первая точка.
-     * @param {Object} e.latlng2 Вторая точка.
-     * @returns {Number} Текстовое представление расстояния.
-     */
-    getDistanceText: function(e) {
-      return L.Measure.getMeasureText({
-        value: L.Measure.getDistance(e),
-        dimension: 1
-      });
-    },
-
-    /**
-     * Вычисляет площадь многоугольника (в метрах) с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.latlngs Массив точек многоугольника.
-     * @returns {Number} Полощадь многоугольника (в метрах).
-     */
-    getArea: function(e) {
-      return distance = parseFloat(this.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
-    },
-
-    /**
-    Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.latlngs Массив точек многоугольника.
-    @returns {Number} Текстовое представление площади.
-     */
-    getAreaText: function(e) {
-      return L.Measure.getMeasureText({
-        value: L.Measure.getArea(e),
-        dimension: 2
-      });
-    },
-
-    /**
-    Возвращает текстовое представление для радиуса с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.radius Значение радиуса в метрах.
-    @returns {Number} Текстовое представление радиуса.
-      */
-    getRadiusText: function(e) {
-      return L.Measure.getMeasureText({
-        value: e.radius,
-        dimension: 1
-      });
-    },
-
-    /**
-    Возвращает текстовое представление площади круга с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.radius Значение радиуса в метрах.
-    @returns {Number} Текстовое представление радиуса.
-      */
-    getCircleAreaText: function(e) {
-      var area = Math.PI * e.radius * e.radius;
-      return L.Measure.getMeasureText({
-        value: area,
-        dimension: 2
-      });
-    },
-  /**
-   Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
-   Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
-   @param {Object} latLngs  Массив точек многоугольника.
-   @returns {Number} Полощадь многоугольника (в метрах).
-   */
-    geodesicArea: function (latLngs) {
-      const DEG_TO_RAD = 0.017453292519943295;;
-      var pointsCount = latLngs.length,
-        area = 0.0,
-        d2r = DEG_TO_RAD,
-        p1, p2;
-
-      if (pointsCount > 2) {
-        for (var i = 0; i < pointsCount; i++) {
-          p1 = latLngs[i];
-          p2 = latLngs[(i + 1) % pointsCount];
-          area += ((p2.lng - p1.lng) * d2r) *
-              (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
-        }
-        area = area * 6378137.0 * 6378137.0 / 2.0;
-      }
-
-      return Math.abs(area);
-    },
 
 
 
@@ -332,17 +196,17 @@
       }
     },
 
-//     eventsOff: function(prefix,eventTree) {
-//       for (var eventSubName in eventTree) {
-//         var func = eventTree[eventSubName];
-//         var eventName = prefix + eventSubName;
-//         if (typeof func == 'function') {
-//           this._map.off(eventName);
-//         } else {
-//           this.eventsOff(eventName + ':', func);
-//         }
-//       }
-//     },
+    eventsOff: function(prefix,eventTree) {
+      for (var eventSubName in eventTree) {
+        var func = eventTree[eventSubName];
+        var eventName = prefix + eventSubName;
+        if (typeof func == 'function') {
+          this._map.off(eventName);
+        } else {
+          this.eventsOff(eventName + ':', func);
+        }
+      }
+    },
 
     eventOffByPrefix: function (prefix) {
       var prefixLen = prefix.length;
@@ -392,16 +256,201 @@
   };
 
   /**
-   * Примесь, обеспечивающая поддержку основных методов редактирования пути
+  Миксины для методов работы с объектами
+  Дерево миксинов повторяет дерево классов объектов Leaflet 1.0.0-rc3
+  L.Layer +-> L.Marker
+          +-> L.Path +-> L.Polyline -> L.Polygon -> L.Rectangle
+                     +->L.CircleMarker -> L.Circle
    */
-  L.Measure.Mixin.Path = L.Class.extend({
-  });
 
   /**
-   * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
+   *   Примесь, обеспечивающая поддержку основных методов редактирования маркера
+   */
+  L.Measure.Mixin.Marker = {
+    /**
+     Приводит значение координат точки, которые могут принимать любые действительные значения,
+     к значениям, лежещим в отрезках [-90; 90], для широты, [-180, 180] для долготы.
+     @param {Object} latlng Точка, содержащая координаты.
+     @param {Number} periodRadius Радиус периода координатной оси.
+     @returns {Number} Точка со скорректированными координатами.
+     */
+    getFixedLatLng: function(latlng) {
+      var getFixedCoordinate = function(coordinate, periodRadius) {
+        var divCoordinate = Math.floor(Math.abs(coordinate) / periodRadius);
+        var fixCoefficient = divCoordinate % 2 ? (divCoordinate + 1) : divCoordinate;
+
+        return (coordinate >= 0) ? coordinate - (periodRadius * fixCoefficient) : coordinate + (periodRadius * fixCoefficient);
+      };
+
+      return L.latLng(getFixedCoordinate(latlng.lat, 90), getFixedCoordinate(latlng.lng, 180));
+    },
+
+    /**
+     Получить текстовое представление произведенных измерений.
+     @param {Object} e Аргументы метода.
+     @param {Object} e.value Результат измерений в метрах.
+     @param {Object} e.dimension Размерность измерений (1 - линейные расстояния, 2- площади).
+     @returns {string} Текстовое представление произведенных измерений.
+     */
+    getMeasureText: function(e) {
+      var value = parseFloat(e.value.toFixed(L.Measure.precition));
+      var metersInOneKm = Math.pow(1000, e.dimension);
+      var kmPrecition = L.Measure.precition + e.dimension * 3;
+      var valueInKm = parseFloat((value / metersInOneKm).toFixed(kmPrecition));
+
+      var dimensionText = (e.dimension > 1) ? '<sup>' + e.dimension + '</sup>' : '';
+      var kmRoundingBound = 1.0 / Math.pow(10, e.dimension - 1);
+
+      return (valueInKm >= kmRoundingBound)
+          ? valueInKm.toFixed(kmPrecition) + ' км' + dimensionText
+          : value.toFixed(L.Measure.precition) + ' м' + dimensionText;
+    },
+
+    /**
+     Вычисляет расстояние между двумя точками (в метрах) с заданной точностью.
+     @param {Object} e Аргументы метода.
+     @param {Object} e.latlng1 Первая точка.
+     @param {Object} e.latlng2 Вторая точка.
+     @returns {Number} Полученное расстояние (в метрах).
+     */
+    getDistance: function(e) {
+      return parseFloat(e.latlng1.distanceTo(e.latlng2).toFixed(L.Measure.precition));
+    },
+
+    /**
+     Вычисляет расстояние между двумя точками и возвращает его текстовое представление с заданной точностью.
+     @param {Object} e Аргументы метода.
+     @param {Object} e.latlng1 Первая точка.
+     @param {Object} e.latlng2 Вторая точка.
+     @returns {Number} Текстовое представление расстояния.
+     */
+    getDistanceText: function(e) {
+      return L.Measure.getMeasureText({
+        value: L.Measure.getDistance(e),
+        dimension: 1
+      });
+    },
+
+  };
+
+  /**
+   Примесь, обеспечивающая поддержку основных методов редактирования пути
+   */
+  L.Measure.Mixin.Path = {
+  };
+
+  /**
+  Примесь, обеспечивающая поддержку основных методов редактирования ломаной
+   */
+  L.Measure.Mixin.Polyline = {
+  };
+
+  /**
+     Примесь, обеспечивающая поддержку основных методов редактирования многоугольника
+   */
+  L.Measure.Mixin.Polygon = {
+       /**
+     * Вычисляет площадь многоугольника (в метрах) с заданной точностью.
+     * @param {Object} e Аргументы метода.
+     * @param {Object} e.latlngs Массив точек многоугольника.
+     * @returns {Number} Полощадь многоугольника (в метрах).
+     */
+    getArea: function(e) {
+      return distance = parseFloat(this.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
+    },
+
+    /**
+    Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.latlngs Массив точек многоугольника.
+    @returns {Number} Текстовое представление площади.
+     */
+    getAreaText: function(e) {
+      return this.getMeasureText({
+        value: this.getArea(e),
+        dimension: 2
+      });
+    },
+
+  /**
+   Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
+   Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
+   @param {Object} latLngs  Массив точек многоугольника.
+   @returns {Number} Полощадь многоугольника (в метрах).
+   */
+    geodesicArea: function (latLngs) {
+      const DEG_TO_RAD = 0.017453292519943295;;
+      var pointsCount = latLngs.length,
+        area = 0.0,
+        d2r = DEG_TO_RAD,
+        p1, p2;
+
+      if (pointsCount > 2) {
+        for (var i = 0; i < pointsCount; i++) {
+          p1 = latLngs[i];
+          p2 = latLngs[(i + 1) % pointsCount];
+          area += ((p2.lng - p1.lng) * d2r) *
+              (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
+        }
+        area = area * 6378137.0 * 6378137.0 / 2.0;
+      }
+
+      return Math.abs(area);
+    },
+
+  };
+
+  /**
+   Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
+   */
+  L.Measure.Mixin.Rectangle = {
+  };
+
+  /**
+   Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
+   */
+  L.Measure.Mixin.CircleMarker = {
+  };
+
+  /**
+   Примесь, обеспечивающая поддержку основных методов измерения круга
+   */
+  L.Measure.Mixin.Circle = {
+
+    /**
+    Возвращает текстовое представление для радиуса с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {Number} Текстовое представление радиуса.
+      */
+    getRadiusText: function(e) {
+      return this.getMeasureText({
+        value: e.radius,
+        dimension: 1
+      });
+    },
+
+    /**
+    Возвращает текстовое представление площади круга с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {Number} Текстовое представление радиуса.
+      */
+    getCircleAreaText: function(e) {
+      var area = Math.PI * e.radius * e.radius;
+      return this.getMeasureText({
+        value: area,
+        dimension: 2
+      });
+    },
+  };
+
+
+  /**
+   Класс, обеспечивающая поддержку основных cобытий редактирования маркера
    */
   L.Measure.Marker = L.Marker.extend({
-    includes: [ L.Measure.Mixin ],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker ],
 
     popupText: {
       move: 'Кликните по карте, чтобы зафиксировать маркер',
@@ -467,9 +516,7 @@
     /**
       Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
       */
-    enable: function  /**
-    * Примесь, обеспечивающая поддержку основных cобытий редактирования маркера
-    */ () {
+    enable: function() {
       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startMarker();
       //       this._onActionsTest();
@@ -511,10 +558,10 @@
   });
 
   /**
-   * Примесь, обеспечивающая поддержку основных cобытий редактирования круга
+   Класс, обеспечивающая поддержку основных cобытий редактирования круга
    */
   L.Measure.Circle = L.Circle.extend({
-    includes: [ L.Measure.Mixin ],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle ],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',
@@ -617,10 +664,10 @@
   });
 
   /**
-   * Примесь, обеспечивающая поддержку основных cобытий редактирования прямоугольника
+   Класс, обеспечивающая поддержку основных cобытий редактирования прямоугольника
    */
   L.Measure.Rectangle = L.Rectangle.extend({
-    includes: [ L.Measure.Mixin ],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.Rectangle ],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать прямоугольник',
@@ -723,10 +770,10 @@
   });
 
   /**
-   * Примесь, обеспечивающая поддержку основных cобытий редактирования ломаной
+   Класс, обеспечивающая поддержку основных cобытий редактирования ломаной
    */
   L.Measure.Polyline = L.Polyline.extend({
-    includes: [ L.Measure.Mixin ],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path ],
 
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
@@ -810,8 +857,7 @@
     },
 
     disable: function() {
-//       this.eventsOff( 'editable:', this.editableEventTree);
-    },    includes: [ L.Measure.Mixin ],
+    },
 
 
     _setMove: function(e) {
@@ -867,11 +913,11 @@
   });
 
   /**
-   * Примесь, обеспечивающая поддержку основных cобытий редактирования многоугольника
+   Класс, обеспечивающая поддержку основных cобытий редактирования многоугольника
    */
   L.Measure.Polygon =  L.Polygon.extend({
-    includes: [ L.Measure.Mixin ],
-    
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline],
+
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
       add: 'Кликните по карте, чтобы добавить новую вершину.',

@@ -39,7 +39,7 @@
      */
     _getLabelContent: function(layer, latlng) {
       var radius = layer.getRadius();
-      var  radiusText = L.Measure.getRadiusText({radius: radius});
+      var  radiusText = this.getRadiusText({radius: radius});
       return '<b>' + 'Радиус: ' + radiusText + '</b>';
     },
 
@@ -49,7 +49,7 @@
     */
     _updateMeasureLabel: function(layer, e) {
       var radius = layer.getRadius();
-      var areaText = '<b>Площадь: ' + L.Measure.getCircleAreaText({radius: radius}) + '</b>';
+      var areaText = '<b>Площадь: ' + this.getCircleAreaText({radius: radius}) + '</b>';
       var latlngs = layer.editor.getLatLngs();
       var marker = latlngs[0].__vertex;
       this._showLabel(marker, areaText);

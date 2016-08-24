@@ -54,13 +54,13 @@
       for(var i = 1; i < latlngs.length; i++) {
         var prevLatLng = latlngs[i - 1];
         var currentLatLng = latlngs[i];
-        currentInc = L.Measure.getDistance({
+        currentInc = this.getDistance({
           latlng1: prevLatLng,
           latlng2: currentLatLng
         });
         distance += currentInc;
       }
-      var ret = '<b>Периметр: ' + L.Measure.getMeasureText({
+      var ret = '<b>Периметр: ' + this.getMeasureText({
       value: distance,
       dimension: 1
     }) + '</b>';
@@ -75,7 +75,7 @@
           latlngs.push(latlng);
         }
       }
-      var ret = 'Площадь: ' + L.Measure.getAreaText({latlngs: latlngs});
+      var ret = 'Площадь: ' + this.getAreaText({latlngs: latlngs});
       ret = '<b>' + ret + '</b>';
       return ret;
     },

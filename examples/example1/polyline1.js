@@ -50,19 +50,19 @@
       for(var i = 1; i <= index; i++) {
         var prevLatLng = latlngs[i - 1];
         var currentLatLng = latlngs[i];
-        currentInc = L.Measure.getDistance({
+        currentInc = this.getDistance({
           latlng1: prevLatLng,
           latlng2: currentLatLng
         });
         distance += currentInc;
       }
 
-      return '<b>' + L.Measure.getMeasureText({
+      return '<b>' + this.getMeasureText({
         value: distance,
         dimension: 1
       }) +
       '<br><span class="measure-path-label-incdistance">+' +
-      L.Measure.getMeasureText({
+      this.getMeasureText({
         value: currentInc,
         dimension: 1
       }) +
