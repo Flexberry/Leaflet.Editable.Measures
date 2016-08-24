@@ -264,17 +264,20 @@
    this._showPopup(text, e.latlng);
  },
 
- _showPopup: function(text, latlng) {
-   if (this.measurePopup) {
-     if (!this.measurePopup.isOpen()) {
-       this.measurePopup.openOn(this._map);
-     }
-     this.measurePopup.setLatLng(latlng).setContent(text);
-   } else {
-     this.measurePopup = L.popup()
-     this.measurePopup.setLatLng(latlng).setContent(text);
-     this.measurePopup.openOn(this._map);
-   } },
+  _showPopup: function(text, latlng) {
+    if (this.measurePopup) {
+      if (!this.measurePopup.isOpen()) {
+        this.measurePopup.openOn(this._map);
+      }
+      this.measurePopup.setLatLng(latlng).setContent(text);
+    } else {
+      this.measurePopup = L.popup()
+      this.measurePopup.setLatLng(latlng).setContent(text);
+      this.measurePopup.openOn(this._map);
+  //      var element = this.measurePopup.getElement();
+    }
+    L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
+  },
 
    /**
     Обработчик события, сигнализирующий о редактировании слоя.
@@ -491,6 +494,12 @@
 
 
   L.Measure.Mixin.Marker = {
+
+    popupText: {
+      move: 'Кликните по карте, чтобы зафиксировать маркер',
+      drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
+    },
+
     setEvents: function (map, options) {
       this.editableEventTree = {
         drawing: {
@@ -501,6 +510,67 @@
         dragstart: this._setDragStart,
         dragend: this._setDragend
       };
+    },
+
+    /**
+     * Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
+     * @abstract
+     * @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
+     */
+    _getDefaultOptions: function () {
+      return {
+        icon: L.icon({
+          iconUrl: './vendor/leaflet_1_0_0_rc2/images/marker-icon.png',
+          iconRetinaUrl: './vendor/leaflet_1_0_0_rc2/images/marker-icon-2x.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowUrl: './vendor/leaflet_1_0_0_rc2/images/marker-shadow.png',
+          shadowSize: [41, 41]
+        })
+      };
+    },
+      /**
+        Инициализация режима перемщения маркера Marker с отображением tooltip текущего месторасположения
+       */
+    enable: function () {
+      this.editTool = this.enableEdit();
+      this.measureLayer = this._map.editTools.startMarker();
+      //       this._onActionsTest();
+//       this.eventOffByPrefix('editable:');
+      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.isDragging = false;
+    },
+
+      /**
+        Выключение режима перемщения маркера Marker
+       */
+      disable: function () {
+      this.disableEdit();
+      this.editTool = null;
+    },
+
+
+    _setMove: function(e) {
+      var text = this.isDragging ? this.popupText.drag : this.popupText.move + '<br>' + this._getLabelContent();
+      this._onMouseMove(e, text);
+    },
+
+    _setDrag: function(e) {
+      this._fireEvent(e, 'edit');
+    },
+
+    _setDragStart: function(e) {
+      this.isDragging = true;
+    },
+
+    _setDragend:function(e) {
+      this.isDragging = false;
+      this._fireEvent(e, 'editend');
+    },
+
+    _setCommit: function(e) {
+      this._fireEvent(e, 'created');
     },
   };
 
