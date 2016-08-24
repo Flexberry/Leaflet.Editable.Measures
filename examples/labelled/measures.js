@@ -4,7 +4,7 @@
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Marker1 = L.Measure.Marker.extend({
+  L.Measure.MarkerLabelled = L.Measure.Marker.extend({
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -49,15 +49,15 @@
   /**
    Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.marker1 = function(map, options) {
-    return new L.Measure.Marker1(map, options);
+  L.Measure.markerLabelled = function(map, options) {
+    return new L.Measure.MarkerLabelled(map, options);
   };
 
 
   /**
    Класс инструмента для измерения координат.
    */
-  L.Measure.Rectangle1 = L.Measure.Rectangle.extend({
+  L.Measure.RectangleLabelled = L.Measure.Rectangle.extend({
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -114,14 +114,14 @@
   /**
    *   Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.rectangle1 = function(map, options) {
-    return new L.Measure.Rectangle1(map, options);
+  L.Measure.rectangleLabelled = function(map, options) {
+    return new L.Measure.RectangleLabelled(map, options);
   };
 
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Circle1 = L.Measure.Circle.extend({
+  L.Measure.CircleLabelled = L.Measure.Circle.extend({
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -177,14 +177,14 @@
   /**
    *   Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.circle1 = function(map, options) {
-    return new L.Measure.Circle1(map, options);
+  L.Measure.circleLabelled = function(map, options) {
+    return new L.Measure.CircleLabelled(map, options);
   };
 
   /**
    * Класс инструмента для измерения координат.
    */
-  L.Measure.Polyline1 = L.Measure.Polyline.extend({
+  L.Measure.PolylineLabelled = L.Measure.Polyline.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Polyline ],
 
     /*
@@ -254,14 +254,14 @@
   /**
    *   Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.polyline1 = function(map, options) {
-    return new L.Measure.Polyline1(map, options);
+  L.Measure.polylineLabelled = function(map, options) {
+    return new L.Measure.PolylineLabelled(map, options);
   };
 
   /**
    Класс инструмента для измерения координат.
    */
-  L.Measure.Polygon1 = L.Measure.Polygon.extend({
+  L.Measure.PolygonLabelled = L.Measure.Polygon.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Polygon ],
 
     /*
@@ -359,8 +359,8 @@
   /**
    Фабричный метод для создания экземпляра инструмента измерения координат.
    */
-  L.Measure.polygon1 = function(map, options) {
-    return new L.Measure.Polygon1(map, options);
+  L.Measure.polygonLabelled = function(map, options) {
+    return new L.Measure.PolygonLabelled(map, options);
   };
 
 
