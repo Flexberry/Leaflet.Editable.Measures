@@ -149,7 +149,7 @@ function measureCreate(params) {
     case 'Circle':
       showCircleMeasures(measurer, layer, layerType);
       break;
-    case 'Polygon':
+    case 'Polygon': case 'Rectangle':
       showPolygonMeasures(measurer, layer, layerType);
       break;
     }
@@ -181,7 +181,7 @@ function measureEdit(params) {
     case 'Circle':
       showCircleMeasures(measurer, layer, layerType);
       break;
-    case 'Polygon':
+    case 'Polygon':  case 'Rectangle':
       showPolygonMeasures(measurer, layer, layerType);
       break;
 
