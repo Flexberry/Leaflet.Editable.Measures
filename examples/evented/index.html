@@ -89,7 +89,25 @@ function showCircleMeasures(measurer, layer, layerType) {
   document.getElementById(layerType+'SouthEast').innerHTML=southEast.lat + ',' + southEast.lng;
   var diameter = measurer.getDiameterText(layer);
   document.getElementById('CircleDiameter').innerHTML=diameter;
-  var area = measurer.getCircleAreaText(layer);
+  var area = measurer.getAreaText(layer);
+  document.getElementById(layerType+'Area').innerHTML=area;
+  }
+
+function showPolygonMeasures(measurer, layer, layerType) {
+  var latlngs = layer.editor.getLatLngs()[0];
+  var bounds = layer.getBounds();
+  var centerLatLng = measurer.getFixedLatLng(bounds.getCenter());
+  document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
+  document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
+  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  var perimeter = measurer.getPerimeterText(layer);
+  document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
+  var bounds = layer.getBounds();
+  var northWest= measurer.getFixedLatLng(bounds.getNorthWest());
+  var southEast= measurer.getFixedLatLng(bounds.getSouthEast());
+  document.getElementById(layerType+'NorthWest').innerHTML=northWest.lat + ',' + northWest.lng;
+  document.getElementById(layerType+'SouthEast').innerHTML=southEast.lat + ',' + southEast.lng;
+  var area = measurer.getAreaText(layer);
   document.getElementById(layerType+'Area').innerHTML=area;
 }
 
@@ -126,7 +144,8 @@ function measureCreate(params) {
     case 'Circle':
       showCircleMeasures(measurer, layer, layerType);
       break;
-    case 'Rectangle':
+    case 'Polygon':
+      showPolygonMeasures(measurer, layer, layerType);
       break;
     }
   }
@@ -157,7 +176,8 @@ function measureEdit(params) {
     case 'Circle':
       showCircleMeasures(measurer, layer, layerType);
       break;
-    case 'Rectangle':
+    case 'Polygon':
+      showPolygonMeasures(measurer, layer, layerType);
       break;
 
   }
@@ -183,10 +203,6 @@ function measureCreated(params) {
       var centerLatLng = measurer.getFixedLatLng(layer.getCenter());
       document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
       document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
-      break;
-    case 'Rectangle':
-      break;
-    case 'Circle':
       break;
   }
 }
@@ -299,7 +315,7 @@ map.on('measure:editend', measureEditend);
     <td id='RectangleCenter' class='FigureCenter'>
       <span id='RectangleCenterLat'></span><br>
       <span id='RectangleCenterLng'></span>
-    ;</td>
+    </td>
     <td id='RectangleNVertex' class='FigureNVertex'>&nbsp;</td>
     <td id='RectanglePerimeter' class='FigurePerimeter'>&nbsp;</td>
     <td id='RectangleBorders' class='FigureBorders'>

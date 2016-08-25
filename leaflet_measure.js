@@ -391,14 +391,38 @@
      Примесь, обеспечивающая поддержку основных методов редактирования многоугольника
    */
   L.Measure.Mixin.Polygon = {
+
+     /**
+     Метод для получения периметра точек слоя
+     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+     @returns {Number} Периметр.
+     */
+    getPerimeter: function(layer) {
+      var latlngs = layer.editor.getLatLngs()[0];
+      var distance = 0;
+      var currentInc = 0;
+      for(var i = 1; i < latlngs.length; i++) {
+        var prevLatLng = latlngs[i - 1];
+        var currentLatLng = latlngs[i];
+        currentInc = this.getDistance({
+          latlng1: prevLatLng,
+          latlng2: currentLatLng
+        });
+        distance += currentInc;
+      }
+
+      return distance;
+    },
+
        /**
      * Вычисляет площадь многоугольника (в метрах) с заданной точностью.
      * @param {Object} e Аргументы метода.
      * @param {Object} e.latlngs Массив точек многоугольника.
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
-    getArea: function(e) {
-      return distance = parseFloat(this.geodesicArea(e.latlngs).toFixed(L.Measure.precition));
+    getArea: function(layer) {
+      var latlngs = layer.editor.getLatLngs()[0];
+      return distance = parseFloat(this.geodesicArea(latlngs).toFixed(L.Measure.precition));
     },
 
     /**
@@ -407,9 +431,9 @@
     @param {Object} e.latlngs Массив точек многоугольника.
     @returns {Number} Текстовое представление площади.
      */
-    getAreaText: function(e) {
+    getAreaText: function(layer) {
       return this.getMeasureText({
-        value: this.getArea(e),
+        value: this.getArea(layer),
         dimension: 2
       });
     },
@@ -508,7 +532,7 @@
     @param {Object} e.radius Значение радиуса в метрах.
     @returns {Number} Текстовое представление радиуса.
       */
-    getCircleAreaText: function(layer) {
+    getAreaText: function(layer) {
       var radius = layer.getRadius();
       var area = Math.PI * radius * radius;
       return this.getMeasureText({
@@ -931,7 +955,7 @@
       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startPolyline();
       this.eventsOn( 'editable:', this.editableEventTree, true);
-      this.isDrawing = false;
+      this.isDragging = false;
     },
 
     disable: function() {
@@ -945,10 +969,7 @@
       if (this.isDragging) {
         this._fireEvent(e, 'edit');
       } else {
-        if (nPoints > 0) {
-//           var distances = this._getLabelContent(e.layer, e.latlng);
-//           text = this.popupText.add + '<br>' + distances;
-        } else {
+        if (nPoints == 0) {
           text = this.popupText.move;
           this._fireEvent(e, 'move');
         }
@@ -964,12 +985,8 @@
     },
 
     _setClicked: function(e) {
-//       if (e.layer.getLatLngs().length < 1) return;
       this._map.closePopup();
       this._fireEvent(e, 'create');
-//       var text = this._getLabelContent(e.layer, e.latlng);
-//       var vertex = e.latlng.__vertex;
-//       this._showLabel(vertex, text, e.latlng);
     },
 
     _setDrawingEnd: function(e) {
@@ -982,6 +999,7 @@
     },
 
     _setDragEnd: function(e) {
+      this._map.closePopup();
       this.isDragging = false;
       this._fireEvent(e, 'editend');
     },
@@ -996,13 +1014,13 @@
    Класс, обеспечивающая поддержку основных cобытий редактирования многоугольника
    */
   L.Measure.Polygon =  L.Polygon.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon ],
 
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
       add: 'Кликните по карте, чтобы добавить новую вершину.',
       commit: 'Кликните на текущую вершину, чтобы зафиксировать многоугольник',
-      drag: ''
+      drag: 'Отпустите курсор, чтобы  зафиксировать многоугольник'
     },
 
      /**
@@ -1049,6 +1067,7 @@
         },
         drawing: {
           move: this._setMove,
+          clicked: this._setClicked,
           commit: this._setCommit,
           mousedown: this._setMouseDown,
           end: this.disable
@@ -1071,12 +1090,18 @@
       var text;
       var latlngs = e.layer.editor.getLatLngs()[0];
       var nPoints = latlngs.length;
-      if (nPoints < 2) {
-        text = nPoints == 0 ? this.popupText.move : this.popupText.add;
-        this._onMouseMove(e, text);
+      if (nPoints == 0) {
+        text = this.popupText.move;
+        this._fireEvent(e, 'move');
       } else {
-        this._fireEvent(e, 'edit');
+        if (this.isDragging) {
+          text = this.popupText.drag;
+          this._fireEvent(e, 'edit');
+        } else {
+          text = this.popupText.add;
+        }
       }
+      this._onMouseMove(e, text);
     },
 
     _setDragStart: function(e) {
@@ -1085,8 +1110,8 @@
 
     },
     _setDragEnd: function(e) {
+      this._map.closePopup();
       this._fireEvent(e, 'editend');
-  //     this.showLabel(e);
       this.isDragging = false;
 
     },
@@ -1094,7 +1119,6 @@
     setVertexDeleted: function(e) {
       this.vertexDeleted = true;
       this._fireEvent(e, 'editend');
-  //     this.showLabel(e);
       this.vertexDeleted = false;
     },
 
@@ -1104,6 +1128,11 @@
       var text = this.popupText.commit;
       var latlng = e.latlng? e.latlng : e.vertex.latlng;
       this._showPopup(text, latlng);
+    },
+
+    _setClicked: function(e) {
+      this._map.closePopup();
+      this._fireEvent(e, 'create');
     },
 
     _setCommit: function(e) {
