@@ -542,6 +542,81 @@
     },
   };
 
+  /**
+   Примесь, обеспечивающая поддержку событий измерения круга и прямоугольника
+   */
+  L.Measure.Mixin.CircleRectangleEvents = {
+    /**
+      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
+
+      Порядок событий в Leaflet.Editable:
+      До первого клика
+          editable:enable
+          editable:drawing:start
+          editable:drawing:move
+        1-й клик
+          editable:drawing:mousedown
+          editable:drawing:commit
+          editable:drawing:end
+        Перемещение, изменение размера круга
+          editable:vertex:dragstart
+          editable:drawing:move
+          editable:vertex:drag
+          editable:editing
+        Отпуск клавиши
+          editable:vertex:dragend
+     */
+    setEvents: function (map, options) {
+      this.editableEventTree = {
+        drawing: {
+          move: this._setMove,
+          end: this._setDrawingEnd
+        },
+        vertex: {
+          dragstart: this._setDragstart,
+          drag: this._setDrag,
+          dragend: this._setDragend
+        }
+      };
+    },
+
+    _setMove: function(e) {
+      if (!this.create && !this.isDragging) {
+        var text = this.popupText.move;
+        this._onMouseMove(e, text);
+        this._fireEvent(e, 'move');
+      }
+    },
+
+    _setDrawingEnd: function(e) {
+      this.create = true;
+    },
+
+    _setDragstart: function(e) {
+      this.isDragging = true;
+    },
+
+    _setDragend: function(e) {
+      this._map.closePopup();
+      if (this.create) {
+        this._fireEvent(e, 'created');
+        this.create = false;
+      } else {
+        this._fireEvent(e, 'editend');
+      }
+    },
+
+    _setDrag: function(e) {
+      var text = this.popupText.drag;
+      this._onMouseMove(e, text);
+      if (this.create) {
+        this._fireEvent(e, 'create');
+      } else {
+        this._fireEvent(e, 'edit');
+      }
+
+    },
+  };
 
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования маркера
@@ -659,7 +734,7 @@
    Класс, обеспечивающая поддержку основных cобытий редактирования круга
    */
   L.Measure.Circle = L.Circle.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle ],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',
@@ -684,92 +759,25 @@
       };
     },
 
-     /**
-      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
-
-      Порядок событий в Leaflet.Editable:
-      До первого клика
-          editable:enable
-          editable:drawing:start
-          editable:drawing:move
-        1-й клик
-          editable:drawing:mousedown
-          editable:drawing:commit
-          editable:drawing:end
-        Перемещение, изменение размера круга
-          editable:vertex:dragstart
-          editable:drawing:move
-          editable:vertex:drag
-          editable:editing
-        Отпуск клавиши
-          editable:vertex:dragend
-     */
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        drawing: {
-          move: this._setMove,
-          end: this._setDrawingEnd
-        },
-        vertex: {
-          dragstart: this._setDragstart,
-          drag: this._setDrag,
-          dragend: this._setDragend
-        }
-      };
-    },
-
-     enable: function () {
+    enable: function () {
       this.measureLayer = this._map.editTools.startCircle();
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
-     },
-
-    _setMove: function(e) {
-      if (!this.create && !this.isDragging) {
-        var text = this.popupText.move;
-        this._onMouseMove(e, text);
-        this._fireEvent(e, 'move');
-      }
     },
 
-    _setDrawingEnd: function(e) {
-      this.create = true;
-    },
-
-    _setDragstart: function(e) {
-      this.isDragging = true;
-    },
-
-    _setDragend: function(e) {
-      this._map.closePopup();
-      if (this.create) {
-        this._fireEvent(e, 'created');
-        this.create = false;
-      } else {
-        this._fireEvent(e, 'editend');
-      }
-    },
-
-    _setDrag: function(e) {
-      var text = this.popupText.drag;
-      this._onMouseMove(e, text);
-      if (this.create) {
-        this._fireEvent(e, 'create');
-      } else {
-        this._fireEvent(e, 'edit');
-      }
-
-    },
   });
 
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования прямоугольника
    */
   L.Measure.Rectangle = L.Rectangle.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.Rectangle ],
+    includes: [ L.Measure.Mixin,
+      L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.Rectangle,
+      L.Measure.Mixin.CircleRectangleEvents
+    ],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать прямоугольник',
@@ -794,41 +802,7 @@
       };
     },
 
-    /**Measure
-      Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
-
-      Порядок событий в Leaflet.Editable:
-      До первого клика
-          editable:enable
-          editable:drawing:start
-          editable:drawing:move
-        1-й клик
-          editable:drawing:mousedown
-          editable:drawing:commit
-          editable:drawing:end
-        Перемещение, изменение размера прямоугольника
-          editable:vertex:dragstart
-          editable:drawing:move
-          editable:vertex:drag
-          editable:editing
-        Отпуск клавиши
-          editable:vertex:dragend
-     */
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        drawing: {
-          move: this._setMove,
-          end: this._setDrawingEnd
-        },
-        vertex: {
-          dragstart: this._setDragstart,
-          drag: this._setDrag,
-          dragend: this._setDragend
-        }
-      };
-    },
-
-     enable: function () {
+    enable: function () {
       this.measureLayer = this._map.editTools.startRectangle();
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
@@ -836,39 +810,6 @@
       this.isDrawing = false;
     },
 
-    _setMove: function(e) {
-      if (this.isDrawing || this.isDragging) {
-        this._fireEvent(e, 'edit');
-      } else {
-        var text = this.popupText.move;
-        this._onMouseMove(e, text);
-      }
-    },
-
-    _setDrawingEnd: function(e) {
-      this.isDrawing = true;
-    },
-
-    _setDragstart: function(e) {
-      if (this.isDrawing) return;
-      this.isDragging = true;
-    },
-
-    _setDragend: function(e) {
-      this._map.closePopup();
-      if (this.isDrawing) {
-        this._fireEvent(e, 'created');
-        this.isDrawing = false;
-      } else {
-        this._fireEvent(e, 'editend');
-        this.isDragging = false;
-      }
-    },
-
-    _setDrag: function(e) {
-      var text = this.popupText.drag;
-      this._onMouseMove(e, text);
-    },
   });
 
   /**
@@ -1138,7 +1079,6 @@
     _setCommit: function(e) {
       this._fireEvent(e, 'created');
     },
-
 
   });
 
