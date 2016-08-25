@@ -109,6 +109,11 @@ function showPolygonMeasures(measurer, layer, layerType) {
   document.getElementById(layerType+'SouthEast').innerHTML=southEast.lat + ',' + southEast.lng;
   var area = measurer.getAreaText(layer);
   document.getElementById(layerType+'Area').innerHTML=area;
+  var width = measurer.getDistanceText({latlng1:bounds.getNorthEast(),latlng2:bounds.getNorthWest()});
+  document.getElementById(layerType+'Width').innerHTML=width;
+  var height = measurer.getDistanceText({latlng1:bounds.getNorthEast(),latlng2:bounds.getSouthEast()});
+  document.getElementById(layerType+'Height').innerHTML=height;
+
 }
 
 function measureMove(params) {
