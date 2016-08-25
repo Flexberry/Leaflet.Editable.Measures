@@ -161,6 +161,7 @@
     }
     this._updateLabels(e);
     this._map.fire('measure:'+ type, {
+      e:e,
       measurer: this,
       layer: layer,
       layerType: layerType
@@ -533,7 +534,7 @@
       /**
         Выключение режима перемщения маркера Marker
        */
-      disable: function () {
+    disable: function () {
       this.disableEdit();
       this.editTool = null;
     },
@@ -542,6 +543,7 @@
     _setMove: function(e) {
       var text = this.isDragging ? this.popupText.drag : this.popupText.move + '<br>' + this._getLabelContent(e.layer, e.latlng);
       this._onMouseMove(e, text);
+      this._fireEvent(e, 'move');
     },
 
     _setDrag: function(e) {
