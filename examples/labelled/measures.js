@@ -185,7 +185,6 @@
    * Класс инструмента для измерения координат.
    */
   L.Measure.PolylineLabelled = L.Measure.Polyline.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Polyline ],
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -262,7 +261,6 @@
    Класс инструмента для измерения координат.
    */
   L.Measure.PolygonLabelled = L.Measure.Polygon.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Polygon ],
 
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -306,7 +304,6 @@
         }
       }
       var distance = 0;
-      var inc = 0;
       var currentInc = 0;
       for(var i = 1; i < latlngs.length; i++) {
         var prevLatLng = latlngs[i - 1];

@@ -57,17 +57,110 @@ var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup }
 </script>
 
 <script>
+
+function showPolylineMeasures(measurer, layer, layerType) {
+  var latlngs = layer.editor.getLatLngs();
+  var bounds = layer.getBounds();
+  var centerLatLng = measurer.getFixedLatLng(bounds.getCenter());
+  document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
+  document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
+  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  var perimeter = measurer.getPerimeterText(layer);
+  document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
+  var bounds = layer.getBounds();
+  var northWest= measurer.getFixedLatLng(bounds.getNorthWest());
+  var southEast= measurer.getFixedLatLng(bounds.getSouthEast());
+  document.getElementById(layerType+'NorthWest').innerHTML=northWest.lat + ',' + northWest.lng;
+  document.getElementById(layerType+'SouthEast').innerHTML=southEast.lat + ',' + southEast.lng;
+}
+
+function showCircleMeasures(measurer, layer, layerType) {
+  var latlngs = layer.editor.getLatLngs();
+  var bounds = layer.getBounds();
+  var centerLatLng = measurer.getFixedLatLng(latlngs[0]);
+  document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
+  document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
+  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  var perimeter = measurer.getPerimeterText(layer);
+  document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
+  var northWest= measurer.getFixedLatLng(bounds.getNorthWest());
+  var southEast= measurer.getFixedLatLng(bounds.getSouthEast());
+  document.getElementById(layerType+'NorthWest').innerHTML=northWest.lat + ',' + northWest.lng;
+  document.getElementById(layerType+'SouthEast').innerHTML=southEast.lat + ',' + southEast.lng;
+  var diameter = measurer.getDiameterText(layer);
+  document.getElementById('CircleDiameter').innerHTML=diameter;
+  var area = measurer.getCircleAreaText(layer);
+  document.getElementById(layerType+'Area').innerHTML=area;
+}
+
 function measureMove(params) {
   var e = params.e;
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
-  document.getElementById('eventState').className='';
-  document.getElementById('eventName').innerHTML='measure:move';
-  document.getElementById('measuredFigure').innerHTML=layerType;
-  document.getElementById('mouseLat').innerHTML=fixedLatLng.lat;
-  document.getElementById('mouseLng').innerHTML=fixedLatLng.lng;
+  document.getElementById('EventState').className='';
+  document.getElementById('EventName').innerHTML='measure:move';
+  document.getElementById('MeasuredFigure').innerHTML=layerType;
+  document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
+  document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
+}
+
+function measureCreate(params) {
+  var e = params.e;
+  var measurer = params.measurer;
+  var layer = params.layer;
+  var layerType = params.layerType;
+  var fixedLatLng = measurer.getFixedLatLng(e.latlng);
+  document.getElementById('EventState').className='';
+  document.getElementById(layerType+'Measure').className='';
+  document.getElementById('EventName').innerHTML='measure:create';
+  document.getElementById('MeasuredFigure').innerHTML=layerType;
+  document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
+  document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
+  document.getElementById(layerType+'State').innerHTML='Создается';
+  switch (layerType) {
+    case 'Polyline':
+      showPolylineMeasures(measurer, layer, layerType);
+      break;
+    case 'Circle':
+      showCircleMeasures(measurer, layer, layerType);
+      break;
+    case 'Rectangle':
+      break;
+    }
+  }
+
+
+function measureEdit(params) {
+  var e = params.e;
+  var measurer = params.measurer;
+  var layer = params.layer;
+  var layerType = params.layerType;
+  var fixedLatLng = measurer.getFixedLatLng(e.latlng);
+  document.getElementById('EventState').className='';
+  document.getElementById(layerType+'Measure').className='';
+  document.getElementById('EventName').innerHTML='measure:edit';
+  document.getElementById('MeasuredFigure').innerHTML=layerType;
+  document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
+  document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
+  document.getElementById(layerType+'State').innerHTML='Изменяется';
+  switch (layerType) {
+    case 'Marker':
+      var fixedLatLng = measurer.getFixedLatLng(layer.getLatLng());
+      document.getElementById('MarkerLat').innerHTML=fixedLatLng.lat;
+      document.getElementById('MarkerLng').innerHTML=fixedLatLng.lng;
+      break;
+    case 'Polyline':
+      showPolylineMeasures(measurer, layer, layerType);
+      break;
+    case 'Circle':
+      showCircleMeasures(measurer, layer, layerType);
+      break;
+    case 'Rectangle':
+      break;
+
+  }
 }
 
 function measureCreated(params) {
@@ -75,89 +168,66 @@ function measureCreated(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  document.getElementById('eventState').className='disabled';
+  document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
-  document.getElementById('eventName').innerHTML='measure:created';
-  document.getElementById('measuredFigure').innerHTML=layerType;
+  document.getElementById('EventName').innerHTML='measure:created';
+  document.getElementById('MeasuredFigure').innerHTML=layerType;
+  document.getElementById(layerType+'State').innerHTML='Создан';
   switch (layerType) {
     case 'Marker':
       var fixedLatLng = measurer.getFixedLatLng(layer.getLatLng());
-      document.getElementById('markerState').innerHTML='Создан';
-      document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
-      document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
+      document.getElementById('MarkerLat').innerHTML=fixedLatLng.lat;
+      document.getElementById('MarkerLng').innerHTML=fixedLatLng.lng;
+      break;
+    case 'Polyline':
+      var centerLatLng = measurer.getFixedLatLng(layer.getCenter());
+      document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
+      document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
       break;
     case 'Rectangle':
-      document.getElementById('rectangleState').innerHTML='Создан';
       break;
     case 'Circle':
-      document.getElementById('circleState').innerHTML='Создан';
       break;
   }
 }
 
-function measureEdit(params) {
-  var e = params.e;
-  var measurer = params.measurer;
-  var layer = params.layer;
-  var layerType = params.layerType;
-  document.getElementById('eventState').className='';
-  document.getElementById(layerType+'Measure').className='';
-  document.getElementById('eventName').innerHTML='measure:edit';
-  document.getElementById('measuredFigure').innerHTML=layerType;
-  switch (layerType) {
-    case 'Marker':
-      var fixedLatLng = measurer.getFixedLatLng(layer.getLatLng());
-      document.getElementById('markerState').innerHTML='Перемещается';
-      document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
-      document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
-      break;
-    case 'Rectangle':
-      document.getElementById('rectangleState').innerHTML='Изменяется';
-      break;
-    case 'Circle':
-      document.getElementById('circleState').innerHTML='Изменяется';
-      break;
-  }
-}
 
 function measureEditend(params) {
   var e = params.e;
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  document.getElementById('eventState').className='disabled';
+  document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
-  document.getElementById('eventName').innerHTML='measure:editend';
-  document.getElementById('measuredFigure').innerHTML=layerType;
-
+  document.getElementById('EventName').innerHTML='measure:editend';
+  document.getElementById('MeasuredFigure').innerHTML=layerType;
+  document.getElementById(layerType+'State').innerHTML='Изменен';
   switch (layerType) {
     case 'Marker':
       var fixedLatLng = measurer.getFixedLatLng(layer.getLatLng());
-      document.getElementById('markerState').innerHTML='Перемещен';
-      document.getElementById('markerLat').innerHTML=fixedLatLng.lat;
-      document.getElementById('markerLng').innerHTML=fixedLatLng.lng;
+      document.getElementById('MarkerLat').innerHTML=fixedLatLng.lat;
+      document.getElementById('MarkerLng').innerHTML=fixedLatLng.lng;
       break;
     case 'Rectangle':
-      document.getElementById('rectangleState').innerHTML='Изменен';
       break;
     case 'Circle':
-      document.getElementById('circleState').innerHTML='Изменен';
       break;
   }
 
 }
 
 map.on('measure:move', measureMove);
+map.on('measure:create', measureCreate);
 map.on('measure:created', measureCreated);
 map.on('measure:edit', measureEdit);
 map.on('measure:editend', measureEditend);
 </script>
 
 <button id="measureMarkerBtn" onclick="markerTool.enable();">Измерить координаты</button>
-<button id="measurePolilineBtn" onclick="polylineTool.enable();">Измерить ломаную</button>
+<button id="measurePolygonBtn" onclick="polygonTool.enable();">Измерить многоугольник</button>
 <button id="measureRectangleBtn" onclick="rectangleTool.enable();">Измерить прямоугольник</button>
 <button id="measureCircleBtn" onclick="circleTool.enable();">Измерить круг</button>
-<button id="measurePolygonBtn" onclick="polygonTool.enable();">Измерить многоугольник</button>
+<button id="measurePolilineBtn" onclick="polylineTool.enable();">Измерить ломаную</button>
 
 
 <table border='1' id='measureState'>
@@ -167,15 +237,15 @@ map.on('measure:editend', measureEditend);
     <th width='180'>Широта</th>
     <th width='180'>Долгота</th>
   </tr>
-  <tr id='eventState' class='disabled'>
-    <td id='eventName'>&nbsp;</td>
-    <td id='measuredFigure' class='FigureName'>&nbsp;</td>
-    <td id='mouseLat' class='FigureLat'>&nbsp;</td>
-    <td id='mouseLng' class='FigureLng'>&nbsp;</td>
+  <tr id='EventState' class='disabled'>
+    <td id='EventName'>&nbsp;</td>
+    <td id='MeasuredFigure' class='FigureName'>&nbsp;</td>
+    <td id='MouseLat' class='FigureLat'>&nbsp;</td>
+    <td id='MouseLng' class='FigureLng'>&nbsp;</td>
   </tr>
 </table>
 
-<table border='1' id='markerMeasureResult'>
+<table border='1' id='MarkerMeasureResult'>
   <tr>
     <th width='100'>&nbsp;</th>
     <th width='140'>Состояние</th>
@@ -184,9 +254,9 @@ map.on('measure:editend', measureEditend);
   </tr>
   <tr id='MarkerMeasure' class='disabled'>
     <td class='FigureName'>Marker</td>
-    <td id='markerState' class='FigureState'>&nbsp;</td>
-    <td id='markerLat' class='FigureLat'>&nbsp;</td>
-    <td id='markerLng' class='FigureLng'>&nbsp;</td>
+    <td id='MarkerState' class='FigureState'>&nbsp;</td>
+    <td id='MarkerLat' class='FigureLat'>&nbsp;</td>
+    <td id='MarkerLng' class='FigureLng'>&nbsp;</td>
     </td>
   </tr>
 </table>
@@ -197,80 +267,84 @@ map.on('measure:editend', measureEditend);
     <th width='140'>Состояние</th>
     <th width='200'>Центр</th>
     <th width='10'>Число вершин</th>
-    <th width='400'>Границы</th>
+    <th width='100'>Периметр</th>
+    <th width='550'>Границы</th>
     <th width='100'>Ширина</th>
     <th width='100'>Высота</th>
-    <th width='100'>Периметр</th>
-    <th width='100'>Площадь</th>
+    <th width='200'>Площадь</th>
   </tr>
 
-  <tr valign='top' id='PolylineMeasure' class='disabled'>
-    <td class='FigureName'>Polyline</td>
-    <td id='PolylineState' class='FigureState'>&nbsp;</td>
-    <td id='PolylineCenter' class='FigureCenter'>&nbsp;</td>
-    <td id='PolylineNVertex' class='FigureNVertex'>&nbsp;</td>
-    <td id='PolylineBorders' class='FigureBorders'>
-      Верхний&nbsp;левый:&nbsp;<span id='PolylineUpperLeft'></span><br>
-      Верхний&nbsp;правый:&nbsp;<span id='PolylineUpperRight'></span><br>
-      Нижний&nbsp;правый:&nbsp;<span id='PolylineBottomRight'></span><br>
-      Нижний&nbsp;левый:&nbsp;<span id='PolylineBottomLeft'></span>
-    </td>
-    <td id='PolylineWidth' class='FigureWidth'>&nbsp;</td>
-    <td id='PolylineHeight' class='FigureHeight'>&nbsp;</td>
-    <td id='PolylinePerimeter' class='FigurePerimeter'>&nbsp;</td>
-    <td id='PolylineArea' class='FigureArea'>&nbsp;</td>
-  </tr>
-
-  <tr valign='top'  id='CircleMeasure' class='disabled'>
-    <td class='FigureName'>Circle</td>
-    <td id='CircleState' class='FigureState'>&nbsp;</td>
-    <td id='CircleCenter' class='FigureCenter'>&nbsp;</td>
-    <td id='CircleNVertex' class='FigureNVertex'>&nbsp;</td>
-    <td id='CircleBorders' class='FigureBorders'>
-      Верхний&nbsp;левый:&nbsp;<span id='CircleUpperLeft'></span><br>
-      Верхний&nbsp;правый:&nbsp;<span id='CircleUpperRight'></span><br>
-      Нижний&nbsp;правый:&nbsp;<span id='CircleBottomRight'></span><br>
-      Нижний&nbsp;левый:&nbsp;<span id='CircleBottomLeft'></span>
-    </td>
-    <td id='CircleWidth' class='FigureWidth'>&nbsp;</td>
-    <td id='CircleHeight' class='FigureHeight'>&nbsp;</td>
-    <td id='CirclePerimeter' class='FigurePerimeter'>&nbsp;</td>
-    <td id='CircleArea' class='FigureArea'>&nbsp;</td>
-  </tr>
 
   <tr valign='top' id='PolygonMeasure' class='disabled'>
     <td class='FigureName'>Polygon</td>
     <td id='PolygonState' class='FigureState'>&nbsp;</td>
-    <td id='PolygonCenter' class='FigureCenter'>&nbsp;</td>
+    <td id='PolygonCenter' class='FigureCenter'>
+      <span id='PolygonCenterLat'></span><br>
+      <span id='PolygonCenterLng'></span>
+    </td>
     <td id='PolygonNVertex' class='FigureNVertex'>&nbsp;</td>
+    <td id='PolygonPerimeter' class='FigurePerimeter'>&nbsp;</td>
     <td id='PolygonBorders' class='FigureBorders'>
-      Верхний&nbsp;левый:&nbsp;<span id='PolygonUpperLeft'></span><br>
-      Верхний&nbsp;правый:&nbsp;<span id='PolygonUpperRight'></span><br>
-      Нижний&nbsp;правый:&nbsp;<span id='PolygonBottomRight'></span><br>
-      Нижний&nbsp;левый:&nbsp;<span id='PolygonBottomLeft'></span>
+      Верхний&nbsp;левый:&nbsp;<span id='PolygonNorthWest'></span><br>
+      Нижний&nbsp;правый:&nbsp;<span id='PolygonSouthEast'></span><br>
     </td>
     <td id='PolygonWidth' class='FigureWidth'>&nbsp;</td>
     <td id='PolygonHeight' class='FigureHeight'>&nbsp;</td>
-    <td id='PolygonPerimeter' class='FigurePerimeter'>&nbsp;</td>
     <td id='PolygonArea' class='FigureArea'>&nbsp;</td>
   </tr>
 
   <tr valign='top' id='RectangleMeasure' class='disabled'>
     <td class='FigureName'>Rectangle</td>
     <td id='RectangleState' class='FigureState'>&nbsp;</td>
-    <td id='RectangleCenter' class='FigureCenter'>&nbsp;</td>
+    <td id='RectangleCenter' class='FigureCenter'>
+      <span id='RectangleCenterLat'></span><br>
+      <span id='RectangleCenterLng'></span>
+    ;</td>
     <td id='RectangleNVertex' class='FigureNVertex'>&nbsp;</td>
+    <td id='RectanglePerimeter' class='FigurePerimeter'>&nbsp;</td>
     <td id='RectangleBorders' class='FigureBorders'>
-      Верхний&nbsp;левый:&nbsp;<span id='RectangleUpperLeft'></span><br>
-      Верхний&nbsp;правый:&nbsp;<span id='RectangleUpperRight'></span><br>
-      Нижний&nbsp;правый:&nbsp;<span id='RectangleBottomRight'></span><br>
-      Нижний&nbsp;левый:&nbsp;<span id='RectangleBottomLeft'></span>
+      Верхний&nbsp;левый:&nbsp;<span id='RectangleNorthWest'></span><br>
+      Нижний&nbsp;правый:&nbsp;<span id='RectangleSouthEast'></span><br>
     </td>
     <td id='RectangleWidth' class='FigureWidth'>&nbsp;</td>
     <td id='RectangleHeight' class='FigureHeight'>&nbsp;</td>
-    <td id='RectanglePerimeter' class='FigurePerimeter'>&nbsp;</td>
     <td id='RectangleArea' class='FigureArea'>&nbsp;</td>
   </tr>
+
+  <tr valign='top'  id='CircleMeasure' class='disabled'>
+    <td class='FigureName'>Circle</td>
+    <td id='CircleState' class='FigureState'>&nbsp;</td>
+    <td id='CircleCenter' class='FigureCenter'>
+      <span id='CircleCenterLat'></span><br>
+      <span id='CircleCenterLng'></span>
+    </td>
+    <td id='CircleNVertex' class='FigureNVertex'>&nbsp;</td>
+    <td id='CirclePerimeter' class='FigurePerimeter'>&nbsp;</td>
+    <td id='CircleBorders' class='FigureBorders'>
+      Верхний&nbsp;левый:&nbsp;<span id='CircleNorthWest'></span><br>
+      Нижний&nbsp;правый:&nbsp;<span id='CircleSouthEast'></span><br>
+    </td>
+    <td id='CircleDiameter' class='FigureDiameter' colspan='2'>&nbsp;</td>
+    <td id='CircleArea' class='FigureArea'>&nbsp;</td>
+  </tr>
+
+  <tr valign='top' id='PolylineMeasure' class='disabled'>
+    <td class='FigureName'>Polyline</td>
+    <td id='PolylineState' class='FigureState'>&nbsp;</td>
+    <td id='PolylineCenter' class='FigureCenter'>
+      <span id='PolylineCenterLat'></span><br>
+      <span id='PolylineCenterLng'></span>
+    </td>
+    <td id='PolylineNVertex' class='FigureNVertex'>&nbsp;</td>
+    <td id='PolylinePerimeter' class='FigurePerimeter'>&nbsp;</td>
+    <td id='PolylineBorders' class='FigureBorders'>
+      Верхний&nbsp;левый:&nbsp;<span id='PolylineNorthWest'></span><br>
+      Нижний&nbsp;правый:&nbsp;<span id='PolylineSouthEast'></span><br>
+    </td>
+    <td colspan='3'>&nbsp;</td>
+  </tr>
+
+
 
 </table>
 

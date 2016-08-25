@@ -159,7 +159,9 @@
         this.editTool.disable();
       });
     }
-    this._updateLabels(e);
+    if (type !== 'move') {
+      this._updateLabels(e);
+    }
     this._map.fire('measure:'+ type, {
       e:e,
       measurer: this,
@@ -328,11 +330,11 @@
      @param {Object} e Аргументы метода.
      @param {Object} e.latlng1 Первая точка.
      @param {Object} e.latlng2 Вторая точка.
-     @returns {Number} Текстовое представление расстояния.
+     @returns {String} Текстовое представление расстояния.
      */
     getDistanceText: function(e) {
-      return L.Measure.getMeasureText({
-        value: L.Measure.getDistance(e),
+      return this.getMeasureText({
+        value: this.getDistance(e),
         dimension: 1
       });
     },
@@ -343,6 +345,40 @@
    Примесь, обеспечивающая поддержку основных методов редактирования пути
    */
   L.Measure.Mixin.Path = {
+    /**
+     Метод для получения периметра точек слоя
+     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+     @returns {Number} Периметр.
+     */
+    getPerimeter: function(layer) {
+      var latlngs = layer.editor.getLatLngs();
+      var distance = 0;
+      var currentInc = 0;
+      for(var i = 1; i < latlngs.length; i++) {
+        var prevLatLng = latlngs[i - 1];
+        var currentLatLng = latlngs[i];
+        currentInc = this.getDistance({
+          latlng1: prevLatLng,
+          latlng2: currentLatLng
+        });
+        distance += currentInc;
+      }
+
+      return distance;
+    },
+
+    /**
+     Метод для получения периметра точек слоя
+     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+     @returns {Number} String} Текстовое представление периметра.
+     */
+    getPerimeterText: function(layer) {
+      return this.getMeasureText({
+        value: this.getPerimeter(layer),
+        dimension: 1
+      });
+    },
+
   };
 
   /**
@@ -429,21 +465,52 @@
     @param {Object} e.radius Значение радиуса в метрах.
     @returns {Number} Текстовое представление радиуса.
       */
-    getRadiusText: function(e) {
+    getRadiusText: function(layer) {
       return this.getMeasureText({
-        value: e.radius,
+        value: layer.getRadius(),
         dimension: 1
       });
     },
 
+     /**
+    Возвращает текстовое представление для диаметра с заданной точностью.
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {String} Текстовое представление радиуса.
+      */
+    getDiameterText: function(layer) {
+      return this.getMeasureText({
+        value: 2 * layer.getRadius(),
+        dimension: 1
+      });
+    },
+
+     /**
+    Возвращает текстовое представление для периметра с заданной точностью.
+    TODO - УЧЕСТЬ СФЕРИЧНОСТЬ - ВОЗМОЖНО СТОИТ ПЕРЕВЕСТИ В МНОГОУГОЛЬНИК?
+    @param {Object} e Аргументы метода.
+    @param {Object} e.radius Значение радиуса в метрах.
+    @returns {String} Текстовое представление радиуса.
+      */
+    getPerimeterText: function(layer) {
+      return this.getMeasureText({
+        value: 2 * Math.PI * layer.getRadius(),
+        dimension: 1
+      });
+    },
+
+
+
     /**
     Возвращает текстовое представление площади круга с заданной точностью.
+    TODO - УЧЕСТЬ СФЕРИЧНОСТЬ - ВОЗМОЖНО СТОИТ ПЕРЕВЕСТИ В МНОГОУГОЛЬНИК?
     @param {Object} e Аргументы метода.
     @param {Object} e.radius Значение радиуса в метрах.
     @returns {Number} Текстовое представление радиуса.
       */
-    getCircleAreaText: function(e) {
-      var area = Math.PI * e.radius * e.radius;
+    getCircleAreaText: function(layer) {
+      var radius = layer.getRadius();
+      var area = Math.PI * radius * radius;
       return this.getMeasureText({
         value: area,
         dimension: 2
@@ -632,41 +699,45 @@
       this._latlng = this._map.getCenter();
       this.editTool = this.enableEdit();
       this.eventsOn( 'editable:', this.editableEventTree, true);
-      this.isDrawing = false;
-    },
+      this.create = false;
+      this.isDragging = false;
+     },
 
     _setMove: function(e) {
-      if (this.isDrawing || this.isDragging) {
-        this._fireEvent(e, 'edit');
-      } else {
+      if (!this.create && !this.isDragging) {
         var text = this.popupText.move;
         this._onMouseMove(e, text);
+        this._fireEvent(e, 'move');
       }
     },
 
     _setDrawingEnd: function(e) {
-      this.isDrawing = true;
+      this.create = true;
     },
 
     _setDragstart: function(e) {
-      if (this.isDrawing) return;
       this.isDragging = true;
     },
 
     _setDragend: function(e) {
       this._map.closePopup();
-      if (this.isDrawing) {
+      if (this.create) {
         this._fireEvent(e, 'created');
-        this.isDrawing = false;
+        this.create = false;
       } else {
         this._fireEvent(e, 'editend');
-        this.isDragging = false;
       }
     },
 
     _setDrag: function(e) {
       var text = this.popupText.drag;
       this._onMouseMove(e, text);
+      if (this.create) {
+        this._fireEvent(e, 'create');
+      } else {
+        this._fireEvent(e, 'edit');
+      }
+
     },
   });
 
@@ -875,10 +946,11 @@
         this._fireEvent(e, 'edit');
       } else {
         if (nPoints > 0) {
-          var distances = this._getLabelContent(e.layer, e.latlng);
-          text = this.popupText.add + '<br>' + distances;
+//           var distances = this._getLabelContent(e.layer, e.latlng);
+//           text = this.popupText.add + '<br>' + distances;
         } else {
           text = this.popupText.move;
+          this._fireEvent(e, 'move');
         }
         this._onMouseMove(e, text);
       }
@@ -892,11 +964,12 @@
     },
 
     _setClicked: function(e) {
-      if (e.layer.getLatLngs().length < 2) return;
+//       if (e.layer.getLatLngs().length < 1) return;
       this._map.closePopup();
-      var text = this._getLabelContent(e.layer, e.latlng);
-      var vertex = e.latlng.__vertex;
-      this._showLabel(vertex, text, e.latlng);
+      this._fireEvent(e, 'create');
+//       var text = this._getLabelContent(e.layer, e.latlng);
+//       var vertex = e.latlng.__vertex;
+//       this._showLabel(vertex, text, e.latlng);
     },
 
     _setDrawingEnd: function(e) {
