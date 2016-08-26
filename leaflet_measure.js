@@ -842,7 +842,6 @@
 
     _setMove: function(e) {
       var text;
-//       var latlngs = e.layer.editor.getLatLngs()[0];
       var nPoints = this.numberOfVertices(e.layer);
       if (nPoints == 0) {
         text = this.popupText.move;
@@ -878,7 +877,6 @@
     },
 
     _setMouseDown: function(e) {
-//       var latlngs = e.layer.editor.getLatLngs()[0];
       if (this.numberOfVertices(e.layer) <= 1) return;
       var text = this.popupText.commit;
       var latlng = e.latlng? e.latlng : e.vertex.latlng;

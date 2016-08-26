@@ -28,6 +28,7 @@
      Метод для получения текстового описания результатов измерений.
      */
     _getLabelContent: function(layer, latlng) {
+      latlng = latlng || layer.getLatLng();
       var fixedLatLng = this.getFixedLatLng(latlng);
       var fixedLat = fixedLatLng.lat;
       var fixedLng = fixedLatLng.lng;
@@ -103,8 +104,8 @@
      */
     _updateMeasureLabel: function(layer, e) {
       var center = layer.getCenter();
-      var latlngs = layer.editor.getLatLngs()[0];
-      var areaText = 'Площадь: ' + this.getAreaText({latlngs: latlngs});
+//       var latlngs = layer.editor.getLatLngs()[0];
+      var areaText = 'Площадь: ' + this.getAreaText(layer);
       areaText = '<b>' + areaText + '</b>';
       this._showLabel(layer, areaText, center);
     },
@@ -155,8 +156,8 @@
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
     _getLabelContent: function(layer, latlng) {
-      var radius = layer.getRadius();
-      var  radiusText = this.getRadiusText({radius: radius});
+//       var radius = layer.getRadius();
+      var  radiusText = this.getRadiusText(layer);
       return '<b>' + 'Радиус: ' + radiusText + '</b>';
     },
 
@@ -166,7 +167,7 @@
      */
     _updateMeasureLabel: function(layer, e) {
       var radius = layer.getRadius();
-      var areaText = '<b>Площадь: ' + this.getCircleAreaText({radius: radius}) + '</b>';
+      var areaText = '<b>Площадь: ' + this.getAreaText(layer) + '</b>';
       var latlngs = layer.editor.getLatLngs();
       var marker = latlngs[0].__vertex;
       this._showLabel(marker, areaText);
@@ -329,7 +330,7 @@
           latlngs.push(latlng);
         }
       }
-      var ret = 'Площадь: ' + this.getAreaText({latlngs: latlngs});
+      var ret = 'Площадь: ' + this.getAreaText(layer);
       ret = '<b>' + ret + '</b>';
       return ret;
     },

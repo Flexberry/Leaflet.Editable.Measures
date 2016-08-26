@@ -52,29 +52,11 @@ var circleLabelledTool = L.Measure.circleLabelled(map, { layerGroup: measurement
 var rectangleLabelledTool = L.Measure.rectangleLabelled(map, { layerGroup: measurementsLayerGroup });
 var polylineLabelledTool = L.Measure.polylineLabelled(map, { layerGroup: measurementsLayerGroup });
 var polygonLabelledTool =  L.Measure.polygonLabelled(map, { layerGroup: measurementsLayerGroup });
-
+var nMarker =1;
 </script>
 
-<script>
-function measureCreated(params) {
-//   alert('measure:created layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-  alert('measure:created layerType=' + params.layerType );
-  }
-function measureEdit(params) {
-  //   alert('measure:edit layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-//     alert('measure:edit layerType=' + params.layerType  );
-  }
-function measureEditend(params) {
-//   alert('measure:editend layerType=' + params.layerType + ' bounds=' + params.layer.getBounds().toBBoxString() );
-  alert('measure:editend layerType=' + params.layerType);
-  }
 
-map.on('measure:created', measureCreated);
-map.on('measure:edit', measureEdit);
-map.on('measure:editend', measureEditend);
-</script>
-
-<button id="measureMarkerBtn" onclick="markerLabelledTool.enable();">Измерить координаты</button>
+<button id="measureMarkerBtn" onclick="markerLabelledTool.enable({title:'Точка'+nMarker++});">Измерить координаты</button>
 <button id="measureRectangleBtn" onclick="rectangleLabelledTool.enable();">Измерить прямоугольник</button>
 <button id="measureCircleBtn" onclick="circleLabelledTool.enable();">Измерить круг</button>
 <button id="measurePolilineBtn" onclick="polylineLabelledTool.enable();">Измерить ломаную</button>
