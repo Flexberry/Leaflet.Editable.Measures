@@ -346,7 +346,7 @@
    */
   L.Measure.Mixin.Path = {
 
-    _getLatLngs: function(layer) {
+    getLatLngs: function(layer) {
       return layer.editor.getLatLngs();
     },
 
@@ -356,7 +356,7 @@
      @returns {Number} Число вершин.
      */
     numberOfVertices: function(layer) {
-      return this._getLatLngs(layer);
+      return this.getLatLngs(layer);
     },
 
     /**
@@ -386,7 +386,7 @@
      @returns {Number} Периметр.
      */
     getPerimeter: function(layer) {
-      var latlngs = this._getLatLngs(layer);
+      var latlngs = this.getLatLngs(layer);
       distance = this._getPerimeter(latlngs);
       return distance;
     },
@@ -417,7 +417,7 @@
   L.Measure.Mixin.Polygon = {
 
 
-    _getLatLngs: function(layer) {
+    getLatLngs: function(layer) {
       return layer.editor.getLatLngs()[0];
     },
 
@@ -427,7 +427,7 @@
      @returns {Number} Периметр.
      */
     getPerimeter: function(layer) {
-      var latlngs = this._getLatLngs(layer).slice();
+      var latlngs = this.getLatLngs(layer).slice();
       latlngs.push(latlngs[0]);
       distance = this._getPerimeter(latlngs);
       return distance;
@@ -440,7 +440,7 @@
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
     getArea: function(layer) {
-      var latlngs = this._getLatLngs(layer);
+      var latlngs = this.getLatLngs(layer);
       return distance = parseFloat(this.geodesicArea(latlngs).toFixed(L.Measure.precition));
     },
 
@@ -748,7 +748,7 @@
    Класс, обеспечивающая поддержку основных cобытий редактирования круга
    */
   L.Measure.Circle = L.Circle.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
+    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, , L.Measure.Mixin.Path, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',

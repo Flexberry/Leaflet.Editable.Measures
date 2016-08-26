@@ -59,12 +59,11 @@ var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup }
 <script>
 
 function showPolylineMeasures(measurer, layer, layerType) {
-  var latlngs = layer.editor.getLatLngs();
   var bounds = layer.getBounds();
   var centerLatLng = measurer.getFixedLatLng(bounds.getCenter());
   document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
   document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
-  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  document.getElementById(layerType+'NVertex').innerHTML=measurer.numberOfVertices(layer);
   var perimeter = measurer.getPerimeterText(layer);
   document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
   var bounds = layer.getBounds();
@@ -75,12 +74,12 @@ function showPolylineMeasures(measurer, layer, layerType) {
 }
 
 function showCircleMeasures(measurer, layer, layerType) {
-  var latlngs = layer.editor.getLatLngs();
+  var latlngs = measurer.getLatLngs(layer);
   var bounds = layer.getBounds();
   var centerLatLng = measurer.getFixedLatLng(latlngs[0]);
   document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
   document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
-  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  document.getElementById(layerType+'NVertex').innerHTML=measurer.numberOfVertices(layer);
   var perimeter = measurer.getPerimeterText(layer);
   document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
   var northWest= measurer.getFixedLatLng(bounds.getNorthWest());
@@ -94,15 +93,13 @@ function showCircleMeasures(measurer, layer, layerType) {
   }
 
 function showPolygonMeasures(measurer, layer, layerType) {
-  var latlngs = layer.editor.getLatLngs()[0];
   var bounds = layer.getBounds();
   var centerLatLng = measurer.getFixedLatLng(bounds.getCenter());
   document.getElementById(layerType+'CenterLat').innerHTML=centerLatLng.lat;
   document.getElementById(layerType+'CenterLng').innerHTML=centerLatLng.lng;
-  document.getElementById(layerType+'NVertex').innerHTML=latlngs.length;
+  document.getElementById(layerType+'NVertex').innerHTML=measurer.numberOfVertices(layer);
   var perimeter = measurer.getPerimeterText(layer);
   document.getElementById(layerType+'Perimeter').innerHTML=perimeter;
-  var bounds = layer.getBounds();
   var northWest= measurer.getFixedLatLng(bounds.getNorthWest());
   var southEast= measurer.getFixedLatLng(bounds.getSouthEast());
   document.getElementById(layerType+'NorthWest').innerHTML=northWest.lat + ',' + northWest.lng;
