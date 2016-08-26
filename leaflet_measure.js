@@ -41,8 +41,6 @@
        //this.basePrototype = this.constructor.__super__.constructor.prototype;
 
       // Этот вызов аналогичен this._super в ember-е.
-      //this.basePrototype.initialize.call(this, map, L.Util.extend(this._getDefaultOptions(), options));
-      // Код выше может поломаться при переходе на Lefalet 1.0, он аналогичен следующей логике.
       if (this instanceof L.Marker) {
         this.basePrototype = L.Marker.prototype;
       } else if (this instanceof L.Circle) {
@@ -55,7 +53,6 @@
         ;
       }
       this.setEvents();
-      this.basePrototype.initialize.call(this, map, L.Util.extend(this._getDefaultOptions(), options));
     },
 
 
@@ -71,105 +68,94 @@
       return [];
     },
 
+    /**
+      Метод для обновления лейблов, содержащих результаты измерений.
+      @param {Object} layer Редактируемый слой.
+      */
+    _updateLabels: function(e) {
+      var layer = e.layer;
+        var editor = layer.editor;
+        var labelledMarkers = this._labelledMarkers(editor, e);
+        for (var i = 0; i < labelledMarkers.length; i++) {
+          var marker = labelledMarkers[i];
+    //      var latlng = marker.getLatLng();
+          var latlng = marker.latlng;
+          var labelText = this._getLabelContent(layer, latlng, e.latlng);
+          this._showLabel(marker, labelText, latlng);
+      }
+      var unlabelledMarkers = this._unlabelledMarkers(editor);
+      for (var i = 0; i < unlabelledMarkers.length; i++) {
+        var marker = unlabelledMarkers[i];
+        marker.unbindTooltip();
+      }
+      this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
+    },
+
+    _showLabel: function(marker, labelText, latlng) {
+      if (!marker._tooltip) {
+        marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
+      } else {
+        marker.setTooltipContent(labelText);
+      }
+      if (latlng) {
+        marker._tooltip.setLatLng(latlng);
+      }
+    },
 
     /**
-    Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-    @abstract
-    @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {};
+    Метод обновления основного лейбла измеряемого объекта
+    @param {Object} layer Редактируемый слой.
+    */
+    _updateMeasureLabel: function(layer, e) {
     },
 
 
- /**
-  Метод для обновления лейблов, содержащих результаты измерений.
-  @param {Object} layer Редактируемый слой.
-  */
- _updateLabels: function(e) {
-   var layer = e.layer;
-    var editor = layer.editor;
-    var labelledMarkers = this._labelledMarkers(editor, e);
-    for (var i = 0; i < labelledMarkers.length; i++) {
-      var marker = labelledMarkers[i];
-//      var latlng = marker.getLatLng();
-      var latlng = marker.latlng;
-      var labelText = this._getLabelContent(layer, latlng, e.latlng);
-      this._showLabel(marker, labelText, latlng);
-   }
-   var unlabelledMarkers = this._unlabelledMarkers(editor);
-   for (var i = 0; i < unlabelledMarkers.length; i++) {
-     var marker = unlabelledMarkers[i];
-     marker.unbindTooltip();
-   }
-   this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
- },
+    /**
+      Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
+      @param {String} text Отображаемый текст.
+      */
+    _onMouseMove: function(e, text) {
+      this._showPopup(text, e.latlng);
+    },
 
- _showLabel: function(marker, labelText, latlng) {
-   if (!marker._tooltip) {
-     marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
-   } else {
-     marker.setTooltipContent(labelText);
-   }
-   if (latlng) {
-     marker._tooltip.setLatLng(latlng);
-   }
- },
-
- /**
- Метод обновления основного лейбла измеряемого объекта
- @param {Object} layer Редактируемый слой.
- */
- _updateMeasureLabel: function(layer, e) {
- },
-
-
- /**
-  Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
-  @param {String} text Отображаемый текст.
-  */
- _onMouseMove: function(e, text) {
-   this._showPopup(text, e.latlng);
- },
-
-  _showPopup: function(text, latlng) {
-    if (this.measurePopup) {
-      if (!this.measurePopup.isOpen()) {
+    _showPopup: function(text, latlng) {
+      if (this.measurePopup) {
+        if (!this.measurePopup.isOpen()) {
+          this.measurePopup.openOn(this._map);
+        }
+        this.measurePopup.setLatLng(latlng).setContent(text);
+      } else {
+        this.measurePopup = L.popup()
+        this.measurePopup.setLatLng(latlng).setContent(text);
         this.measurePopup.openOn(this._map);
+    //      var element = this.measurePopup.getElement();
       }
-      this.measurePopup.setLatLng(latlng).setContent(text);
-    } else {
-      this.measurePopup = L.popup()
-      this.measurePopup.setLatLng(latlng).setContent(text);
-      this.measurePopup.openOn(this._map);
-  //      var element = this.measurePopup.getElement();
-    }
-    L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
-  },
+      L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
+    },
 
-   /**
+    /**
     Обработчик события, сигнализирующий о редактировании слоя.
      */
-  _fireEvent: function (e, type) {
-    var layer = e.layer;
-    var layerType = this._layerType(layer);
-    if (type === 'created') {
-      this._layerGroup.addLayer(layer);
-      layer.on('remove', function(e) {
-        this.disableEdit();
+    _fireEvent: function (e, type) {
+      var layer = e.layer;
+      var layerType = this._layerType(layer);
+      if (type === 'created') {
+        this._layerGroup.addLayer(layer);
+        layer.on('remove', function(e) {
+          this.disableEdit();
+        });
+      }
+      if (type !== 'move') {
+        this._updateLabels(e);
+      }
+      this._map.fire('measure:'+ type, {
+        e:e,
+        measurer: this,
+        layer: layer,
+        layerType: layerType
       });
-    }
-    if (type !== 'move') {
-      this._updateLabels(e);
-    }
-    this._map.fire('measure:'+ type, {
-      e:e,
-      measurer: this,
-      layer: layer,
-      layerType: layerType
-    });
-    return true;
-  },
+      return true;
+    },
 
     _layerType: function (layer) {
       var layerType;
@@ -225,41 +211,41 @@
       }
     },
 
-    _onActionsTest: function() {
-         this._map.on('editable:created', function() {alert('editable:created');}, this);
-         this._map.on('editable:disable', function() {alert('editable:disable');}, this);
-         this._map.on('editable:drag', function() {alert('editable:drag');}, this);
-         this._map.on('editable:dragend', function() {alert('editable:dragend');}, this);
-         this._map.on('editable:dragstart', function() {alert('editable:dragstart');}, this);
-         this._map.on('editable:drawing:cancel', function() {alert('editable:drawing:cancel');}, this);
-         this._map.on('editable:drawing:click', function() {alert('editable:drawing:click');}, this);
-         this._map.on('editable:drawing:clicked', function() {alert('editable:drawing:clicked');}, this);
-         this._map.on('editable:drawing:commit', function() {alert('editable:drawing:commit');}, this);
-         this._map.on('editable:drawing:end', function() {alert('editable:drawing:end');}, this);
-         this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
-         this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
-//          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
-         this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
-         this._map.on('editable:editing', function() {alert('editable:editing');}, this);
-         this._map.on('editable:enable', function() {alert('editable:enable');}, this);
-         this._map.on('editable:middlemarker:mousedown', function() {alert('editable:middlemarker:mousedown');}, this);
-         this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
-         this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
-         this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
-         this._map.on('editable:vertex:altclick', function() {alert('editable:vertex:altclick');}, this);
-         this._map.on('editable:vertex:click', function() {alert('editable:vertex:click');}, this);
-         this._map.on('editable:vertex:clicked', function() {alert('editable:vertex:clicked');}, this);
-         this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
-         this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
-         this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
-         this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
-         this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
-         this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
-         this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
-         this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
-         this._map.on('editable:vertex:rawclick', function() {alert('editable:vertex:rawclick');}, this);
-         this._map.on('editable:vertex:shiftclick', function() {alert('editable:vertex:shiftclick');}, this);
- }
+//     _onActionsTest: function() {
+//          this._map.on('editable:created', function() {alert('editable:created');}, this);
+//          this._map.on('editable:disable', function() {alert('editable:disable');}, this);
+//          this._map.on('editable:drag', function() {alert('editable:drag');}, this);
+//          this._map.on('editable:dragend', function() {alert('editable:dragend');}, this);
+//          this._map.on('editable:dragstart', function() {alert('editable:dragstart');}, this);
+//          this._map.on('editable:drawing:cancel', function() {alert('editable:drawing:cancel');}, this);
+//          this._map.on('editable:drawing:click', function() {alert('editable:drawing:click');}, this);
+//          this._map.on('editable:drawing:clicked', function() {alert('editable:drawing:clicked');}, this);
+//          this._map.on('editable:drawing:commit', function() {alert('editable:drawing:commit');}, this);
+//          this._map.on('editable:drawing:end', function() {alert('editable:drawing:end');}, this);
+//          this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
+//          this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
+// //          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
+//          this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
+//          this._map.on('editable:editing', function() {alert('editable:editing');}, this);
+//          this._map.on('editable:enable', function() {alert('editable:enable');}, this);
+//          this._map.on('editable:middlemarker:mousedown', function() {alert('editable:middlemarker:mousedown');}, this);
+//          this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
+//          this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
+//          this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
+//          this._map.on('editable:vertex:altclick', function() {alert('editable:vertex:altclick');}, this);
+//          this._map.on('editable:vertex:click', function() {alert('editable:vertex:click');}, this);
+//          this._map.on('editable:vertex:clicked', function() {alert('editable:vertex:clicked');}, this);
+//          this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
+//          this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
+//          this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
+//          this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
+//          this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
+//          this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
+//          this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
+//          this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
+//          this._map.on('editable:vertex:rawclick', function() {alert('editable:vertex:rawclick');}, this);
+//          this._map.on('editable:vertex:shiftclick', function() {alert('editable:vertex:shiftclick');}, this);
+//  }
 
   };
 
@@ -638,30 +624,24 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
     },
 
-    /**
-     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstract
-     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {
+    options: {
         icon: L.icon({
-          iconUrl: './vendor/leaflet_1_0_0_rc2/images/marker-icon.png',
-          iconRetinaUrl: './vendor/leaflet_1_0_0_rc2/images/marker-icon-2x.png',
+          iconUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-icon.png',
+          iconRetinaUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-icon-2x.png',
           iconSize: [25, 41],
           iconAnchor: [12, 41],
           popupAnchor: [1, -34],
-          shadowUrl: './vendor/leaflet_1_0_0_rc2/images/marker-shadow.png',
+          shadowUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-shadow.png',
           shadowSize: [41, 41]
         })
-      };
-    },
+      },
 
     /**
      Инициализация режима перемщения маркера Marker
      */
-    enable: function() {
-      this.measureLayer = this._map.editTools.startMarker();
+    enable: function(options) {
+      options = options || this.options;
+      this.measureLayer = this._map.editTools.startMarker(undefined,options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
     },
@@ -755,26 +735,17 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать круг.'
     },
 
-    /**
-     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstract
-     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {
-        shapeOptions: {
-          stroke: true,
-          color: 'green',
-          weight: 2,
-          opacity: 0.5,
-          fill: true,
-          clickable: true
-        }
-      };
+    options: {
+      stroke: true,
+      color: 'green',
+      weight: 2,
+      opacity: 0.5,
+      fill: true,
     },
 
-    enable: function () {
-      this.measureLayer = this._map.editTools.startCircle();
+    enable: function (options) {
+      options = options || this.options;
+      this.measureLayer = this._map.editTools.startCircle(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
@@ -796,26 +767,17 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать прямоугольник.'
     },
 
-    /**
-     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstract
-     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {
-        shapeOptions: {
-          stroke: true,
-          color: 'green',
-          weight: 2,
-          opacity: 0.5,
-          fill: true,
-          clickable: true
-        }
-      };
+    options: {
+      stroke: true,
+      color: 'green',
+      weight: 2,
+      opacity: 0.5,
+      fill: true,
     },
 
-    enable: function () {
-      this.measureLayer = this._map.editTools.startRectangle();
+    enable: function (options) {
+      options = options || this.options;
+      this.measureLayer = this._map.editTools.startRectangle(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDrawing = false;
     },
@@ -946,26 +908,18 @@
       commit: 'Кликните на текущую вершину, чтобы зафиксировать линию',
       drag: 'Отпустите курсор, чтобы  зафиксировать линию'
     },
-    /**
-     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstract
-     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {
-        shapeOptions: {
-          stroke: true,
-          color: 'green',
-          weight: 2,
-          opacity: 0.5,
-          fill: false,
-          clickable: true
-        }
-      };
+
+    options: {
+      stroke: true,
+      color: 'green',
+      weight: 2,
+      opacity: 0.5,
+      fill: false,
     },
 
-    enable: function () {
-      this.measureLayer = this._map.editTools.startPolyline();
+    enable: function (options) {
+      options = options || this.options;
+      this.measureLayer = this._map.editTools.startPolyline(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
     },
@@ -986,26 +940,18 @@
       drag: 'Отпустите курсор, чтобы  зафиксировать многоугольник'
     },
 
-     /**
-     Метод для получения настроек по умолчанию, для слоев создаваемых инструментом.
-     @abstract
-     @returns {Object} настроек по умолчанию, для слоев создаваемых инструментом.
-     */
-    _getDefaultOptions: function () {
-      return {
-        shapeOptions: {
-          stroke: true,
-          color: 'green',
-          weight: 2,
-          opacity: 0.5,
-          fill: true,
-          clickable: true
-        }
-      };
+    options: {
+      stroke: true,
+      color: 'green',
+      weight: 2,
+      opacity: 0.5,
+      fill: true,
     },
 
-    enable: function () {
-      this.measureLayer = this._map.editTools.startPolygon();
+
+    enable: function (options) {
+      options = options || this.options;
+      this.measureLayer = this._map.editTools.startPolygon(undefined, options);
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
     },
