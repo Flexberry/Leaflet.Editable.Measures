@@ -156,7 +156,7 @@
     if (type === 'created') {
       this._layerGroup.addLayer(layer);
       layer.on('remove', function(e) {
-        this.editTool.disable();
+        this.disableEdit();
       });
     }
     if (type !== 'move') {
@@ -661,7 +661,7 @@
      Инициализация режима перемщения маркера Marker
      */
     enable: function() {
-      this.editTool = this.enableEdit();
+//       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startMarker();
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
@@ -776,8 +776,8 @@
 
     enable: function () {
       this.measureLayer = this._map.editTools.startCircle();
-      this._latlng = this._map.getCenter();
-      this.editTool = this.enableEdit();
+//       this._latlng = this._map.getCenter();
+//       this.editTool = this.enableEdit();
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
@@ -819,8 +819,8 @@
 
     enable: function () {
       this.measureLayer = this._map.editTools.startRectangle();
-      this._latlng = this._map.getCenter();
-      this.editTool = this.enableEdit();
+//       this._latlng = this._map.getCenter();
+//       this.editTool = this.enableEdit();
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDrawing = false;
     },
@@ -970,7 +970,7 @@
     },
 
     enable: function () {
-      this.editTool = this.enableEdit();
+//       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startPolyline();
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
@@ -1011,7 +1011,7 @@
     },
 
     enable: function () {
-      this.editTool = this.enableEdit();
+//       this.editTool = this.enableEdit();
       this.measureLayer = this._map.editTools.startPolygon();
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
