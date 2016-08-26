@@ -118,13 +118,24 @@
     },
 
     _showPopup: function(text, latlng) {
+//         if (!this._map.measurePopupLayer) {
+//           this._map.measurePopupLayer = L.DivOverlay();
+//           this._showLabel(this._map.measurePopupLayer, text, latlng);
+//
+//           this._map.measureTooltip = L.tooltip({}, this._map);
+//           this._map.measureTooltip.setContent(text);
+//           this._map.measureTooltip.setLatLng(latlng);
+//           this._map.measureTooltip.openTooltip();
+//         }
       if (this.measurePopup) {
         if (!this.measurePopup.isOpen()) {
           this.measurePopup.openOn(this._map);
         }
         this.measurePopup.setLatLng(latlng).setContent(text);
       } else {
-        this.measurePopup = L.popup()
+//         this.measurePopup = L.popup({offset:L.Point(7,0)});
+       this.measurePopup = L.popup();
+//         this.measurePopup = L.popup({className:'leaflet-tooltip leaflet-zoom-animated'});
         this.measurePopup.setLatLng(latlng).setContent(text);
         this.measurePopup.openOn(this._map);
     //      var element = this.measurePopup.getElement();
