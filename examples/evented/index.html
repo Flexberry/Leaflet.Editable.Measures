@@ -239,13 +239,14 @@ map.on('measure:create', measureCreate);
 map.on('measure:created', measureCreated);
 map.on('measure:edit', measureEdit);
 map.on('measure:editend', measureEditend);
+var nMarker =1;
 </script>
 
-<button id="measureMarkerBtn" onclick="markerTool.enable();">Измерить координаты</button>
-<button id="measurePolygonBtn" onclick="polygonTool.enable();">Измерить многоугольник</button>
-<button id="measureRectangleBtn" onclick="rectangleTool.enable();">Измерить прямоугольник</button>
-<button id="measureCircleBtn" onclick="circleTool.enable();">Измерить круг</button>
-<button id="measurePolilineBtn" onclick="polylineTool.enable();">Измерить ломаную</button>
+<button id="measureMarkerBtn" onclick="markerTool.enable({title:'Маркер'+nMarker++});">Измерить координаты</button>
+<button id="measurePolygonBtn" onclick="polygonTool.enable({color:'red'});">Измерить многоугольник</button>
+<button id="measureRectangleBtn" onclick="rectangleTool.enable({color:'green'});">Измерить прямоугольник</button>
+<button id="measureCircleBtn" onclick="circleTool.enable({color:'blue'});">Измерить круг</button>
+<button id="measurePolilineBtn" onclick="polylineTool.enable({color:'yellow'});">Измерить ломаную</button>
 
 
 <table border='1' id='measureState'>

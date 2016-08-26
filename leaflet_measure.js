@@ -640,7 +640,7 @@
      Инициализация режима перемщения маркера Marker
      */
     enable: function(options) {
-      options = options || this.options;
+      options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startMarker(undefined,options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
@@ -776,7 +776,7 @@
     },
 
     enable: function (options) {
-      options = options || this.options;
+      options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startRectangle(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDrawing = false;
@@ -918,7 +918,7 @@
     },
 
     enable: function (options) {
-      options = options || this.options;
+      options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolyline(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
@@ -950,7 +950,7 @@
 
 
     enable: function (options) {
-      options = options || this.options;
+      options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolygon(undefined, options);
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
