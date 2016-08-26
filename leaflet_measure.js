@@ -38,8 +38,7 @@
       }
 
       // Т.к. базовый класс отличается для каждого инструмента, то добираемся до него следующим образом.
-       //this.basePrototype = this.constructor.__super__.constructor.prototype;
-
+       //this.basePrototype = this.constructor.__super__.constructor.prototype
       // Этот вызов аналогичен this._super в ember-е.
       if (this instanceof L.Marker) {
         this.basePrototype = L.Marker.prototype;
@@ -342,7 +341,7 @@
      @returns {Number} Число вершин.
      */
     numberOfVertices: function(layer) {
-      return this.getLatLngs(layer);
+      return this.getLatLngs(layer).length;
     },
 
     /**
