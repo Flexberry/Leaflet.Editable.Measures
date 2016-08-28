@@ -118,7 +118,7 @@ function measureMove(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  var measureEvent = layer._measureEvent;
+  var measureEvent = e._measureEventType;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
   document.getElementById('EventName').innerHTML=measureEvent;
@@ -132,7 +132,7 @@ function measureCreate(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  var measureEvent = layer._measureEvent;
+  var measureEvent = e._measureEventType;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
   document.getElementById(layerType+'Measure').className='';
@@ -160,7 +160,7 @@ function measureEdit(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  var measureEvent = layer._measureEvent;
+  var measureEvent = e._measureEventType;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
   document.getElementById(layerType+'Measure').className='';
@@ -193,7 +193,7 @@ function measureCreated(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  var measureEvent = layer._measureEvent;
+  var measureEvent = e._measureEventType;
   document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
   document.getElementById('EventName').innerHTML=measureEvent;
@@ -219,7 +219,7 @@ function measureEditend(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
-  var measureEvent = layer._measureEvent;
+  var measureEvent = e._measureEventType;
   document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
   document.getElementById('EventName').innerHTML=measureEvent;
@@ -241,10 +241,10 @@ function measureEditend(params) {
 
 map.on('measure:move', measureMove);
 map.on('measure:create', measureCreate);
-map.on('measure:create:move', measureCreate);
+map.on('measure:create:drag', measureCreate);
 map.on('measure:created', measureCreated);
 map.on('measure:edit', measureEdit);
-map.on('measure:edit:move', measureEdit);
+map.on('measure:edit:drag', measureEdit);
 map.on('measure:editmove', measureEdit);
 map.on('measure:editend', measureEditend);
 var nMarker =1;

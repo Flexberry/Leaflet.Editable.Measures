@@ -41,17 +41,17 @@
        //this.basePrototype = this.constructor.__super__.constructor.prototype;
 
       // Этот вызов аналогичен this._super в ember-е.
-      if (this instanceof L.Marker) {
-        this.basePrototype = L.Marker.prototype;
-      } else if (this instanceof L.Circle) {
-        this.basePrototype = L.Circle.prototype;
-      } else if (this instanceof L.Polygon) {
-        this.basePrototype = L.Polygon.prototype;
-      } else if (this instanceof L.Polyline) {
-        this.basePrototype = L.Polyline.prototype;
-      } else {
-        ;
-      }
+//       if (this instanceof L.Marker) {
+//         this.basePrototype = L.Marker.prototype;
+//       } else if (this instanceof L.Circle) {
+//         this.basePrototype = L.Circle.prototype;
+//       } else if (this instanceof L.Polygon) {
+//         this.basePrototype = L.Polygon.prototype;
+//       } else if (this instanceof L.Polyline) {
+//         this.basePrototype = L.Polyline.prototype;
+//       } else {
+//         ;
+//       }
       this.setEvents();
     },
 
@@ -80,14 +80,14 @@
       */
     _updateLabels: function(e) {
       var layer = e.layer;
-        var editor = layer.editor;
-        var labelledMarkers = this._labelledMarkers(editor, e);
-        for (var i = 0; i < labelledMarkers.length; i++) {
-          var marker = labelledMarkers[i];
-    //      var latlng = marker.getLatLng();
-          var latlng = marker.latlng;
-          var labelText = this._getLabelContent(layer, latlng, e.latlng);
-          this._showLabel(marker, labelText, latlng);
+      var editor = layer.editor;
+      var labelledMarkers = this._labelledMarkers(editor, e);
+      for (var i = 0; i < labelledMarkers.length; i++) {
+        var marker = labelledMarkers[i];
+  //      var latlng = marker.getLatLng();
+        var latlng = marker.latlng;
+        var labelText = this._getLabelContent(layer, latlng, e.latlng);
+        this._showLabel(marker, labelText, latlng);
       }
       var unlabelledMarkers = this._unlabelledMarkers(editor);
       for (var i = 0; i < unlabelledMarkers.length; i++) {
@@ -145,6 +145,8 @@
     _fireEvent: function (e, type) {
       var layer = e.layer;
       var layerType = this._layerType(layer);
+      var measureEvent = 'measure:'+ type;
+      e._measureEventType = measureEvent;
       if (type === 'created') {
         this._layerGroup.addLayer(layer);
         layer.on('remove', function(e) {
@@ -154,8 +156,7 @@
       if (type !== 'move') {
         this._updateLabels(e);
       }
-      var measureEvent = 'measure:'+ type;
-      layer._measureEvent = measureEvent;
+
       this._map.fire(measureEvent, {
         e:e,
         measurer: this,
@@ -603,7 +604,7 @@
     },
 
     _setDrag: function(e) {
-      this._fireEvent(e, 'edit');
+      this._fireEvent(e, 'edit:drag');
     },
 
     _setDragStart: function(e) {
@@ -724,9 +725,9 @@
       var text = this.popupText.drag;
       this._onMouseMove(e, text);
       if (this.create) {
-        this._fireEvent(e, 'create:move');
+        this._fireEvent(e, 'create:drag');
       } else {
-        this._fireEvent(e, 'edit');
+        this._fireEvent(e, 'edit:drag');
       }
 
     },
@@ -857,10 +858,10 @@
       } else {
         if (this.isDragging) {
           text = this.popupText.drag;
-          this._fireEvent(e, 'edit:move');
+          this._fireEvent(e, 'edit:drag');
         } else {
           text = this.popupText.add;
-          this._fireEvent(e, 'create:move');
+          this._fireEvent(e, 'create:drag');
         }
       }
       this._onMouseMove(e, text);
