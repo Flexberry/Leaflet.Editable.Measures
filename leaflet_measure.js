@@ -55,6 +55,12 @@
       this.setEvents();
     },
 
+    _setMouseMarker() {
+      if (!this.map._mouseMarker) {
+        this.map._mouseMarker = L.Marker();
+      }
+    },
+
 
      _getLabelContent: function(layer, latlng) {
        return '';
