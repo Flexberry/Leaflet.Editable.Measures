@@ -154,7 +154,9 @@
       if (type !== 'move') {
         this._updateLabels(e);
       }
-      this._map.fire('measure:'+ type, {
+      var measureEvent = 'measure:'+ type;
+      layer._measureEvent = measureEvent;
+      this._map.fire(measureEvent, {
         e:e,
         measurer: this,
         layer: layer,
@@ -348,7 +350,7 @@
      @returns {Number} Число вершин.
      */
     numberOfVertices: function(layer) {
-      return this.getLatLngs(layer);
+      return this.getLatLngs(layer).length;
     },
 
     /**
@@ -722,7 +724,7 @@
       var text = this.popupText.drag;
       this._onMouseMove(e, text);
       if (this.create) {
-        this._fireEvent(e, 'create');
+        this._fireEvent(e, 'create:move');
       } else {
         this._fireEvent(e, 'edit');
       }
@@ -855,9 +857,10 @@
       } else {
         if (this.isDragging) {
           text = this.popupText.drag;
-          this._fireEvent(e, 'edit');
+          this._fireEvent(e, 'edit:move');
         } else {
           text = this.popupText.add;
+          this._fireEvent(e, 'create:move');
         }
       }
       this._onMouseMove(e, text);
@@ -890,8 +893,11 @@
     },
 
     _setClicked: function(e) {
-      this._map.closePopup();
       this._fireEvent(e, 'create');
+      if (this.numberOfVertices(e.layer) <= 2) return;
+      var text = this.popupText.commit;
+      var latlng = e.latlng? e.latlng : e.vertex.latlng;
+      this._showPopup(text, latlng);
     },
 
     _setCommit: function(e) {

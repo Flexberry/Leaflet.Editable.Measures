@@ -118,9 +118,10 @@ function measureMove(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
+  var measureEvent = layer._measureEvent;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
-  document.getElementById('EventName').innerHTML='measure:move';
+  document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
   document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
   document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
@@ -131,10 +132,11 @@ function measureCreate(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
+  var measureEvent = layer._measureEvent;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
   document.getElementById(layerType+'Measure').className='';
-  document.getElementById('EventName').innerHTML='measure:create';
+  document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
   document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
   document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
@@ -158,10 +160,11 @@ function measureEdit(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
+  var measureEvent = layer._measureEvent;
   var fixedLatLng = measurer.getFixedLatLng(e.latlng);
   document.getElementById('EventState').className='';
   document.getElementById(layerType+'Measure').className='';
-  document.getElementById('EventName').innerHTML='measure:edit';
+  document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
   document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
   document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
@@ -190,9 +193,10 @@ function measureCreated(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
+  var measureEvent = layer._measureEvent;
   document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
-  document.getElementById('EventName').innerHTML='measure:created';
+  document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
   document.getElementById(layerType+'State').innerHTML='Создан';
   switch (layerType) {
@@ -215,9 +219,10 @@ function measureEditend(params) {
   var measurer = params.measurer;
   var layer = params.layer;
   var layerType = params.layerType;
+  var measureEvent = layer._measureEvent;
   document.getElementById('EventState').className='disabled';
   document.getElementById(layerType+'Measure').className='disabled';
-  document.getElementById('EventName').innerHTML='measure:editend';
+  document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
   document.getElementById(layerType+'State').innerHTML='Изменен';
   switch (layerType) {
@@ -236,8 +241,11 @@ function measureEditend(params) {
 
 map.on('measure:move', measureMove);
 map.on('measure:create', measureCreate);
+map.on('measure:create:move', measureCreate);
 map.on('measure:created', measureCreated);
 map.on('measure:edit', measureEdit);
+map.on('measure:edit:move', measureEdit);
+map.on('measure:editmove', measureEdit);
 map.on('measure:editend', measureEditend);
 var nMarker =1;
 </script>
@@ -246,7 +254,7 @@ var nMarker =1;
 <button id="measurePolygonBtn" onclick="polygonTool.enable({color:'red'});">Измерить многоугольник</button>
 <button id="measureRectangleBtn" onclick="rectangleTool.enable({color:'green'});">Измерить прямоугольник</button>
 <button id="measureCircleBtn" onclick="circleTool.enable({color:'blue'});">Измерить круг</button>
-<button id="measurePolilineBtn" onclick="polylineTool.enable({color:'yellow'});">Измерить ломаную</button>
+<button id="measurePolylineBtn" onclick="polylineTool.enable({color:'#888800'});">Измерить ломаную</button>
 
 
 <table border='1' id='measureState'>
