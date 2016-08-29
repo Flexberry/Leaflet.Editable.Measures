@@ -158,7 +158,8 @@
     _getLabelContent: function(layer, latlng) {
 //       var radius = layer.getRadius();
       var  radiusText = this.getRadiusText(layer);
-      return '<b>' + 'Радиус: ' + radiusText + '</b>';
+      var ret = radiusText.length > 0 ? '<b>' + 'Радиус: ' + radiusText + '</b>' : '';
+      return ret;
     },
 
     /**

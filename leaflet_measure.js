@@ -61,8 +61,7 @@
         map._mouseMarker = L.marker(map.getCenter());
         map._mouseMarker.setIcon(popupMarkerIcon);
         map._mouseMarker.addTo(this._map);
-        map._mouseMarker.bindTooltip('MouseMarker', tooltipOptions);
-        map._mouseMarker.openTooltip();
+        map._mouseMarker.bindTooltip('', tooltipOptions);
       }
     },
 
@@ -521,8 +520,10 @@
     @returns {Number} Текстовое представление радиуса.
       */
     getRadiusText: function(layer) {
+      var radius = layer.getRadius();
+      if (radius < 0) return '';
       return this.getMeasureText({
-        value: layer.getRadius(),
+        value: radius,
         dimension: 1
       });
     },
@@ -729,6 +730,10 @@
     _setMove: function(e) {
       if (!this.create && !this.isDragging) {
         var text = this.popupText.move;
+        var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
+        if (labelContent.length > 0) {
+          text += '<br>' +labelContent;
+        }
         this._onMouseMove(e, text);
         this._fireEvent(e, 'move');
       }
@@ -754,6 +759,10 @@
 
     _setDrag: function(e) {
       var text = this.popupText.drag;
+      var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
+      if (labelContent.length > 0) {
+        text += '<br>' +labelContent;
+      }
       this._onMouseMove(e, text);
       if (this.create) {
         this._fireEvent(e, 'create:drag');
@@ -784,8 +793,10 @@
     },
 
     enable: function (options) {
+      this._setMouseMarker();
       options = options || this.options;
       this.measureLayer = this._map.editTools.startCircle(undefined, options);
+      this.measureLayer.setRadius(-1);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
