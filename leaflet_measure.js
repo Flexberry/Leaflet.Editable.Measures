@@ -55,20 +55,6 @@
         this._layerGroup = map;
       }
 
-      // Т.к. базовый класс отличается для каждого инструмента, то добираемся до него следующим образом.
-       //this.basePrototype = this.constructor.__super__.constructor.prototype
-      // Этот вызов аналогичен this._super в ember-е.
-//       if (this instanceof L.Marker) {
-//         this.basePrototype = L.Marker.prototype;
-//       } else if (this instanceof L.Circle) {
-//         this.basePrototype = L.Circle.prototype;
-//       } else if (this instanceof L.Polygon) {
-//         this.basePrototype = L.Polygon.prototype;
-//       } else if (this instanceof L.Polyline) {
-//         this.basePrototype = L.Polyline.prototype;
-//       } else {
-//         ;
-//       }
       this.setEvents();
     },
 
@@ -104,6 +90,11 @@
     _updateLabels: function(e) {
       var layer = e.layer;
       var editor = layer.editor;
+      var unlabelledMarkers = this._unlabelledMarkers(editor, e);
+      for (var i = 0; i < unlabelledMarkers.length; i++) {
+        var marker = unlabelledMarkers[i];
+        marker.closeTooltip();
+      }
       var labelledMarkers = this._labelledMarkers(editor, e);
       for (var i = 0; i < labelledMarkers.length; i++) {
         var marker = labelledMarkers[i];
@@ -112,11 +103,7 @@
         var labelText = this._getLabelContent(layer, latlng, e);
         this._showLabel(marker, labelText, latlng);
       }
-      var unlabelledMarkers = this._unlabelledMarkers(editor, e);
-      for (var i = 0; i < unlabelledMarkers.length; i++) {
-        var marker = unlabelledMarkers[i];
-        marker.closeTooltip();
-      }
+
       this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
     },
 
@@ -129,6 +116,7 @@
       if (latlng) {
         marker._tooltip.setLatLng(latlng);
       }
+      marker.openTooltip();
     },
 
     /**
@@ -153,21 +141,6 @@
         map._mouseMarker.openTooltip();
       }
       map._mouseMarker.setLatLng(latlng);
-
-//       if (this.measurePopup) {
-//         if (!this.measurePopup.isOpen()) {
-//           this.measurePopup.openOn(this._map);
-//         }
-//         this.measurePopup.setLatLng(latlng).setContent(text);
-//       } else {
-// //         this.measurePopup = L.popup({offset:L.Point(7,0)});
-//        this.measurePopup = L.popup();
-// //         this.measurePopup = L.popup({className:'leaflet-tooltip leaflet-zoom-animated'});
-//         this.measurePopup.setLatLng(latlng).setContent(text);
-//         this.measurePopup.openOn(this._map);
-//     //      var element = this.measurePopup.getElement();
-//       }
-//       L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
     },
 
     _closePopup: function() {
@@ -305,6 +278,12 @@
    *   Примесь, обеспечивающая поддержку основных методов редактирования маркера
    */
   L.Measure.Mixin.Marker = {
+
+   distanceMeasureUnit: {
+     meter: ' м',
+    kilometer: ' км'
+   },
+
     /**
      Приводит значение координат точки, которые могут принимать любые действительные значения,
      к значениям, лежещим в отрезках [-90; 90], для широты, [-180, 180] для долготы.
@@ -340,8 +319,8 @@
       var kmRoundingBound = 1.0 / Math.pow(10, e.dimension - 1);
 
       return (valueInKm >= kmRoundingBound)
-          ? valueInKm.toFixed(kmPrecition) + ' км' + dimensionText
-          : value.toFixed(L.Measure.precition) + ' м' + dimensionText;
+      ? valueInKm.toFixed(kmPrecition) + this.distanceMeasureUnit.kilometer + dimensionText
+          : value.toFixed(L.Measure.precition) + this.distanceMeasureUnit.meter + dimensionText;
     },
 
     /**
