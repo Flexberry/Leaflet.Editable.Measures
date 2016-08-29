@@ -16,6 +16,24 @@
   };
 
 
+  L.Measure.imagePath = (function () {
+    var scripts = document.getElementsByTagName('script'),
+        //leafletRe = /[\/^]leaflet[\-\._]?([\w\-\._]*)\.js\??/;
+        leafletRe = /[\/^]leaflet_measure\.js\??/;
+
+
+    var i, len, src, path;
+
+    for (i = 0, len = scripts.length; i < len; i++) {
+      src = scripts[i].src || '';
+
+      if (src.match(leafletRe)) {
+        path = src.split(leafletRe)[0];
+        return (path ? path + '/' : '') + 'images';
+      }
+    }
+  }());
+
   /**
    * Примесь, переопределяющая базовые методы инструментов плагина Leaflet.Editable, превращая их в инструменты измерений.
    */
@@ -57,7 +75,8 @@
     _setMouseMarker: function() {
       if (map._mouseMarker === undefined) {
         var tooltipOptions = {sticky: true, pane: 'popupPane', className:'leaflet-draw-tooltip'};
-        var popupMarkerIcon = L.icon({iconUrl:'../../popupMarker.png',iconSize: [1 , 1]});
+        var imagePath = L.Measure.imagePath;
+        var popupMarkerIcon = L.icon({iconUrl:imagePath+'/popupMarker.png',iconSize: [1 , 1]});
         map._mouseMarker = L.marker(map.getCenter());
         map._mouseMarker.setIcon(popupMarkerIcon);
         map._mouseMarker.addTo(this._map);
@@ -667,23 +686,22 @@
       drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
     },
 
-    options: {
-        icon: L.icon({
-          iconUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-icon.png',
-          iconRetinaUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-icon-2x.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowUrl: '../../vendor/leaflet_1_0_0_rc2/images/marker-shadow.png',
-          shadowSize: [41, 41]
-        })
-      },
-
     /**
      Инициализация режима перемщения маркера Marker
      */
     enable: function(options) {
       this._setMouseMarker();
+      var imagePath = L.Measure.imagePath;
+      this.options = { icon: L.icon({
+        iconUrl: imagePath + '/marker-icon.png',
+        iconRetinaUrl: imagePath + '/marker-icon-2x.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: imagePath + '/marker-shadow.png',
+        shadowSize: [41, 41]
+      })};
+
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startMarker(undefined,options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
