@@ -90,7 +90,7 @@
         var marker = labelledMarkers[i];
   //      var latlng = marker.getLatLng();
         var latlng = marker.latlng;
-        var labelText = this._getLabelContent(layer, latlng, e.latlng);
+        var labelText = this._getLabelContent(layer, latlng, e);
         this._showLabel(marker, labelText, latlng);
       }
       var unlabelledMarkers = this._unlabelledMarkers(editor);
@@ -702,7 +702,7 @@
           editable:drawing:start
           editable:drawing:move
         1-й клик
-          editable:drawing:mousedown
+        editable:drawing:mousedown
           editable:drawing:commit
           editable:drawing:end
         Перемещение, изменение размера круга
@@ -741,6 +741,7 @@
 
     _setDrawingEnd: function(e) {
       this.create = true;
+      this._fireEvent(e, 'create');
     },
 
     _setDragstart: function(e) {
@@ -884,6 +885,7 @@
       this.editableEventTree = {
         vertex: {
           dragstart: this._setDragStart,
+          drag: this._setDrag,
           dragend: this._setDragEnd,
           deleted: this.setVertexDeleted
         },
@@ -905,17 +907,26 @@
         this._fireEvent(e, 'move');
       } else {
         if (this.isDragging) {
-          text = this.popupText.drag;
-          this._fireEvent(e, 'edit:drag');
+//           text = this.popupText.drag;
+//           var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
+//           if (labelContent.length > 0) {
+//             text += '<br>' +labelContent;
+//           }
+//           this._fireEvent(e, 'edit:drag');
         } else {
           text = this.popupText.add;
+          var labelContent = this._getLabelContent(e.layer, e.latlng, e).trim();
+          if (labelContent.length > 0) {
+            text += '<br>' +labelContent;
           this._fireEvent(e, 'create:drag');
+          }
         }
       }
       this._onMouseMove(e, text);
     },
 
     _setDragStart: function(e) {
+      e.vertex.closeTooltip();
       this.measureLayer = e.layer;
       this.isDragging = true;
 
@@ -924,8 +935,18 @@
       this._closePopup();
       this._fireEvent(e, 'editend');
       this.isDragging = false;
-
+      e.vertex.openTooltip();
     },
+
+     _setDrag: function(e) {
+      var text = this.popupText.drag;
+      var labelContent = this._getLabelContent(e.layer, e.vertex.latlng).trim();
+      if (labelContent.length > 0) {
+        text += '<br>' +labelContent;
+      }
+      this._onMouseMove(e, text);
+      this._fireEvent(e, 'edit:drag');
+     },
 
     setVertexDeleted: function(e) {
       this.vertexDeleted = true;

@@ -238,10 +238,12 @@
         distance += currentInc;
       }
 
-      return '<b>' + this.getMeasureText({
-        value: distance,
-        dimension: 1
-      }) +
+      //       'index='+ index + '<br>' +
+      return '<b>' +
+        this.getMeasureText({
+          value: distance,
+          dimension: 1
+        }) +
       '<br><span class="measure-path-label-incdistance">+' +
       this.getMeasureText({
         value: currentInc,
@@ -297,9 +299,10 @@
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      @returns {String} Содержимое метки
      */
-    _getLabelContent: function(layer, latlng, eventLatlng) {
+    _getLabelContent: function(layer, latlng, e) {
       var latlngs = layer.editor.getLatLngs()[0].slice();
-      if (eventLatlng) {
+      if (e && !e.vertex) {  //Non drag
+        eventLatlng = e.latlng;
         for (var index=0; index < latlngs.length && !latlngs[index].equals(eventLatlng); index++);
         if (index === latlngs.length) {
           latlngs.push(eventLatlng);
@@ -316,7 +319,11 @@
         });
         distance += currentInc;
       }
-      var ret = '<b>Периметр: ' + this.getMeasureText({
+      var ret = '<b>' +
+      //       'index='+ index + '<br>' +
+      //       'eventLatlng=' + eventLatlng +  '<br>' +
+      //       'latlngs=' + latlngs + '<br>' +
+      'Периметр: ' + this.getMeasureText({
       value: distance,
       dimension: 1
     }) + '</b>';
