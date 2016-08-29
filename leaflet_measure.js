@@ -744,6 +744,7 @@
     },
 
     _setDragstart: function(e) {
+      e.vertex.closeTooltip();
       this.isDragging = true;
     },
 
@@ -755,6 +756,9 @@
       } else {
         this._fireEvent(e, 'editend');
       }
+      this.create = false;
+      this.isDragging = false;
+      e.vertex.openTooltip();
     },
 
     _setDrag: function(e) {
@@ -831,6 +835,7 @@
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startRectangle(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.create = false;
       this.isDrawing = false;
     },
 
