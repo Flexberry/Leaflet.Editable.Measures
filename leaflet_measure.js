@@ -93,7 +93,7 @@
         var labelText = this._getLabelContent(layer, latlng, e);
         this._showLabel(marker, labelText, latlng);
       }
-      var unlabelledMarkers = this._unlabelledMarkers(editor);
+      var unlabelledMarkers = this._unlabelledMarkers(editor, e);
       for (var i = 0; i < unlabelledMarkers.length; i++) {
         var marker = unlabelledMarkers[i];
         marker.unbindTooltip();
@@ -450,8 +450,11 @@
      * @param {Object} e.latlngs Массив точек многоугольника.
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
-    getArea: function(layer) {
-      var latlngs = this.getLatLngs(layer);
+    getArea: function(layer, latlng) {
+      var latlngs = this.getLatLngs(layer).slice();
+      if (latlng) {
+        latlngs.push(latlng);
+      }
       return distance = parseFloat(this.geodesicArea(latlngs).toFixed(L.Measure.precition));
     },
 
@@ -461,9 +464,9 @@
     @param {Object} e.latlngs Массив точек многоугольника.
     @returns {Number} Текстовое представление площади.
      */
-    getAreaText: function(layer) {
+    getAreaText: function(layer, latlng) {
       return this.getMeasureText({
-        value: this.getArea(layer),
+        value: this.getArea(layer, latlng),
         dimension: 2
       });
     },
