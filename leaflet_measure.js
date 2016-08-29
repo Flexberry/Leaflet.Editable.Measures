@@ -54,9 +54,15 @@
       this.setEvents();
     },
 
-    _setMouseMarker() {
-      if (!this.map._mouseMarker) {
-        this.map._mouseMarker = L.Marker();
+    _setMouseMarker: function() {
+      if (map._mouseMarker === undefined) {
+        var tooltipOptions = {sticky: true, pane: 'popupPane', className:'leaflet-draw-tooltip'};
+        var popupMarkerIcon = L.icon({iconUrl:'../../popupMarker.png',iconSize: [1 , 1]});
+        map._mouseMarker = L.marker(map.getCenter());
+        map._mouseMarker.setIcon(popupMarkerIcon);
+        map._mouseMarker.addTo(this._map);
+        map._mouseMarker.bindTooltip('MouseMarker', tooltipOptions);
+        map._mouseMarker.openTooltip();
       }
     },
 
@@ -124,29 +130,30 @@
     },
 
     _showPopup: function(text, latlng) {
-//         if (!this._map.measurePopupLayer) {
-//           this._map.measurePopupLayer = L.DivOverlay();
-//           this._showLabel(this._map.measurePopupLayer, text, latlng);
-//
-//           this._map.measureTooltip = L.tooltip({}, this._map);
-//           this._map.measureTooltip.setContent(text);
-//           this._map.measureTooltip.setLatLng(latlng);
-//           this._map.measureTooltip.openTooltip();
-//         }
-      if (this.measurePopup) {
-        if (!this.measurePopup.isOpen()) {
-          this.measurePopup.openOn(this._map);
-        }
-        this.measurePopup.setLatLng(latlng).setContent(text);
-      } else {
-//         this.measurePopup = L.popup({offset:L.Point(7,0)});
-       this.measurePopup = L.popup();
-//         this.measurePopup = L.popup({className:'leaflet-tooltip leaflet-zoom-animated'});
-        this.measurePopup.setLatLng(latlng).setContent(text);
-        this.measurePopup.openOn(this._map);
-    //      var element = this.measurePopup.getElement();
+      map._mouseMarker.setTooltipContent(text);
+      if (!map._mouseMarker.isTooltipOpen()) {
+        map._mouseMarker.openTooltip();
       }
-      L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
+      map._mouseMarker.setLatLng(latlng);
+
+//       if (this.measurePopup) {
+//         if (!this.measurePopup.isOpen()) {
+//           this.measurePopup.openOn(this._map);
+//         }
+//         this.measurePopup.setLatLng(latlng).setContent(text);
+//       } else {
+// //         this.measurePopup = L.popup({offset:L.Point(7,0)});
+//        this.measurePopup = L.popup();
+// //         this.measurePopup = L.popup({className:'leaflet-tooltip leaflet-zoom-animated'});
+//         this.measurePopup.setLatLng(latlng).setContent(text);
+//         this.measurePopup.openOn(this._map);
+//     //      var element = this.measurePopup.getElement();
+//       }
+//       L.DomUtil.setOpacity(this.measurePopup.getElement(), 0.5);
+    },
+
+    _closePopup: function() {
+      map._mouseMarker.closeTooltip();
     },
 
     /**
@@ -608,7 +615,15 @@
     },
 
     _setMove: function(e) {
-      var text = this.isDragging ? this.popupText.drag : this.popupText.move + '<br>' + this._getLabelContent(e.layer, e.latlng);
+      if (this.isDragging && this.measureLayer.isTooltipOpen()) {
+        this.measureLayer.closeTooltip();
+      }
+      var text = this.isDragging ? this.popupText.drag : this.popupText.move;
+      var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
+      if (labelContent.length > 0) {
+        text += '<br>' +labelContent;
+      }
+
       this._onMouseMove(e, text);
       this._fireEvent(e, 'move');
     },
@@ -622,11 +637,16 @@
     },
 
     _setDragend:function(e) {
+      this._closePopup();
+      if (!this.measureLayer.isTooltipOpen()) {
+        this.measureLayer.openTooltip();
+      }
       this.isDragging = false;
       this._fireEvent(e, 'editend');
     },
 
     _setCommit: function(e) {
+      this._closePopup();
       this._fireEvent(e, 'created');
     },
 
@@ -659,6 +679,7 @@
      Инициализация режима перемщения маркера Marker
      */
     enable: function(options) {
+      this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startMarker(undefined,options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
@@ -722,7 +743,7 @@
     },
 
     _setDragend: function(e) {
-      this._map.closePopup();
+      this._closePopup();
       if (this.create) {
         this._fireEvent(e, 'created');
         this.create = false;
@@ -795,6 +816,7 @@
     },
 
     enable: function (options) {
+      this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startRectangle(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
@@ -833,7 +855,7 @@
           editable:vertex:dragend
         Удаление вершины:
           editable:vertex:click
-          editable:vertex:rawclick
+          editable:vertex:rawclick_closePopup
           editable:vertex:deleted
           editable:vertex:clicked
         Перетаскивание срединного маркера
@@ -842,7 +864,7 @@
         editable:drawing:move
         editable:vertex:dragend
      */
-    setEvents: function (map, options) {
+     setEvents: function (map, options) {
       this.editableEventTree = {
         vertex: {
           dragstart: this._setDragStart,
@@ -883,7 +905,7 @@
 
     },
     _setDragEnd: function(e) {
-      this._map.closePopup();
+      this._closePopup();
       this._fireEvent(e, 'editend');
       this.isDragging = false;
 
@@ -912,6 +934,7 @@
     },
 
     _setCommit: function(e) {
+      this._closePopup();
       this._fireEvent(e, 'created');
     },
 
@@ -939,6 +962,7 @@
     },
 
     enable: function (options) {
+      this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolyline(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
@@ -971,6 +995,7 @@
 
 
     enable: function (options) {
+      this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolygon(undefined, options);
       this.isDragging = false;
