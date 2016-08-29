@@ -134,13 +134,16 @@ function measureCreate(params) {
   var layer = params.layer;
   var layerType = params.layerType;
   var measureEvent = e._measureEventType;
-  var fixedLatLng = measurer.getFixedLatLng(e.latlng);
+  if (e.latlng) {
+    var fixedLatLng = measurer.getFixedLatLng(e.latlng);
+    document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
+    document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
+
+  }
   document.getElementById('EventState').className='';
   document.getElementById(layerType+'Measure').className='';
   document.getElementById('EventName').innerHTML=measureEvent;
   document.getElementById('MeasuredFigure').innerHTML=layerType;
-  document.getElementById('MouseLat').innerHTML=fixedLatLng.lat;
-  document.getElementById('MouseLng').innerHTML=fixedLatLng.lng;
   document.getElementById(layerType+'State').innerHTML='Создается';
   switch (layerType) {
     case 'Polyline':

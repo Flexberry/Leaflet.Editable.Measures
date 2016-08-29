@@ -96,7 +96,7 @@
       var unlabelledMarkers = this._unlabelledMarkers(editor, e);
       for (var i = 0; i < unlabelledMarkers.length; i++) {
         var marker = unlabelledMarkers[i];
-        marker.unbindTooltip();
+        marker.closeTooltip();
       }
       this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
     },
@@ -619,7 +619,7 @@
     },
 
     _setMove: function(e) {
-      if (this.isDragging && this.measureLayer.isTooltipOpen()) {
+      if (this.isDragging && this.measureLayer.getTooltip() && this.measureLayer.isTooltipOpen()) {
         this.measureLayer.closeTooltip();
       }
       var text = this.isDragging ? this.popupText.drag : this.popupText.move;
@@ -642,7 +642,7 @@
 
     _setDragend:function(e) {
       this._closePopup();
-      if (!this.measureLayer.isTooltipOpen()) {
+      if (this.measureLayer.getTooltip() && !this.measureLayer.isTooltipOpen()) {
         this.measureLayer.openTooltip();
       }
       this.isDragging = false;
@@ -714,7 +714,7 @@
           editable:vertex:drag
           editable:editing
         Отпуск клавиши
-          editable:vertex:dragend
+        editable:vertex:dragendmeasureLayer
      */
     setEvents: function (map, options) {
       this.editableEventTree = {
@@ -909,14 +909,7 @@
         text = this.popupText.move;
         this._fireEvent(e, 'move');
       } else {
-        if (this.isDragging) {
-//           text = this.popupText.drag;
-//           var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
-//           if (labelContent.length > 0) {
-//             text += '<br>' +labelContent;
-//           }
-//           this._fireEvent(e, 'edit:drag');
-        } else {
+        if (!this.isDragging) {
           text = this.popupText.add;
           var labelContent = this._getLabelContent(e.layer, e.latlng, e).trim();
           if (labelContent.length > 0) {
