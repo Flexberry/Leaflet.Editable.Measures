@@ -3,7 +3,7 @@
   /**
    * Базовое пространство имен для инструментов измерений.
    */
-  L.Measure = L.Measure || {
+  L.Measure =  {
 
     /**
      * Количество знаков после десятичного разделителя для измерений в метрах.
@@ -668,7 +668,7 @@
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования маркера
    */
-  L.Measure.Marker = L.Marker.extend({
+  L.Measure.Marker = L.Class.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.MarkerEvents ],
 
     popupText: {
@@ -794,7 +794,7 @@
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования круга
    */
-  L.Measure.Circle = L.Circle.extend({
+  L.Measure.Circle = L.Class.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, , L.Measure.Mixin.Path, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
 
     popupText: {
@@ -825,7 +825,7 @@
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования прямоугольника
    */
-  L.Measure.Rectangle = L.Rectangle.extend({
+  L.Measure.Rectangle = L.Class.extend({
     includes: [ L.Measure.Mixin,
       L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.Rectangle,
       L.Measure.Mixin.CircleRectangleEvents
@@ -990,7 +990,7 @@
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования ломаной
    */
-  L.Measure.Polyline = L.Polyline.extend({
+  L.Measure.Polyline = L.Class.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.PolylinePolygonEvents ],
 
     popupText: {
@@ -1022,7 +1022,7 @@
   /**
    Класс, обеспечивающая поддержку основных cобытий редактирования многоугольника
    */
-  L.Measure.Polygon =  L.Polygon.extend({
+  L.Measure.Polygon =  L.Class.extend({
     includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.PolylinePolygonEvents ],
 
     popupText: {
