@@ -49,12 +49,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 var measurementsLayerGroup = L.layerGroup().addTo(map);
 
 // Create custom measere tools instances.
-var markerTool = L.Measure.marker(map, { layerGroup: measurementsLayerGroup });
-var circleTool = L.Measure.circle(map, { layerGroup: measurementsLayerGroup });
-var rectangleTool = L.Measure.rectangle(map, { layerGroup: measurementsLayerGroup });
-var polylineTool = L.Measure.polyline(map, { layerGroup: measurementsLayerGroup });
-var polygonTool =  L.Measure.polygon(map, { layerGroup: measurementsLayerGroup });
-
+var measure = L.measure(map, { layerGroup: measurementsLayerGroup });
 </script>
 
 <script>
@@ -254,11 +249,11 @@ map.on('measure:editend', measureEditend);
 var nMarker =1;
 </script>
 
-<button id="measureMarkerBtn" onclick="markerTool.enable({title:'Маркер'+nMarker++});">Измерить координаты</button>
-<button id="measurePolygonBtn" onclick="polygonTool.enable({color:'red'});">Измерить многоугольник</button>
-<button id="measureRectangleBtn" onclick="rectangleTool.enable({color:'green'});">Измерить прямоугольник</button>
-<button id="measureCircleBtn" onclick="circleTool.enable({color:'blue'});">Измерить круг</button>
-<button id="measurePolylineBtn" onclick="polylineTool.enable({color:'#888800'});">Измерить ломаную</button>
+<button id="measureMarkerBtn" onclick="measure.markerTool.startMeasure({title:'Маркер'+nMarker++});">Измерить координаты</button>
+<button id="measurePolygonBtn" onclick="measure.polygonTool.startMeasure({color:'red'});">Измерить многоугольник</button>
+<button id="measureRectangleBtn" onclick="measure.rectangleTool.startMeasure({color:'green'});">Измерить прямоугольник</button>
+<button id="measureCircleBtn" onclick="measure.circleTool.startMeasure({color:'blue'});">Измерить круг</button>
+<button id="measurePolylineBtn" onclick="measure.polylineTool.startMeasure({color:'#888800'});">Измерить ломаную</button>
 
 
 <table border='1' id='measureState'>

@@ -1,6 +1,23 @@
 (function(L, undefined) {
   L.Measure = L.Measure || {};
 
+  L.MeasureLabelled =   L.Measure.extend({
+    initialize: function (map, options) {
+      L.Measure.prototype.initialize.call(this);
+      this.markerLabelledTool = L.Measure.markerLabelled(map, { layerGroup: measurementsLayerGroup });
+      this.circleLabelledTool = L.Measure.circleLabelled(map, { layerGroup: measurementsLayerGroup });
+      this.rectangleLabelledTool = L.Measure.rectangleLabelled(map, { layerGroup: measurementsLayerGroup });
+      this.polylineLabelledTool = L.Measure.polylineLabelled(map, { layerGroup: measurementsLayerGroup });
+      this.polygonLabelledTool =  L.Measure.polygonLabelled(map, { layerGroup: measurementsLayerGroup });
+    },
+  });
+
+     /*
+  Фабричный метод для создания базового экземпляра.
+  */
+     L.measureLabelled = function(map, options) {
+       return new L.MeasureLabelled(map, options);
+  };
   /**
    * Класс инструмента для измерения координат.
    */

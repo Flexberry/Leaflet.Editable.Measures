@@ -3,13 +3,29 @@
   /**
    * Базовое пространство имен для инструментов измерений.
    */
-  L.Measure =  {
+  L.Measure =  L.Class.extend({
+    initialize: function (map, options) {
+      this._map = map;
+      options = options || {};
+      if (options.layerGroup) {
+        this._layerGroup = options.layerGroup;
+      } else {
+        this._layerGroup = map;
+      }
+      this.markerTool = L.Measure.marker(map, options);
+      this.circleTool = L.Measure.circle(map, options);
+      this.rectangleTool = L.Measure.rectangle(map, options);
+      this.polylineTool = L.Measure.polyline(map, options);
+      this.polygonTool =  L.Measure.polygon(map, options);
+    },
+  });
 
-    /**
-     * Количество знаков после десятичного разделителя для измерений в метрах.
-       */
-    precition: 0,
-  };
+ /*
+  Фабричный метод для создания базового экземпляра.
+  */
+    L.measure = function(map, options) {
+      return new L.Measure(map, options);
+    };
 
 
   L.Measure.imagePath = (function () {
@@ -34,6 +50,12 @@
    * Примесь, переопределяющая базовые методы инструментов плагина Leaflet.Editable, превращая их в инструменты измерений.
    */
   L.Measure.Mixin = {
+
+    /**
+     * Количество знаков после десятичного разделителя для измерений в метрах.
+     */
+    precision: 2,
+
     /**
     Инициализирует новый инструмент измерений.
     @param {Object} map Используемая карта.
@@ -52,6 +74,10 @@
       }
 
       this.setEvents();
+    },
+
+    setPrecition(precision) {
+      this.precision = precision;
     },
 
     _setMouseMarker: function() {
@@ -317,9 +343,9 @@
      @returns {string} Текстовое представление произведенных измерений.
      */
     getMeasureText: function(e) {
-      var value = parseFloat(e.value.toFixed(L.Measure.precition));
+      var value = parseFloat(e.value.toFixed(this.precision));
       var metersInOneKm = Math.pow(1000, e.dimension);
-      var kmPrecition = L.Measure.precition + e.dimension * 3;
+      var kmPrecition = this.precision + e.dimension * 3;
       var valueInKm = parseFloat((value / metersInOneKm).toFixed(kmPrecition));
 
       var dimensionText = (e.dimension > 1) ? '<sup>' + e.dimension + '</sup>' : '';
@@ -327,7 +353,7 @@
 
       return (valueInKm >= kmRoundingBound)
       ? valueInKm.toFixed(kmPrecition) + this.distanceMeasureUnit.kilometer + dimensionText
-          : value.toFixed(L.Measure.precition) + this.distanceMeasureUnit.meter + dimensionText;
+          : value.toFixed(this.precision) + this.distanceMeasureUnit.meter + dimensionText;
     },
 
     /**
@@ -338,7 +364,7 @@
      @returns {Number} Полученное расстояние (в метрах).
      */
     getDistance: function(e) {
-      return parseFloat(e.latlng1.distanceTo(e.latlng2).toFixed(L.Measure.precition));
+      return parseFloat(e.latlng1.distanceTo(e.latlng2).toFixed(this.precision));
     },
 
     /**
@@ -460,7 +486,7 @@
       if (latlng) {
         latlngs.push(latlng);
       }
-      return distance = parseFloat(this.geodesicArea(latlngs).toFixed(L.Measure.precition));
+      return distance = parseFloat(this.geodesicArea(latlngs).toFixed(this.precision));
     },
 
     /**
@@ -679,7 +705,7 @@
     /**
      Инициализация режима перемщения маркера Marker
      */
-    enable: function(options) {
+    startMeasure: function(options) {
       this._setMouseMarker();
       var imagePath = L.Measure.imagePath;
       this.options = { icon: L.icon({
@@ -810,7 +836,7 @@
       fill: true,
     },
 
-    enable: function (options) {
+    startMeasure: function (options) {
       this._setMouseMarker();
       options = options || this.options;
       this.measureLayer = this._map.editTools.startCircle(undefined, options);
@@ -844,7 +870,7 @@
       fill: true,
     },
 
-    enable: function (options) {
+    startMeasure: function (options) {
       this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startRectangle(undefined, options);
@@ -1008,7 +1034,7 @@
       fill: false,
     },
 
-    enable: function (options) {
+    startMeasure: function (options) {
       this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolyline(undefined, options);
@@ -1041,7 +1067,7 @@
     },
 
 
-    enable: function (options) {
+    startMeasure: function (options) {
       this._setMouseMarker();
       options = options? L.setOptions(this, options): this.options;
       this.measureLayer = this._map.editTools.startPolygon(undefined, options);
