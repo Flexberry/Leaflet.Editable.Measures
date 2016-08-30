@@ -89,7 +89,7 @@
       var unlabelledMarkers = this._unlabelledMarkers(editor, e);
       for (var i = 0; i < unlabelledMarkers.length; i++) {
         var marker = unlabelledMarkers[i];
-        if (marker.getTooltip()) {
+        if (marker && marker.getTooltip()) {
           marker.closeTooltip();
         }
       }

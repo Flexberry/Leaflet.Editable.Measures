@@ -170,7 +170,9 @@
       markers.push(latlngs[0].__vertex);
       switch (this._getMeasureEventType(e)) {
         case 'measure:create:drag': case 'measure:edit:drag':
-          markers.push(e.vertex);
+          if (e.vertex) {
+            markers.push(e.vertex);
+          }
           break;
       }
       return markers;
