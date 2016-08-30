@@ -76,7 +76,7 @@
       this.setEvents();
     },
 
-    setPrecition(precision) {
+    setPrecition: function(precision) {
       this.precision = precision;
     },
 
