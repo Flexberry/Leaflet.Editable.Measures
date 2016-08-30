@@ -18,7 +18,11 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _labelledMarkers: function(editor) {
+=======
+    _labelledMarkers: function(editor, e) {
+>>>>>>> develop
       return [];
     },
 
@@ -27,14 +31,22 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _unlabelledMarkers: function(editor) {
+=======
+    _unlabelledMarkers: function(editor, e) {
+>>>>>>> develop
       return [];
     },
 
     /**
      Метод для получения текстового описания результатов измерений.
      */
+<<<<<<< HEAD
     _getLabelContent: function(layer, latlng) {
+=======
+    _getLabelContent: function(layer, latlng, e) {
+>>>>>>> develop
       latlng = latlng || layer.getLatLng();
       var fixedLatLng = this.getFixedLatLng(latlng);
       var fixedLat = fixedLatLng.lat;
@@ -48,9 +60,17 @@
      @param {Object} layer Редактируемый слой.
      */
     _updateMeasureLabel: function(layer, e) {
+<<<<<<< HEAD
       var coords = this._getLabelContent(layer, e.latlng);
       text = "<b>" + coords + '</b>';
       this._showLabel(layer, text);
+=======
+      if (this._getMeasureEventType(e).substr(-5) !== ':drag') {
+        var coords = this._getLabelContent(layer, e.latlng, e);
+        text = "<b>" + coords + '</b>';
+        this._showLabel(layer, text);
+      }
+>>>>>>> develop
     },
 
   });
@@ -77,10 +97,22 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _labelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
       var markers = [];
       markers.push(latlngs[1].__vertex)
+=======
+    _labelledMarkers: function(editor, e) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      switch (this._getMeasureEventType(e)) {
+        case 'measure:create:drag': case 'measure:edit:drag':
+          break;
+        default:
+          markers.push(latlngs[1].__vertex)
+      }
+>>>>>>> develop
       return markers;
     },
 
@@ -89,10 +121,22 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _unlabelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
       var markers = [];
       markers.push(latlngs[0].__vertex)
+=======
+    _unlabelledMarkers: function(editor, e) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      markers.push(latlngs[0].__vertex)
+      switch (this._getMeasureEventType(e)) {
+        case 'measure:create:drag': case 'measure:edit:drag':
+          markers.push(latlngs[1].__vertex)
+          break;
+      }
+>>>>>>> develop
       return markers;
     },
 
@@ -103,7 +147,11 @@
      @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
+<<<<<<< HEAD
     _getLabelContent: function(layer, latlng) {
+=======
+    _getLabelContent: function(layer, latlng, e) {
+>>>>>>> develop
 //       var radius = layer.getRadius();
       var  radiusText = this.getRadiusText(layer);
       var ret = radiusText.length > 0 ? this.basePopupText.labelPrefix + radiusText + this.basePopupText.labelPostfix : '';
@@ -129,11 +177,28 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _labelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
       var markers = [];
       for(var i = 1, len = latlngs.length; i < len; i++) {
         markers.push(latlngs[i].__vertex);
+=======
+    _labelledMarkers: function(editor, e) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      var marker;
+      switch (this._getMeasureEventType(e)) {
+        case 'measure:create:drag': case 'measure:edit:drag':
+          marker = e.vertex;
+          break;
+      }
+      for(var i = 1, len = latlngs.length; i < len; i++) {
+        var pathVertex = latlngs[i].__vertex;
+        if (pathVertex !== marker) {
+          markers.push(pathVertex);
+        }
+>>>>>>> develop
       }
       return markers;
     },
@@ -143,10 +208,22 @@
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
      */
+<<<<<<< HEAD
     _unlabelledMarkers: function(editor) {
       var latlngs = editor.getLatLngs();
       var markers = [];
       markers.push(latlngs[0].__vertex)
+=======
+    _unlabelledMarkers: function(editor, e) {
+      var latlngs = editor.getLatLngs();
+      var markers = [];
+      markers.push(latlngs[0].__vertex);
+      switch (this._getMeasureEventType(e)) {
+        case 'measure:create:drag': case 'measure:edit:drag':
+          markers.push(e.vertex);
+          break;
+      }
+>>>>>>> develop
       return markers;
     },
 
@@ -156,7 +233,11 @@
      @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
      @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
      */
+<<<<<<< HEAD
     _getLabelContent: function(layer, latlng) {
+=======
+    _getLabelContent: function(layer, latlng, e) {
+>>>>>>> develop
       var latlngs = layer.editor.getLatLngs().slice();
       for (var index=0; index < latlngs.length && !latlngs[index].equals(latlng); index++);
       if (index === latlngs.length) {
@@ -217,7 +298,11 @@
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
       var marker;
+<<<<<<< HEAD
       switch (e._measureEventType) {
+=======
+      switch (this._getMeasureEventType(e)) {
+>>>>>>> develop
         case 'measure:create:drag': case 'measure:edit:drag':
           break;
         case 'measure:created':
@@ -241,7 +326,11 @@
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
       var marker;
+<<<<<<< HEAD
       switch (e._measureEventType) {
+=======
+      switch (this._getMeasureEventType(e)) {
+>>>>>>> develop
         case 'measure:create:drag': case 'measure:edit:drag':
           break;
         case 'measure:created':

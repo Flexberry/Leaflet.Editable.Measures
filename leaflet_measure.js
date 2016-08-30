@@ -89,7 +89,9 @@
       var unlabelledMarkers = this._unlabelledMarkers(editor, e);
       for (var i = 0; i < unlabelledMarkers.length; i++) {
         var marker = unlabelledMarkers[i];
-        marker.closeTooltip();
+        if (marker.getTooltip()) {
+          marker.closeTooltip();
+        }
       }
       var labelledMarkers = this._labelledMarkers(editor, e);
       for (var i = 0; i < labelledMarkers.length; i++) {
@@ -104,7 +106,7 @@
     },
 
     _showLabel: function(marker, labelText, latlng) {
-      if (!marker._tooltip) {
+      if (!marker.getTooltip()) {
         marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
       } else {
         marker.setTooltipContent(labelText);
@@ -143,6 +145,15 @@
       map._mouseMarker.closeTooltip();
     },
 
+
+    _setMeasureEventType: function(e, type) {
+      e._measureEventType = type;
+    },
+
+    _getMeasureEventType: function(e) {
+      return e._measureEventType;
+    },
+
     /**
     Обработчик события, сигнализирующий о редактировании слоя.
      */
@@ -150,7 +161,7 @@
       var layer = e.layer;
       var layerType = this._layerType(layer);
       var measureEvent = 'measure:'+ type;
-      e._measureEventType = measureEvent;
+      this._setMeasureEventType(e, measureEvent);
       if (type === 'created') {
         this._layerGroup.addLayer(layer);
         layer.on('remove', function(e) {
@@ -631,6 +642,9 @@
     },
 
     _setDragStart: function(e) {
+      if (e.layer.getTooltip()) {
+        e.layer.closeTooltip();
+      }
       this.isDragging = true;
     },
 
@@ -641,6 +655,7 @@
       }
       this.isDragging = false;
       this._fireEvent(e, 'editend');
+      e.layer.openTooltip();
     },
 
     _setCommit: function(e) {
@@ -741,7 +756,9 @@
     },
 
     _setDragstart: function(e) {
-      e.vertex.closeTooltip();
+      if (e.vertex.getTooltip()) {
+        e.vertex.closeTooltip();
+      }
       this.isDragging = true;
     },
 
@@ -915,7 +932,9 @@
     },
 
     _setDragStart: function(e) {
-      e.vertex.closeTooltip();
+      if (e.vertex.getTooltip()) {
+        e.vertex.closeTooltip();
+      }
       this.measureLayer = e.layer;
       this.isDragging = true;
 
@@ -924,7 +943,9 @@
       this._closePopup();
       this._fireEvent(e, 'editend');
       this.isDragging = false;
-      e.vertex.openTooltip();
+      if (e.vertex.getTooltip()) {
+        e.vertex.openTooltip();
+      }
     },
 
      _setDrag: function(e) {
