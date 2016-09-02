@@ -43,17 +43,15 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Add layer group for user's measurements.
-var measurementsLayerGroup = L.layerGroup().addTo(map);
 
 // Create custom measere tools instances.
-var measure = L.measureBase(map, { layerGroup: measurementsLayerGroup });
+var measure = L.measureBase(map, { });
 var nMarker =1;
 </script>
 
 
 <button id="measureMarkerBtn" onclick="measure.markerBaseTool.startMeasure({title:'Точка'+nMarker++});">Измерить координаты</button>
-<!--button id="measureRectangleBtn" onclick="rectangleBaseTool.startMeasure();">Измерить прямоугольник</button-->
+<button id="measureRectangleBtn" onclick="measure.rectangleBaseTool.startMeasure();">Измерить прямоугольник</button>
 <button id="measureCircleBtn" onclick="measure.circleBaseTool.startMeasure();">Измерить круг</button>
 <button id="measurePolilineBtn" onclick="measure.polylineBaseTool.startMeasure();">Измерить ломаную</button>
 <button id="measurePolygonBtn" onclick="measure.polygonBaseTool.startMeasure();">Измерить многоугольник</button>

@@ -7,16 +7,15 @@
     initialize: function (map, options) {
       this._map = map;
       options = options || {};
-      if (options.layerGroup) {
-        this._layerGroup = options.layerGroup;
-      } else {
-        this._layerGroup = map;
+      this._map._measureLayerGroup = L.layerGroup().addTo(map);
+      if (!this._map.editTools) {
+        this._map.editTools = new L.Editable(map, options);
       }
-      this.markerTool = L.Measure.marker(map, options);
-      this.circleTool = L.Measure.circle(map, options);
-      this.rectangleTool = L.Measure.rectangle(map, options);
-      this.polylineTool = L.Measure.polyline(map, options);
-      this.polygonTool =  L.Measure.polygon(map, options);
+      this.markerTool = L.Measure.marker(map, {});
+      this.circleTool = L.Measure.circle(map, {});
+      this.rectangleTool = L.Measure.rectangle(map, {});
+      this.polylineTool = L.Measure.polyline(map, {});
+      this.polygonTool =  L.Measure.polygon(map, {});
     },
   });
 
@@ -59,20 +58,9 @@
     /**
     Инициализирует новый инструмент измерений.
     @param {Object} map Используемая карта.
-    @param {Object} [options] Настройки инструмента ().
-    @param {Boolean} [options.repeatMode = true] Флаг, показывающий должен ли инструмент оставаться включенным после фиксации измерений на карте.
-    @param {Object} [options.layerGroup = map] Группа слоев на карте, в которой будут отображаться результаты измерений.
      */
     initialize: function (map, options) {
       this._map = map;
-
-      options = options || {};
-      if (options.layerGroup) {
-        this._layerGroup = options.layerGroup;
-      } else {
-        this._layerGroup = map;
-      }
-
       this.setEvents();
     },
 
@@ -81,14 +69,14 @@
     },
 
     _setMouseMarker: function() {
-      if (map._mouseMarker === undefined) {
+      if (this._map._mouseMarker === undefined) {
         var tooltipOptions = {sticky: true, pane: 'popupPane', className:'leaflet-draw-tooltip'};
         var imagePath = L.Measure.imagePath;
         var popupMarkerIcon = L.icon({iconUrl:imagePath+'/popupMarker.png',iconSize: [1 , 1]});
-        map._mouseMarker = L.marker(map.getCenter());
-        map._mouseMarker.setIcon(popupMarkerIcon);
-        map._mouseMarker.addTo(this._map);
-        map._mouseMarker.bindTooltip('', tooltipOptions);
+        this._map._mouseMarker = L.marker(this._map.getCenter());
+        this._map._mouseMarker.setIcon(popupMarkerIcon);
+        this._map._mouseMarker.addTo(this._map);
+        this._map._mouseMarker.bindTooltip('', tooltipOptions);
       }
     },
 
@@ -160,15 +148,15 @@
     },
 
     _showPopup: function(text, latlng) {
-      map._mouseMarker.setTooltipContent(text);
-      if (!map._mouseMarker.isTooltipOpen()) {
-        map._mouseMarker.openTooltip();
+      this._map._mouseMarker.setTooltipContent(text);
+      if (!this._map._mouseMarker.isTooltipOpen()) {
+        this._map._mouseMarker.openTooltip();
       }
-      map._mouseMarker.setLatLng(latlng);
+      this._map._mouseMarker.setLatLng(latlng);
     },
 
     _closePopup: function() {
-      map._mouseMarker.closeTooltip();
+      this._map._mouseMarker.closeTooltip();
     },
 
 
@@ -189,7 +177,7 @@
       var measureEvent = 'measure:'+ type;
       this._setMeasureEventType(e, measureEvent);
       if (type === 'created') {
-        this._layerGroup.addLayer(layer);
+        this._map._measureLayerGroup.addLayer(layer);
         layer.on('remove', function(e) {
           this.disableEdit();
         });
