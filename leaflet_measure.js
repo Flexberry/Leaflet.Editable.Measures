@@ -38,9 +38,13 @@
     for (i = 0, len = scripts.length; i < len; i++) {
       src = scripts[i].src || '';
 
-      if (src.match(leafletRe)) {
-        path = src.split(leafletRe)[0];
-        return (path ? path + '/' : '') + 'images';
+      if (src.indexOf('ember')>=0) {
+        return '/assets/images';
+      } else {
+        if (src.match(leafletRe)) {
+          path = src.split(leafletRe)[0];
+          return (path ? path + '/' : '') + 'images';
+        }
       }
     }
   }());
