@@ -223,35 +223,34 @@
         var eventName = prefix + eventSubName;
         if (typeof func == 'function') {
           if (!!offBefore) {
-            this._map.off(eventName);
+            this.measureLayer.off(eventName);
           }
           this.measureLayer.on(eventName, func, this);
         } else {
           this.eventsOn(eventName + ':', func, offBefore);
         }
       }
+//       if (prefix === 'editable:') { //1-st level of editable:
+//         this._map.on( 'editable:drawing:end', function() {this.drawingEventsOff();}, this);
+//       }
     },
+
+//     drawingEventsOff: function() {
+//       this.eventsOff("editable:drawing:", this.editableEventTree['drawing'])
+//     },
 
     eventsOff: function(prefix,eventTree) {
       for (var eventSubName in eventTree) {
         var func = eventTree[eventSubName];
         var eventName = prefix + eventSubName;
         if (typeof func == 'function') {
-          this._map.off(eventName);
+          this.measureLayer.off(eventName);
         } else {
           this.eventsOff(eventName + ':', func);
         }
       }
     },
 
-    eventOffByPrefix: function (prefix) {
-      var prefixLen = prefix.length;
-      for (var eventName in this._map._events) {
-        if (eventName.substr(0,prefixLen) == prefix) {
-          this._map.off(eventName);
-        }
-      }
-    },
 
 //     _onActionsTest: function() {
 //          this._map.on('editable:created', function() {alert('editable:created');}, this);
@@ -716,6 +715,13 @@
       this.isDragging = false;
     },
 
+    stopMeasure: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
+      this.measureLayer.off('dragstart');
+      this.measureLayer.off('drag');
+      this.measureLayer.off('dragend');
+    }
+
   });
 
   /**
@@ -838,6 +844,13 @@
       this.isDragging = false;
     },
 
+    stopMeasure: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
+      this.measureLayer.off('dragstart');
+      this.measureLayer.off('drag');
+      this.measureLayer.off('dragend');
+    }
+
   });
 
   /**
@@ -871,6 +884,12 @@
       this.isDrawing = false;
     },
 
+    stopMeasure: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
+      this.measureLayer.off('dragstart');
+      this.measureLayer.off('drag');
+      this.measureLayer.off('dragend');
+    }
   });
 
    /**
@@ -1034,6 +1053,12 @@
       this.isDragging = false;
     },
 
+    stopMeasure: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
+      this.measureLayer.off('dragstart');
+      this.measureLayer.off('drag');
+      this.measureLayer.off('dragend');
+    }
 
   });
 
@@ -1066,6 +1091,13 @@
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
     },
+    
+    stopMeasure: function() {
+      this.eventsOff( 'editable:', this.editableEventTree);
+      this.measureLayer.off('dragstart');
+      this.measureLayer.off('drag');
+      this.measureLayer.off('dragend');
+    }
 
   });
 
