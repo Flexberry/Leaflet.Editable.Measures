@@ -20,6 +20,15 @@
       this.polylineTool = L.Measure.polyline(map, {});
       this.polygonTool =  L.Measure.polygon(map, {});
     },
+
+    getEditTools: function() {
+      return this._map.editTools;
+    },
+
+    getMeasureLayerGroup() {
+      return this._map._measureLayerGroup;
+    }
+
   });
 
  /*
