@@ -25,7 +25,7 @@
       return this._map.editTools;
     },
 
-    getMeasureLayerGroup() {
+    getMeasureLayerGroup: function() {
       return this._map._measureLayerGroup;
     }
 
