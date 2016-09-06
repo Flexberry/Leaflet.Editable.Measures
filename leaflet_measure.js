@@ -11,6 +11,9 @@
       if (!this._map.editTools) {
         this._map.editTools = new L.Editable(map, options);
       }
+      if (!this._map.MeasureTools) {
+        this._map.MeasureTools = this;
+      }
       this.markerTool = L.Measure.marker(map, {});
       this.circleTool = L.Measure.circle(map, {});
       this.rectangleTool = L.Measure.rectangle(map, {});
@@ -1091,7 +1094,7 @@
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
     },
-    
+
     stopMeasure: function() {
       this.eventsOff( 'editable:', this.editableEventTree);
       this.measureLayer.off('dragstart');
