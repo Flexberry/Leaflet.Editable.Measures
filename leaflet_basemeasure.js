@@ -216,6 +216,13 @@
    */
   L.Measure.PolylineBase = L.Measure.Polyline.extend({
 
+    basePopupText: {
+      distanceLabelPrefix: '<b>',
+      distanceLabelPostfix: '</b>',
+      incLabelPrefix: '<br/><span class="measure-path-label-incdistance">+',
+      incLabelPostfix: '</span></b>',
+    },
+
     /*
      Метод для получения маркеров инструмента редактирования, имеющих метки
      @param {Object} editor Инструмент редактирования
@@ -284,17 +291,18 @@
       }
 
       //       'index='+ index + '<br>' +
-      return '<b>' +
+      return this.basePopupText.distanceLabelPrefix +
         this.getMeasureText({
           value: distance,
           dimension: 1
         }) +
-      '<br><span class="measure-path-label-incdistance">+' +
+        this.basePopupText.distanceLabelPostfix +
+        this.basePopupText.incLabelPrefix +
       this.getMeasureText({
         value: currentInc,
         dimension: 1
       }) +
-      '</span></b>';
+      this.basePopupText.incLabelPostfix;
     },
 
   });
