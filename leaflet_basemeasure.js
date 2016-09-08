@@ -25,6 +25,8 @@
   L.Measure.MarkerBase = L.Measure.Marker.extend({
 
     basePopupText: {
+      labelPrefix: '<b>',
+      labelPostfix: '</b>',
       northLatitude: ' с.ш. ',
       southLatitude: ' ю.ш. ',
       eastLongitude: ' в.д. ',
@@ -67,8 +69,7 @@
      */
     _updateMeasureLabel: function(layer, e) {
       if (this._getMeasureEventType(e).substr(-5) !== ':drag') {
-        var coords = this._getLabelContent(layer, e.latlng, e);
-        text = "<b>" + coords + '</b>';
+        var text = this.basePopupText.labelPrefix + this._getLabelContent(layer, e.latlng, e) + this.basePopupText.labelPostfix;
         this._showLabel(layer, text);
       }
     },
