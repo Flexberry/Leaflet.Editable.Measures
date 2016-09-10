@@ -6,9 +6,10 @@
     initialize: function (map, options) {
       this._map = map;
       options = options || {};
+      options.editOptions = options.editOptions || {};
       this._map._measureLayerGroup = L.layerGroup().addTo(map);
       if (!this._map.editTools) {
-        this._map.editTools = new L.Editable(map, options);
+        this._map.editTools = new L.Editable(map, options.editOptions);
       }
       if (!this._map.MeasureTools) {
         this._map.MeasureTools = this;
