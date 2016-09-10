@@ -1,5 +1,4 @@
 (function(L, undefined) {
-
   /**
    * Базовое пространство имен для инструментов измерений.
    */
@@ -1110,6 +1109,21 @@
       this.measureLayer.off('drag');
       this.measureLayer.off('dragend');
     }
+
+  });
+
+
+  L.Map.mergeOptions({
+    measureToolsClass: L.Measure
+  });
+
+  L.Map.addInitHook(function () {
+
+    this.whenReady(function () {
+      if (this.options.measured) {
+        this.MeasureTools = new this.options.measureToolsClass(this, this.options.measureOptions);
+      }
+    });
 
   });
 
