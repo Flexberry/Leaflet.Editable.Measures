@@ -37,7 +37,7 @@
 <script>
 var centerPoint = [58.0060984592271,56.2445307230809];
 // Create leaflet map.
-var map = L.map('map', {editable: true}).setView(centerPoint, 12);
+var map = L.map('map').setView(centerPoint, 12);
 
 // Add OSM layer.
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -46,6 +46,7 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 
 // Create custom measere tools instances.
 var measure = L.measureLabelled(map);
+var measuredlayer = map.editTools.featuresLayer;
 var nMarker =1;
 </script>
 

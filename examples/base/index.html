@@ -36,16 +36,15 @@
 <script>
 var centerPoint = [58.0060984592271,56.2445307230809];
 // Create leaflet map.
-var map = L.map('map', {editable: true}).setView(centerPoint, 12);
+var map = L.map('map', {basemeasured: true}).setView(centerPoint, 12);
 
 // Add OSM layer.
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-
-// Create custom measere tools instances.
-var measure = L.measureBase(map, { });
+// Get custom measere tools instances.
+var measure = map.MeasureTools;
 var nMarker =1;
 </script>
 

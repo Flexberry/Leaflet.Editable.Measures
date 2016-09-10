@@ -407,6 +407,18 @@
     return new L.Measure.PolygonBase(map, options);
   };
 
+  L.Map.mergeOptions({
+    baseMeasureToolsClass: L.MeasureBase
+  });
 
+  L.Map.addInitHook(function () {
+
+    this.whenReady(function () {
+      if (this.options.basemeasured) {
+        this.MeasureTools = new this.options.baseMeasureToolsClass(this, this.options.measureOptions);
+      }
+    });
+
+  });
 
 })(L);
