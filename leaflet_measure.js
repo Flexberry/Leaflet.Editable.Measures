@@ -7,7 +7,7 @@
       this._map = map;
       options = options || {};
       options.editOptions = options.editOptions || {};
-      this._map._measureLayerGroup = L.layerGroup().addTo(map);
+//       this._map._measureLayerGroup = L.layerGroup().addTo(map);
       if (!this._map.editTools) {
         this._map.editTools = new L.Editable(map, options.editOptions);
       }
@@ -26,7 +26,8 @@
     },
 
     getMeasureLayerGroup: function() {
-      return this._map._measureLayerGroup;
+//       return this._map._measureLayerGroup;
+      this._map.editTools.featuresLayer;
     }
 
   });
@@ -193,7 +194,7 @@
       var measureEvent = 'measure:'+ type;
       this._setMeasureEventType(e, measureEvent);
       if (type === 'created') {
-        this._map._measureLayerGroup.addLayer(layer);
+//         this._map._measureLayerGroup.addLayer(layer);
         layer.on('remove', function(e) {
           this.disableEdit();
         });
@@ -1119,7 +1120,6 @@
   });
 
   L.Map.addInitHook(function () {
-
     this.whenReady(function () {
       if (this.options.measured) {
         this.MeasureTools = new this.options.measureToolsClass(this, this.options.measureOptions);
