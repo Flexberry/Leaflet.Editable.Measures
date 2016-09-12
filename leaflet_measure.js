@@ -1150,14 +1150,20 @@
     return new L.Measure.Polygon(map, options);
   };
 
-
+  /*
+   Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
+   markerTool
+   circleTool
+   rectangleTool
+   polylineTool
+   polygonTool
+   */
   L.Map.addInitHook(function () {
     this.whenReady(function () {
       if (this.options.measured) {
         this.measureTools = new L.Measure(this, this.options.measureOptions);
       }
     });
-
   });
 
 })(L);

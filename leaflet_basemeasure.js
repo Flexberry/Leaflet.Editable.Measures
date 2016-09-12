@@ -407,18 +407,25 @@
     return new L.Measure.PolygonBase(map, options);
   };
 
-  L.Map.mergeOptions({
-    baseMeasureToolsClass: L.MeasureBase
-  });
-
+  /*
+   Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
+   markerBaseTool
+   circleBaseTool
+   rectangleBaseTool
+   polylineBaseTool
+   polygonBaseTool
+   markerTool
+   circleTool
+   rectangleTool
+   polylineTool
+   polygonTool
+   */
   L.Map.addInitHook(function () {
-
     this.whenReady(function () {
       if (this.options.basemeasured) {
-        this.MeasureTools = new this.options.baseMeasureToolsClass(this, this.options.measureOptions);
+        this.measureTools = new L.MeasureBase(this, this.options.measureOptions);
       }
     });
-
   });
 
 })(L);

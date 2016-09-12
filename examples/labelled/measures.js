@@ -386,6 +386,26 @@
     return new L.Measure.PolygonLabelled(map, options);
   };
 
+  /*
+   Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
+   markerLabelledTool
+   circleLabelledTool
+   rectangleLabelledTool
+   polylineLabelledTool
+   polygonLabelledTool
+   markerTool
+   circleTool
+   rectangleTool
+   polylineTool
+   polygonTool
+   */
+  L.Map.addInitHook(function () {
+    this.whenReady(function () {
+      if (this.options.basemeasured) {
+        this.measureTools = new L.MeasureLabelled(this, this.options.measureOptions);
+      }
+    });
+  });
 
 
 })(L);
