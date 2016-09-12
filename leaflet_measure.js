@@ -11,8 +11,8 @@
       if (!this._map.editTools) {
         this._map.editTools = new L.Editable(map, options.editOptions);
       }
-      if (!this._map.MeasureTools) {
-        this._map.MeasureTools = this;
+      if (!this._map.measureTools) {
+        this._map.measureTools = this;
       }
       this.markerTool = L.Measure.marker(map, {});
       this.circleTool = L.Measure.circle(map, {});
@@ -1115,19 +1115,6 @@
   });
 
 
-  L.Map.mergeOptions({
-    measureToolsClass: L.Measure
-  });
-
-  L.Map.addInitHook(function () {
-    this.whenReady(function () {
-      if (this.options.measured) {
-        this.MeasureTools = new this.options.measureToolsClass(this, this.options.measureOptions);
-      }
-    });
-
-  });
-
   /**
    Фабричный метод для создания экземпляра инструмента измерения маркера.
    */
@@ -1162,5 +1149,15 @@
   L.Measure.polygon = function(map, options) {
     return new L.Measure.Polygon(map, options);
   };
+
+
+  L.Map.addInitHook(function () {
+    this.whenReady(function () {
+      if (this.options.measured) {
+        this.measureTools = new L.Measure(this, this.options.measureOptions);
+      }
+    });
+
+  });
 
 })(L);
