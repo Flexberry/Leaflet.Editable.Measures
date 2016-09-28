@@ -7,6 +7,7 @@
       this._map = map;
       options = options || {};
       options.editOptions = options.editOptions || {};
+      this.options = options;
 //       this._map._measureLayerGroup = L.layerGroup().addTo(map);
       if (!this._map.editTools) {
         this._map.editTools = new L.Editable(map, options.editOptions);
@@ -28,8 +29,15 @@
     getMeasureLayerGroup: function() {
 //       return this._map._measureLayerGroup;
       this._map.editTools.featuresLayer;
-    }
+    },
 
+    stopMeasuring: function() {
+      this.markerTool.stopMeasure();
+      this.circleTool.stopMeasure();
+      this.rectangleTool.stopMeasure();
+      this.polylineTool.stopMeasure();
+      this.polygonTool.stopMeasure();
+    }
   });
 
  /*
@@ -85,8 +93,22 @@
       this.precision = precision;
     },
 
+    stopMeasure: function() {
+      this._hideMouseMarker();
+      /*this.eventsOff( 'editable:', this.editableEventTree);
+
+        if (this.measureLayer) {
+          this.measureLayer.off('dragstart');
+          this.measureLayer.off('drag');
+          this.measureLayer.off('dragend');
+        }
+      }*/
+
+      this._map.editTools.stopDrawing();
+    },
+
     _setMouseMarker: function() {
-      if (this._map._mouseMarker === undefined) {
+      if (typeof this._map._mouseMarker === 'undefined') {
         var tooltipOptions = {sticky: true, pane: 'popupPane', className:'leaflet-draw-tooltip'};
         var imagePath = L.Measure.imagePath;
         var popupMarkerIcon = L.icon({iconUrl:imagePath+'/popupMarker.png',iconSize: [1 , 1]});
@@ -97,8 +119,14 @@
       }
     },
 
+    _hideMouseMarker: function() {
+      var mouseMarker = this._map._mouseMarker;
+      if (typeof mouseMarker !== 'undefined') {
+        mouseMarker.closeTooltip();
+      }
+    },
 
-     _getLabelContent: function(layer, latlng) {
+    _getLabelContent: function(layer, latlng) {
        return '';
     },
 
@@ -256,7 +284,7 @@
       for (var eventSubName in eventTree) {
         var func = eventTree[eventSubName];
         var eventName = prefix + eventSubName;
-        if (typeof func == 'function') {
+        if (typeof func == 'function' && this.measureLayer) {
           this.measureLayer.off(eventName);
         } else {
           this.eventsOff(eventName + ':', func);
@@ -726,15 +754,7 @@
       this.measureLayer = this._map.editTools.startMarker(undefined,options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
-    },
-
-    stopMeasure: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
-      this.measureLayer.off('dragstart');
-      this.measureLayer.off('drag');
-      this.measureLayer.off('dragend');
     }
-
   });
 
   /**
@@ -855,15 +875,7 @@
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
-    },
-
-    stopMeasure: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
-      this.measureLayer.off('dragstart');
-      this.measureLayer.off('drag');
-      this.measureLayer.off('dragend');
     }
-
   });
 
   /**
@@ -895,13 +907,6 @@
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.create = false;
       this.isDrawing = false;
-    },
-
-    stopMeasure: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
-      this.measureLayer.off('dragstart');
-      this.measureLayer.off('drag');
-      this.measureLayer.off('dragend');
     }
   });
 
@@ -1064,15 +1069,7 @@
       this.measureLayer = this._map.editTools.startPolyline(undefined, options);
       this.eventsOn( 'editable:', this.editableEventTree, true);
       this.isDragging = false;
-    },
-
-    stopMeasure: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
-      this.measureLayer.off('dragstart');
-      this.measureLayer.off('drag');
-      this.measureLayer.off('dragend');
     }
-
   });
 
   /**
@@ -1103,15 +1100,7 @@
       this.measureLayer = this._map.editTools.startPolygon(undefined, options);
       this.isDragging = false;
       this.eventsOn( 'editable:', this.editableEventTree, true);
-    },
-
-    stopMeasure: function() {
-      this.eventsOff( 'editable:', this.editableEventTree);
-      this.measureLayer.off('dragstart');
-      this.measureLayer.off('drag');
-      this.measureLayer.off('dragend');
     }
-
   });
 
 

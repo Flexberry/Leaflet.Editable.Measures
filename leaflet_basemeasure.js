@@ -10,6 +10,16 @@
       this.polylineBaseTool = L.Measure.polylineBase(map, options);
       this.polygonBaseTool =  L.Measure.polygonBase(map, options);
     },
+
+    stopMeasuring: function() {
+      L.Measure.prototype.stopMeasuring.call(this);
+
+      this.markerBaseTool.stopMeasure();
+      this.circleBaseTool.stopMeasure();
+      this.rectangleBaseTool.stopMeasure();
+      this.polylineBaseTool.stopMeasure();
+      this.polygonBaseTool.stopMeasure();
+    }
   });
 
    /*
