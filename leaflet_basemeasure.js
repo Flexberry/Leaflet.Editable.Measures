@@ -90,8 +90,8 @@
               captions.y + point.y.toFixed(precision);
           }
 
-          return Math.abs(point.x).toFixed(precision) + (point.x >= 0 ? captions.northLatitude : point.southLatitude) +
-            Math.abs(point.y).toFixed(precision) + (point.y >= 0 ? captions.eastLongitude : captions.westLongitude);
+          return Math.abs(point.y).toFixed(precision) + (point.y >= 0 ? captions.northLatitude : captions.southLatitude) +
+            Math.abs(point.x).toFixed(precision) + (point.x >= 0 ? captions.eastLongitude : captions.westLongitude);
         }
       }
 
