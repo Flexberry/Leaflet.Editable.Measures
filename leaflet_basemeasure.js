@@ -77,6 +77,7 @@
       var crs = this.options.crs;
       var precision = this.options.precision || this.precision;
       var captions = this.options.captions || this.basePopupText.captions;
+      var displayCoordinates = this.options.displayCoordinates || false;
 
       latlng = latlng || layer.getLatLng();
       var fixedLatLng = this.getFixedLatLng(latlng);
@@ -84,13 +85,18 @@
       if (crs) {
         var point = crs.project(fixedLatLng);
         if (point) {
-          return captions.x + point.x.toFixed(precision) + ' ' +
-            captions.y + point.y.toFixed(precision);
+          if (displayCoordinates) {
+            return captions.x + point.x.toFixed(precision) + ' ' +
+              captions.y + point.y.toFixed(precision);
+          }
+
+          return Math.abs(point.x).toFixed(precision) + (point.x >= 0 ? captions.northLatitude : point.southLatitude) +
+            Math.abs(point.y).toFixed(precision) + (point.y >= 0 ? captions.eastLongitude : captions.westLongitude);
         }
-      } else {
-        return Math.abs(fixedLatLng.lat).toFixed(precision) + (fixedLatLng.lat >= 0 ? captions.northLatitude : captions.southLatitude) +
-          Math.abs(fixedLatLng.lng).toFixed(precision) + (fixedLatLng.lng >= 0 ? captions.eastLongitude : captions.westLongitude);
       }
+
+      return Math.abs(fixedLatLng.lat).toFixed(precision) + (fixedLatLng.lat >= 0 ? captions.northLatitude : captions.southLatitude) +
+        Math.abs(fixedLatLng.lng).toFixed(precision) + (fixedLatLng.lng >= 0 ? captions.eastLongitude : captions.westLongitude);
     },
 
     /**
