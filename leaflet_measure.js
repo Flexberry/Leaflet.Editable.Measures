@@ -1,17 +1,17 @@
-(function(L, undefined) {
+(function (L, undefined) {
   /**
    * Базовое пространство имен для инструментов измерений.
    */
-  L.Measure =  L.Class.extend({
+  L.Measure = L.Class.extend({
     initialize: function (map, options) {
       this._map = map;
       options = options || {};
       options.editOptions = options.editOptions || {};
       this.options = options;
-//       this._map._measureLayerGroup = L.layerGroup().addTo(map);
       if (!this._map.editTools) {
         this._map.editTools = new L.Editable(map, options.editOptions);
       }
+
       if (!this._map.measureTools) {
         this._map.measureTools = this;
       }
@@ -19,19 +19,19 @@
       this.circleTool = L.Measure.circle(map, {});
       this.rectangleTool = L.Measure.rectangle(map, {});
       this.polylineTool = L.Measure.polyline(map, {});
-      this.polygonTool =  L.Measure.polygon(map, {});
+      this.polygonTool = L.Measure.polygon(map, {});
     },
 
-    getEditTools: function() {
+    getEditTools: function () {
       return this._map.editTools;
     },
 
-    getMeasureLayerGroup: function() {
-//       return this._map._measureLayerGroup;
+    getMeasureLayerGroup: function () {
+      //       return this._map._measureLayerGroup;
       this._map.editTools.featuresLayer;
     },
 
-    stopMeasuring: function() {
+    stopMeasuring: function () {
       this.markerTool.stopMeasure();
       this.circleTool.stopMeasure();
       this.rectangleTool.stopMeasure();
@@ -40,18 +40,16 @@
     }
   });
 
- /*
-  Фабричный метод для создания базового экземпляра.
-  */
-    L.measure = function(map, options) {
-      return new L.Measure(map, options);
-    };
-
+  /*
+   Фабричный метод для создания базового экземпляра.
+   */
+  L.measure = function (map, options) {
+    return new L.Measure(map, options);
+  };
 
   L.Measure.imagePath = (function () {
     var scripts = document.getElementsByTagName('script'),
-        //leafletRe = /[\/^]leaflet[\-\._]?([\w\-\._]*)\.js\??/;
-        leafletRe = /[\/^]leaflet_measure\.js\??/;
+      leafletRe = /[\/^]leaflet_measure\.js\??/;
 
 
     var i, len, src, path;
@@ -59,7 +57,7 @@
     for (i = 0, len = scripts.length; i < len; i++) {
       src = scripts[i].src || '';
 
-      if (src.indexOf('ember')>=0) {
+      if (src.indexOf('ember') >= 0) {
         return '/assets/images';
       } else {
         if (src.match(leafletRe)) {
@@ -89,29 +87,28 @@
       this.setEvents();
     },
 
-    setPrecition: function(precision) {
+    setPrecition: function (precision) {
       this.precision = precision;
     },
 
-    stopMeasure: function() {
+    stopMeasure: function () {
       this._hideMouseMarker();
-      /*this.eventsOff( 'editable:', this.editableEventTree);
-
-        if (this.measureLayer) {
-          this.measureLayer.off('dragstart');
-          this.measureLayer.off('drag');
-          this.measureLayer.off('dragend');
-        }
-      }*/
 
       this._map.editTools.stopDrawing();
     },
 
-    _setMouseMarker: function() {
+    _setMouseMarker: function () {
       if (typeof this._map._mouseMarker === 'undefined') {
-        var tooltipOptions = {sticky: true, pane: 'popupPane', className:'leaflet-draw-tooltip'};
+        var tooltipOptions = {
+          sticky: true,
+          pane: 'popupPane',
+          className: 'leaflet-draw-tooltip'
+        };
         var imagePath = L.Measure.imagePath;
-        var popupMarkerIcon = L.icon({iconUrl:imagePath+'/popupMarker.png',iconSize: [1 , 1]});
+        var popupMarkerIcon = L.icon({
+          iconUrl: imagePath + '/popupMarker.png',
+          iconSize: [1, 1]
+        });
         this._map._mouseMarker = L.marker(this._map.getCenter());
         this._map._mouseMarker.setIcon(popupMarkerIcon);
         this._map._mouseMarker.addTo(this._map);
@@ -119,30 +116,31 @@
       }
     },
 
-    _hideMouseMarker: function() {
+    _hideMouseMarker: function () {
       var mouseMarker = this._map._mouseMarker;
       if (typeof mouseMarker !== 'undefined') {
         mouseMarker.closeTooltip();
       }
     },
 
-    _getLabelContent: function(layer, latlng) {
-       return '';
+    _getLabelContent: function (layer, latlng) {
+      return '';
     },
 
-     _labelledMarkers: function(editor) {
+    _labelledMarkers: function (editor) {
       return [];
     },
 
-     _unlabelledMarkers: function(editor) {
+    _unlabelledMarkers: function (editor) {
       return [];
     },
 
     /**
       Метод для обновления лейблов, содержащих результаты измерений.
+      @param {Object} e Событие.
       @param {Object} layer Редактируемый слой.
       */
-    _updateLabels: function(e) {
+    _updateLabels: function (e) {
       var layer = e.layer;
       var editor = layer.editor;
       var unlabelledMarkers = this._unlabelledMarkers(editor, e);
@@ -155,18 +153,21 @@
       var labelledMarkers = this._labelledMarkers(editor, e);
       for (var i = 0; i < labelledMarkers.length; i++) {
         var marker = labelledMarkers[i];
-  //      var latlng = marker.getLatLng();
         var latlng = marker.latlng;
         var labelText = this._getLabelContent(layer, latlng, e);
         this._showLabel(marker, labelText, latlng);
       }
 
-      this._updateMeasureLabel(layer, e); //Обновить tooltip измеряемого объекта
+      //Обновить tooltip измеряемого объекта
+      this._updateMeasureLabel(layer, e);
     },
 
-    _showLabel: function(marker, labelText, latlng) {
+    _showLabel: function (marker, labelText, latlng) {
       if (!marker.getTooltip()) {
-        marker.bindTooltip(labelText, {permanent: true, opacity: 0.75}).addTo(this._map);
+        marker.bindTooltip(labelText, {
+          permanent: true,
+          opacity: 0.75
+        }).addTo(this._map);
       } else {
         marker.setTooltipContent(labelText);
       }
@@ -180,19 +181,18 @@
     Метод обновления основного лейбла измеряемого объекта
     @param {Object} layer Редактируемый слой.
     */
-    _updateMeasureLabel: function(layer, e) {
-    },
+    _updateMeasureLabel: function (layer, e) {},
 
 
     /**
       Обработчик события, сигнализирующего о перемещении курсора мыши, во время отрисовки измерений.
       @param {String} text Отображаемый текст.
       */
-    _onMouseMove: function(e, text) {
+    _onMouseMove: function (e, text) {
       this._showPopup(text, e.latlng);
     },
 
-    _showPopup: function(text, latlng) {
+    _showPopup: function (text, latlng) {
       this._map._mouseMarker.setTooltipContent(text);
       if (!this._map._mouseMarker.isTooltipOpen()) {
         this._map._mouseMarker.openTooltip();
@@ -200,16 +200,16 @@
       this._map._mouseMarker.setLatLng(latlng);
     },
 
-    _closePopup: function() {
+    _closePopup: function () {
       this._map._mouseMarker.closeTooltip();
     },
 
 
-    _setMeasureEventType: function(e, type) {
+    _setMeasureEventType: function (e, type) {
       e._measureEventType = type;
     },
 
-    _getMeasureEventType: function(e) {
+    _getMeasureEventType: function (e) {
       return e._measureEventType;
     },
 
@@ -219,11 +219,11 @@
     _fireEvent: function (e, type) {
       var layer = e.layer;
       var layerType = this._layerType(layer);
-      var measureEvent = 'measure:'+ type;
+      var measureEvent = 'measure:' + type;
       this._setMeasureEventType(e, measureEvent);
       if (type === 'created') {
-//         this._map._measureLayerGroup.addLayer(layer);
-        layer.on('remove', function(e) {
+        //         this._map._measureLayerGroup.addLayer(layer);
+        layer.on('remove', function (e) {
           this.disableEdit();
         });
       }
@@ -232,7 +232,7 @@
       }
 
       this._map.fire(measureEvent, {
-        e:e,
+        e: e,
         measurer: this,
         layer: layer,
         layerType: layerType
@@ -258,7 +258,7 @@
       return layerType;
     },
 
-     eventsOn: function(prefix, eventTree, offBefore) {
+    eventsOn: function (prefix, eventTree, offBefore) {
       for (var eventSubName in eventTree) {
         var func = eventTree[eventSubName];
         var eventName = prefix + eventSubName;
@@ -271,16 +271,9 @@
           this.eventsOn(eventName + ':', func, offBefore);
         }
       }
-//       if (prefix === 'editable:') { //1-st level of editable:
-//         this._map.on( 'editable:drawing:end', function() {this.drawingEventsOff();}, this);
-//       }
     },
 
-//     drawingEventsOff: function() {
-//       this.eventsOff("editable:drawing:", this.editableEventTree['drawing'])
-//     },
-
-    eventsOff: function(prefix,eventTree) {
+    eventsOff: function (prefix, eventTree) {
       for (var eventSubName in eventTree) {
         var func = eventTree[eventSubName];
         var eventName = prefix + eventSubName;
@@ -290,45 +283,7 @@
           this.eventsOff(eventName + ':', func);
         }
       }
-    },
-
-
-//     _onActionsTest: function() {
-//          this._map.on('editable:created', function() {alert('editable:created');}, this);
-//          this._map.on('editable:disable', function() {alert('editable:disable');}, this);
-//          this._map.on('editable:drag', function() {alert('editable:drag');}, this);
-//          this._map.on('editable:dragend', function() {alert('editable:dragend');}, this);
-//          this._map.on('editable:dragstart', function() {alert('editable:dragstart');}, this);
-//          this._map.on('editable:drawing:cancel', function() {alert('editable:drawing:cancel');}, this);
-//          this._map.on('editable:drawing:click', function() {alert('editable:drawing:click');}, this);
-//          this._map.on('editable:drawing:clicked', function() {alert('editable:drawing:clicked');}, this);
-//          this._map.on('editable:drawing:commit', function() {alert('editable:drawing:commit');}, this);
-//          this._map.on('editable:drawing:end', function() {alert('editable:drawing:end');}, this);
-//          this._map.on('editable:drawing:mousedown', function() {alert('editable:drawing:mousedown');}, this);
-//          this._map.on('editable:drawing:mouseup', function() {alert('editable:drawing:mouseup');}, this);
-// //          this._map.on('editable:drawing:move', function() {alert('editable:drawing:move');}, this);
-//          this._map.on('editable:drawing:start', function() {alert('editable:drawing:start');}, this);
-//          this._map.on('editable:editing', function() {alert('editable:editing');}, this);
-//          this._map.on('editable:enable', function() {alert('editable:enable');}, this);
-//          this._map.on('editable:middlemarker:mousedown', function() {alert('editable:middlemarker:mousedown');}, this);
-//          this._map.on('editable:shape:delete', function() {alert('editable:shape:delete');}, this);
-//          this._map.on('editable:shape:deleted', function() {alert('editable:shape:deleted');}, this);
-//          this._map.on('editable:shape:new', function() {alert('editable:shape:new');}, this);
-//          this._map.on('editable:vertex:altclick', function() {alert('editable:vertex:altclick');}, this);
-//          this._map.on('editable:vertex:click', function() {alert('editable:vertex:click');}, this);
-//          this._map.on('editable:vertex:clicked', function() {alert('editable:vertex:clicked');}, this);
-//          this._map.on('editable:vertex:contextmenu', function() {alert('editable:vertex:contextmenu');}, this);
-//          this._map.on('editable:vertex:ctrlclick', function() {alert('editable:vertex:ctrlclick');}, this);
-//          this._map.on('editable:vertex:deleted', function() {alert('editable:vertex:deleted');}, this);
-//          this._map.on('editable:vertex:drag', function() {alert('editable:vertex:drag');}, this);
-//          this._map.on('editable:vertex:dragend', function() {alert('editable:vertex:dragend');}, this);
-//          this._map.on('editable:vertex:dragstart', function() {alert('editable:vertex:dragstart');}, this);
-//          this._map.on('editable:vertex:metakeyclick', function() {alert('editable:vertex:metakeyclick');}, this);
-//          this._map.on('editable:vertex:mousedown', function() {alert('editable:vertex:mousedown');}, this);
-//          this._map.on('editable:vertex:rawclick', function() {alert('editable:vertex:rawclick');}, this);
-//          this._map.on('editable:vertex:shiftclick', function() {alert('editable:vertex:shiftclick');}, this);
-//  }
-
+    }
   };
 
   /**
@@ -340,24 +295,23 @@
    */
 
   /**
-   *   Примесь, обеспечивающая поддержку основных методов редактирования маркера
-   */
+    Примесь, обеспечивающая поддержку основных методов редактирования маркера
+  */
   L.Measure.Mixin.Marker = {
 
-   distanceMeasureUnit: {
-     meter: ' м',
-    kilometer: ' км'
-   },
+    distanceMeasureUnit: {
+      meter: ' м',
+      kilometer: ' км'
+    },
 
     /**
-     Приводит значение координат точки, которые могут принимать любые действительные значения,
-     к значениям, лежещим в отрезках [-90; 90], для широты, [-180, 180] для долготы.
-     @param {Object} latlng Точка, содержащая координаты.
-     @param {Number} periodRadius Радиус периода координатной оси.
-     @returns {Number} Точка со скорректированными координатами.
-     */
-    getFixedLatLng: function(latlng) {
-      var getFixedCoordinate = function(coordinate, periodRadius) {
+      Приводит значение координат точки, которые могут принимать любые действительные значения,
+      к значениям, лежещим в отрезках [-90; 90], для широты, [-180, 180] для долготы.
+      @param {Object} latlng Точка, содержащая координаты.
+      @returns {Number} Точка со скорректированными координатами.
+    */
+    getFixedLatLng: function (latlng) {
+      var getFixedCoordinate = function (coordinate, periodRadius) {
         var divCoordinate = Math.floor(Math.abs(coordinate) / periodRadius);
         var fixCoefficient = divCoordinate % 2 ? (divCoordinate + 1) : divCoordinate;
 
@@ -368,13 +322,13 @@
     },
 
     /**
-     Получить текстовое представление произведенных измерений.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.value Результат измерений в метрах.
-     @param {Object} e.dimension Размерность измерений (1 - линейные расстояния, 2- площади).
-     @returns {string} Текстовое представление произведенных измерений.
-     */
-    getMeasureText: function(e) {
+      Получить текстовое представление произведенных измерений.
+      @param {Object} e Аргументы метода.
+      @param {Object} e.value Результат измерений в метрах.
+      @param {Object} e.dimension Размерность измерений (1 - линейные расстояния, 2- площади).
+      @returns {string} Текстовое представление произведенных измерений.
+    */
+    getMeasureText: function (e) {
       var value = parseFloat(e.value.toFixed(this.precision));
       var metersInOneKm = Math.pow(1000, e.dimension);
       var kmPrecition = this.precision + e.dimension * 3;
@@ -383,30 +337,30 @@
       var dimensionText = (e.dimension > 1) ? '<sup>' + e.dimension + '</sup>' : '';
       var kmRoundingBound = 1.0 / Math.pow(10, e.dimension - 1);
 
-      return (valueInKm >= kmRoundingBound)
-      ? valueInKm.toFixed(kmPrecition) + this.distanceMeasureUnit.kilometer + dimensionText
-          : value.toFixed(this.precision) + this.distanceMeasureUnit.meter + dimensionText;
+      return (valueInKm >= kmRoundingBound) ?
+        valueInKm.toFixed(kmPrecition) + this.distanceMeasureUnit.kilometer + dimensionText :
+        value.toFixed(this.precision) + this.distanceMeasureUnit.meter + dimensionText;
     },
 
     /**
-     Вычисляет расстояние между двумя точками (в метрах) с заданной точностью.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.latlng1 Первая точка.
-     @param {Object} e.latlng2 Вторая точка.
-     @returns {Number} Полученное расстояние (в метрах).
-     */
-    getDistance: function(e) {
+      Вычисляет расстояние между двумя точками (в метрах) с заданной точностью.
+      @param {Object} e Аргументы метода.
+      @param {Object} e.latlng1 Первая точка.
+      @param {Object} e.latlng2 Вторая точка.
+      @returns {Number} Полученное расстояние (в метрах).
+    */
+    getDistance: function (e) {
       return parseFloat(e.latlng1.distanceTo(e.latlng2).toFixed(this.precision));
     },
 
     /**
-     Вычисляет расстояние между двумя точками и возвращает его текстовое представление с заданной точностью.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.latlng1 Первая точка.
-     @param {Object} e.latlng2 Вторая точка.
-     @returns {String} Текстовое представление расстояния.
-     */
-    getDistanceText: function(e) {
+      Вычисляет расстояние между двумя точками и возвращает его текстовое представление с заданной точностью.
+      @param {Object} e Аргументы метода.
+      @param {Object} e.latlng1 Первая точка.
+      @param {Object} e.latlng2 Вторая точка.
+      @returns {String} Текстовое представление расстояния.
+    */
+    getDistanceText: function (e) {
       return this.getMeasureText({
         value: this.getDistance(e),
         dimension: 1
@@ -416,32 +370,32 @@
   };
 
   /**
-   Примесь, обеспечивающая поддержку основных методов редактирования пути
-   */
+    Примесь, обеспечивающая поддержку основных методов редактирования пути
+  */
   L.Measure.Mixin.Path = {
 
-    getLatLngs: function(layer) {
+    getLatLngs: function (layer) {
       return layer.editor.getLatLngs();
     },
 
     /**
-     Метод для получения числа вершин фигуры
-     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
-     @returns {Number} Число вершин.
-     */
-    numberOfVertices: function(layer) {
+       Метод для получения числа вершин фигуры
+       @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+       @returns {Number} Число вершин.
+    */
+    numberOfVertices: function (layer) {
       return this.getLatLngs(layer).length;
     },
 
     /**
-     Метод для получения периметра точек слоя
-     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
-     @returns {Number} Периметр.
-     */
-    _getPerimeter: function(latlngs) {
+      Метод для получения периметра точек слоя
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} Периметр.
+    */
+    _getPerimeter: function (latlngs) {
       var distance = 0;
       var currentInc = 0;
-      for(var i = 1; i < latlngs.length; i++) {
+      for (var i = 1; i < latlngs.length; i++) {
         var prevLatLng = latlngs[i - 1];
         var currentLatLng = latlngs[i];
         currentInc = this.getDistance({
@@ -454,23 +408,24 @@
       return distance;
     },
 
-     /**
-     Метод для получения периметра точек слоя
-     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
-     @returns {Number} Периметр.
-     */
-    getPerimeter: function(layer) {
+    /**
+      Метод для получения периметра точек слоя
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} Периметр.
+    */
+    getPerimeter: function (layer) {
       var latlngs = this.getLatLngs(layer);
       distance = this._getPerimeter(latlngs);
+
       return distance;
     },
 
-/**
-     Метод для получения периметра точек слоя
-     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
-     @returns {Number} String} Текстовое представление периметра.
-     */
-    getPerimeterText: function(layer) {
+    /**
+      Метод для получения периметра точек слоя
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} String} Текстовое представление периметра.
+    */
+    getPerimeterText: function (layer) {
       return this.getMeasureText({
         value: this.getPerimeter(layer),
         dimension: 1
@@ -480,66 +435,67 @@
   };
 
   /**
-  Примесь, обеспечивающая поддержку основных методов редактирования ломаной
-   */
-  L.Measure.Mixin.Polyline = {
-  };
+    Примесь, обеспечивающая поддержку основных методов редактирования ломаной
+  */
+  L.Measure.Mixin.Polyline = {};
 
   /**
-     Примесь, обеспечивающая поддержку основных методов редактирования многоугольника
-   */
+    Примесь, обеспечивающая поддержку основных методов редактирования многоугольника
+  */
   L.Measure.Mixin.Polygon = {
 
 
-    getLatLngs: function(layer) {
+    getLatLngs: function (layer) {
       return layer.editor.getLatLngs()[0];
     },
 
-     /**
-     Метод для получения периметра точек слоя
-     @param {Object} layer Слой с геометрией, представляющей производимые измерения.
-     @returns {Number} Периметр.
-     */
-    getPerimeter: function(layer) {
+    /**
+      Метод для получения периметра точек слоя
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} Периметр.
+    */
+    getPerimeter: function (layer) {
       var latlngs = this.getLatLngs(layer).slice();
       latlngs.push(latlngs[0]);
       distance = this._getPerimeter(latlngs);
+
       return distance;
     },
 
-       /**
+    /**
      * Вычисляет площадь многоугольника (в метрах) с заданной точностью.
-     * @param {Object} e Аргументы метода.
-     * @param {Object} e.latlngs Массив точек многоугольника.
+     * @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+     * @param {Object} latlng Точка.
      * @returns {Number} Полощадь многоугольника (в метрах).
      */
-    getArea: function(layer, latlng) {
+    getArea: function (layer, latlng) {
       var latlngs = this.getLatLngs(layer).slice();
       if (latlng) {
         latlngs.push(latlng);
       }
+
       return distance = parseFloat(this.geodesicArea(latlngs).toFixed(this.precision));
     },
 
     /**
-    Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.latlngs Массив точек многоугольника.
-    @returns {Number} Текстовое представление площади.
-     */
-    getAreaText: function(layer, latlng) {
+      Вычисляет площадь многоугольника возвращает её текстовое представление с заданной точностью.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @param {Object} latlng Точка.
+      @returns {Number} Текстовое представление площади.
+    */
+    getAreaText: function (layer, latlng) {
       return this.getMeasureText({
         value: this.getArea(layer, latlng),
         dimension: 2
       });
     },
 
-  /**
-   Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
-   Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
-   @param {Object} latLngs  Массив точек многоугольника.
-   @returns {Number} Полощадь многоугольника (в метрах).
-   */
+    /**
+      Вычисляет площадь многоугольника согласно релизации  https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Geometry/LinearRing.js#L270*
+      Возможно требует доработок для многоугольников с пересекающимися гранями и составных многоугольников с дырами (Holes)
+      @param {Object} latLngs  Массив точек многоугольника.
+      @returns {Number} Полощадь многоугольника (в метрах).
+    */
     geodesicArea: function (latLngs) {
       const DEG_TO_RAD = 0.017453292519943295;;
       var pointsCount = latLngs.length,
@@ -552,7 +508,7 @@
           p1 = latLngs[i];
           p2 = latLngs[(i + 1) % pointsCount];
           area += ((p2.lng - p1.lng) * d2r) *
-              (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
+            (2 + Math.sin(p1.lat * d2r) + Math.sin(p2.lat * d2r));
         }
         area = area * 6378137.0 * 6378137.0 / 2.0;
       }
@@ -563,29 +519,26 @@
   };
 
   /**
-   Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
-   */
-  L.Measure.Mixin.Rectangle = {
-  };
+    Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
+  */
+  L.Measure.Mixin.Rectangle = {};
 
   /**
-   Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
-   */
-  L.Measure.Mixin.CircleMarker = {
-  };
+    Примесь, обеспечивающая поддержку основных методов редактирования прямоугольника
+  */
+  L.Measure.Mixin.CircleMarker = {};
 
   /**
-   Примесь, обеспечивающая поддержку основных методов измерения круга
-   */
+    Примесь, обеспечивающая поддержку основных методов измерения круга
+  */
   L.Measure.Mixin.Circle = {
 
     /**
-    Возвращает текстовое представление для радиуса с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.radius Значение радиуса в метрах.
-    @returns {Number} Текстовое представление радиуса.
-      */
-    getRadiusText: function(layer) {
+      Возвращает текстовое представление для радиуса с заданной точностью.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} Текстовое представление радиуса.
+    */
+    getRadiusText: function (layer) {
       var radius = layer.getRadius();
       if (radius < 0) return '';
       return this.getMeasureText({
@@ -594,27 +547,25 @@
       });
     },
 
-     /**
-    Возвращает текстовое представление для диаметра с заданной точностью.
-    @param {Object} e Аргументы метода.
-    @param {Object} e.radius Значение радиуса в метрах.
-    @returns {String} Текстовое представление радиуса.
-      */
-    getDiameterText: function(layer) {
+    /**
+      Возвращает текстовое представление для диаметра с заданной точностью.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {String} Текстовое представление диаметра.
+    */
+    getDiameterText: function (layer) {
       return this.getMeasureText({
         value: 2 * layer.getRadius(),
         dimension: 1
       });
     },
 
-     /**
-    Возвращает текстовое представление для периметра с заданной точностью.
-    TODO - УЧЕСТЬ СФЕРИЧНОСТЬ - ВОЗМОЖНО СТОИТ ПЕРЕВЕСТИ В МНОГОУГОЛЬНИК?
-    @param {Object} e Аргументы метода.
-    @param {Object} e.radius Значение радиуса в метрах.
-    @returns {String} Текстовое представление радиуса.
-      */
-    getPerimeterText: function(layer) {
+    /**
+      Возвращает текстовое представление для периметра с заданной точностью.
+      TODO: УЧЕСТЬ СФЕРИЧНОСТЬ - ВОЗМОЖНО СТОИТ ПЕРЕВЕСТИ В МНОГОУГОЛЬНИК?
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {String} Текстовое представление периметра.
+    */
+    getPerimeterText: function (layer) {
       return this.getMeasureText({
         value: 2 * Math.PI * layer.getRadius(),
         dimension: 1
@@ -630,7 +581,7 @@
     @param {Object} e.radius Значение радиуса в метрах.
     @returns {Number} Текстовое представление радиуса.
       */
-    getAreaText: function(layer) {
+    getAreaText: function (layer) {
       var radius = layer.getRadius();
       var area = Math.PI * radius * radius;
       return this.getMeasureText({
@@ -640,11 +591,11 @@
     },
   };
 
-      /**
+  /**
    Примесь, обеспечивающая поддержку событий измерения маркера
    */
   L.Measure.Mixin.MarkerEvents = {
-        /**
+      /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
       Порядок событий в Leaflet.Editable:
@@ -669,97 +620,101 @@
           editable:drag
           editable:dragend
      */
-    setEvents: function (map, options) {
-      this.editableEventTree = {
-        drawing: {
-          move: this._setMove,
-          commit: this._setCommit,
-        },
-        drag: this._setDrag,
-        dragstart: this._setDragStart,
-        dragend: this._setDragend
-      };
-    },
+      setEvents: function (map, options) {
+        this.editableEventTree = {
+          drawing: {
+            move: this._setMove,
+            commit: this._setCommit,
+          },
+          drag: this._setDrag,
+          dragstart: this._setDragStart,
+          dragend: this._setDragend
+        };
+      },
 
-    _setMove: function(e) {
-      if (this.isDragging && this.measureLayer.getTooltip() && this.measureLayer.isTooltipOpen()) {
-        this.measureLayer.closeTooltip();
-      }
-      var text = this.isDragging ? this.popupText.drag : this.popupText.move;
-      var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
-      if (labelContent.length > 0) {
-        text += '<br>' +labelContent;
-      }
+      _setMove: function (e) {
+        if (this.isDragging && this.measureLayer.getTooltip() && this.measureLayer.isTooltipOpen()) {
+          this.measureLayer.closeTooltip();
+        }
 
-      this._onMouseMove(e, text);
-      this._fireEvent(e, 'move');
-    },
+        var text = this.isDragging ? this.popupText.drag : this.popupText.move;
+        var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
+        if (labelContent.length > 0) {
+          text += '<br>' + labelContent;
+        }
 
-    _setDrag: function(e) {
-      this._fireEvent(e, 'edit:drag');
-    },
+        this._onMouseMove(e, text);
+        this._fireEvent(e, 'move');
+      },
 
-    _setDragStart: function(e) {
-      if (e.layer.getTooltip()) {
-        e.layer.closeTooltip();
-      }
-      this.isDragging = true;
-    },
+      _setDrag: function (e) {
+        this._fireEvent(e, 'edit:drag');
+      },
 
-    _setDragend:function(e) {
-      this._closePopup();
-      if (this.measureLayer.getTooltip() && !this.measureLayer.isTooltipOpen()) {
-        this.measureLayer.openTooltip();
-      }
-      this.isDragging = false;
-      this._fireEvent(e, 'editend');
-      e.layer.openTooltip();
-    },
+      _setDragStart: function (e) {
+        if (e.layer.getTooltip()) {
+          e.layer.closeTooltip();
+        }
 
-    _setCommit: function(e) {
-      this._closePopup();
-      this._fireEvent(e, 'created');
-    },
+        this.isDragging = true;
+      },
 
-  },
+      _setDragend: function (e) {
+        this._closePopup();
+        if (this.measureLayer.getTooltip() && !this.measureLayer.isTooltipOpen()) {
+          this.measureLayer.openTooltip();
+        }
 
-  /**
-   Класс, обеспечивающая поддержку основных cобытий редактирования маркера
-   */
-  L.Measure.Marker = L.Class.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.MarkerEvents ],
+        this.isDragging = false;
+        this._fireEvent(e, 'editend');
+        e.layer.openTooltip();
+      },
 
-    popupText: {
-      move: 'Кликните по карте, чтобы зафиксировать маркер',
-      drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
+      _setCommit: function (e) {
+        this._closePopup();
+        this._fireEvent(e, 'created');
+      },
     },
 
     /**
-     Инициализация режима перемщения маркера Marker
-     */
-    startMeasure: function(options) {
-      this._setMouseMarker();
-      var imagePath = L.Measure.imagePath;
-      this.options = { icon: L.icon({
-        iconUrl: imagePath + '/marker-icon.png',
-        iconRetinaUrl: imagePath + '/marker-icon-2x.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: imagePath + '/marker-shadow.png',
-        shadowSize: [41, 41]
-      })};
+      Класс, обеспечивающая поддержку основных cобытий редактирования маркера
+    */
+    L.Measure.Marker = L.Class.extend({
+      includes: [L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.MarkerEvents],
 
-      options = options? L.setOptions(this, options): this.options;
-      this.measureLayer = this._map.editTools.startMarker(undefined,options);
-      this.eventsOn( 'editable:', this.editableEventTree, true);
-      this.isDragging = false;
-    }
-  });
+      popupText: {
+        move: 'Кликните по карте, чтобы зафиксировать маркер',
+        drag: 'Отпустите кнопку мыши, чтобы зафиксировать маркер'
+      },
+
+      /**
+        Инициализация режима перемщения маркера Marker
+      */
+      startMeasure: function (options) {
+        this._setMouseMarker();
+        var imagePath = L.Measure.imagePath;
+        this.options = {
+          icon: L.icon({
+            iconUrl: imagePath + '/marker-icon.png',
+            iconRetinaUrl: imagePath + '/marker-icon-2x.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowUrl: imagePath + '/marker-shadow.png',
+            shadowSize: [41, 41]
+          })
+        };
+
+        options = options ? L.setOptions(this, options) : this.options;
+        this.measureLayer = this._map.editTools.startMarker(undefined, options);
+        this.eventsOn('editable:', this.editableEventTree, true);
+        this.isDragging = false;
+      }
+    });
 
   /**
-   Примесь, обеспечивающая поддержку событий измерения круга и прямоугольника
-   */
+    Примесь, обеспечивающая поддержку событий измерения круга и прямоугольника
+  */
   L.Measure.Mixin.CircleRectangleEvents = {
     /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
@@ -780,7 +735,7 @@
           editable:editing
         Отпуск клавиши
         editable:vertex:dragendmeasureLayer
-     */
+    */
     setEvents: function (map, options) {
       this.editableEventTree = {
         drawing: {
@@ -795,31 +750,33 @@
       };
     },
 
-    _setMove: function(e) {
+    _setMove: function (e) {
       if (!this.create && !this.isDragging) {
         var text = this.popupText.move;
         var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
         if (labelContent.length > 0) {
-          text += '<br>' +labelContent;
+          text += '<br>' + labelContent;
         }
+
         this._onMouseMove(e, text);
         this._fireEvent(e, 'move');
       }
     },
 
-    _setDrawingEnd: function(e) {
+    _setDrawingEnd: function (e) {
       this.create = true;
       this._fireEvent(e, 'create');
     },
 
-    _setDragstart: function(e) {
+    _setDragstart: function (e) {
       if (e.vertex.getTooltip()) {
         e.vertex.closeTooltip();
       }
+
       this.isDragging = true;
     },
 
-    _setDragend: function(e) {
+    _setDragend: function (e) {
       this._closePopup();
       if (this.create) {
         this._fireEvent(e, 'created');
@@ -827,17 +784,19 @@
       } else {
         this._fireEvent(e, 'editend');
       }
+
       this.create = false;
       this.isDragging = false;
       e.vertex.openTooltip();
     },
 
-    _setDrag: function(e) {
+    _setDrag: function (e) {
       var text = this.popupText.drag;
       var labelContent = this._getLabelContent(e.layer, e.latlng).trim();
       if (labelContent.length > 0) {
-        text += '<br>' +labelContent;
+        text += '<br>' + labelContent;
       }
+
       this._onMouseMove(e, text);
       if (this.create) {
         this._fireEvent(e, 'create:drag');
@@ -849,10 +808,10 @@
   };
 
   /**
-   Класс, обеспечивающая поддержку основных cобытий редактирования круга
+   Класс, обеспечивающий поддержку основных cобытий редактирования круга
    */
   L.Measure.Circle = L.Class.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, , L.Measure.Mixin.Path, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
+    includes: [L.Measure.Mixin, L.Measure.Mixin.Marker, , L.Measure.Mixin.Path, L.Measure.Mixin.CircleMarker, L.Measure.Mixin.Circle, L.Measure.Mixin.CircleRectangleEvents],
 
     popupText: {
       move: 'Зажмите кнопку мыши и перемеcтите курсор, чтобы нарисовать круг',
@@ -872,17 +831,17 @@
       options = options || this.options;
       this.measureLayer = this._map.editTools.startCircle(undefined, options);
       this.measureLayer.setRadius(-1);
-      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.eventsOn('editable:', this.editableEventTree, true);
       this.create = false;
       this.isDragging = false;
     }
   });
 
   /**
-   Класс, обеспечивающая поддержку основных cобытий редактирования прямоугольника
+   Класс, обеспечивающий поддержку основных cобытий редактирования прямоугольника
    */
   L.Measure.Rectangle = L.Class.extend({
-    includes: [ L.Measure.Mixin,
+    includes: [L.Measure.Mixin,
       L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.Rectangle,
       L.Measure.Mixin.CircleRectangleEvents
     ],
@@ -902,19 +861,19 @@
 
     startMeasure: function (options) {
       this._setMouseMarker();
-      options = options? L.setOptions(this, options): this.options;
+      options = options ? L.setOptions(this, options) : this.options;
       this.measureLayer = this._map.editTools.startRectangle(undefined, options);
-      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.eventsOn('editable:', this.editableEventTree, true);
       this.create = false;
       this.isDrawing = false;
     }
   });
 
-   /**
-   Примесь, обеспечивающая поддержку событий измерения ломаной и многоугольника
-   */
+  /**
+  Примесь, обеспечивающая поддержку событий измерения ломаной и многоугольника
+  */
   L.Measure.Mixin.PolylinePolygonEvents = {
-     /**
+    /**
       Метод, обеспечивающий в момент инициализации перехват основных событий редактирования
 
       Порядок событий в Leaflet.Editable:
@@ -948,8 +907,8 @@
         editable:vertex:dragstart
         editable:drawing:move
         editable:vertex:dragend
-     */
-     setEvents: function (map, options) {
+    */
+    setEvents: function (map, options) {
       this.editableEventTree = {
         vertex: {
           dragstart: this._setDragStart,
@@ -967,7 +926,7 @@
       };
     },
 
-    _setMove: function(e) {
+    _setMove: function (e) {
       var text;
       var nPoints = this.numberOfVertices(e.layer);
       if (nPoints == 0) {
@@ -978,23 +937,24 @@
           text = this.popupText.add;
           var labelContent = this._getLabelContent(e.layer, e.latlng, e).trim();
           if (labelContent.length > 0) {
-            text += '<br>' +labelContent;
-          this._fireEvent(e, 'create:drag');
+            text += '<br>' + labelContent;
+            this._fireEvent(e, 'create:drag');
           }
         }
       }
+
       this._onMouseMove(e, text);
     },
 
-    _setDragStart: function(e) {
+    _setDragStart: function (e) {
       if (e.vertex.getTooltip()) {
         e.vertex.closeTooltip();
       }
+
       this.measureLayer = e.layer;
       this.isDragging = true;
-
     },
-    _setDragEnd: function(e) {
+    _setDragEnd: function (e) {
       this._closePopup();
       this._fireEvent(e, 'editend');
       this.isDragging = false;
@@ -1003,50 +963,56 @@
       }
     },
 
-     _setDrag: function(e) {
+    _setDrag: function (e) {
       var text = this.popupText.drag;
       var labelContent = this._getLabelContent(e.layer, e.vertex.latlng).trim();
       if (labelContent.length > 0) {
-        text += '<br>' +labelContent;
+        text += '<br>' + labelContent;
       }
+
       this._onMouseMove(e, text);
       this._fireEvent(e, 'edit:drag');
-     },
+    },
 
-    setVertexDeleted: function(e) {
+    setVertexDeleted: function (e) {
       this.vertexDeleted = true;
       this._fireEvent(e, 'edit');
       this._fireEvent(e, 'editend');
       this.vertexDeleted = false;
     },
 
-    _setMouseDown: function(e) {
-      if (this.numberOfVertices(e.layer) <= 1) return;
+    _setMouseDown: function (e) {
+      if (this.numberOfVertices(e.layer) <= 1) {
+        return;
+      }
+
       var text = this.popupText.commit;
-      var latlng = e.latlng? e.latlng : e.vertex.latlng;
+      var latlng = e.latlng ? e.latlng : e.vertex.latlng;
       this._showPopup(text, latlng);
     },
 
-    _setClicked: function(e) {
+    _setClicked: function (e) {
       this._fireEvent(e, 'create');
-      if (this.numberOfVertices(e.layer) <= 2) return;
+      if (this.numberOfVertices(e.layer) <= 2) {
+        return;
+      }
+
       var text = this.popupText.commit;
-      var latlng = e.latlng? e.latlng : e.vertex.latlng;
+      var latlng = e.latlng ? e.latlng : e.vertex.latlng;
       this._showPopup(text, latlng);
     },
 
-    _setCommit: function(e) {
+    _setCommit: function (e) {
       this._closePopup();
       this._fireEvent(e, 'created');
     },
-
   };
 
   /**
-   Класс, обеспечивающая поддержку основных cобытий редактирования ломаной
-   */
+    Класс, обеспечивающий поддержку основных cобытий редактирования ломаной
+  */
   L.Measure.Polyline = L.Class.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.PolylinePolygonEvents ],
+    includes: [L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.PolylinePolygonEvents],
 
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
@@ -1065,18 +1031,18 @@
 
     startMeasure: function (options) {
       this._setMouseMarker();
-      options = options? L.setOptions(this, options): this.options;
+      options = options ? L.setOptions(this, options) : this.options;
       this.measureLayer = this._map.editTools.startPolyline(undefined, options);
-      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.eventsOn('editable:', this.editableEventTree, true);
       this.isDragging = false;
     }
   });
 
   /**
-   Класс, обеспечивающая поддержку основных cобытий редактирования многоугольника
-   */
-  L.Measure.Polygon =  L.Class.extend({
-    includes: [ L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.PolylinePolygonEvents ],
+    Класс, обеспечивающий поддержку основных cобытий редактирования многоугольника
+  */
+  L.Measure.Polygon = L.Class.extend({
+    includes: [L.Measure.Mixin, L.Measure.Mixin.Marker, L.Measure.Mixin.Path, L.Measure.Mixin.Polyline, L.Measure.Mixin.Polygon, L.Measure.Mixin.PolylinePolygonEvents],
 
     popupText: {
       move: 'Кликните по карте, чтобы добавить начальную вершину.',
@@ -1096,57 +1062,57 @@
 
     startMeasure: function (options) {
       this._setMouseMarker();
-      options = options? L.setOptions(this, options): this.options;
+      options = options ? L.setOptions(this, options) : this.options;
       this.measureLayer = this._map.editTools.startPolygon(undefined, options);
       this.isDragging = false;
-      this.eventsOn( 'editable:', this.editableEventTree, true);
+      this.eventsOn('editable:', this.editableEventTree, true);
     }
   });
 
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения маркера.
-   */
-  L.Measure.marker = function(map, options) {
+    Фабричный метод для создания экземпляра инструмента измерения маркера.
+  */
+  L.Measure.marker = function (map, options) {
     return new L.Measure.Marker(map, options);
   };
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения прямоугольника.
-   */
-  L.Measure.rectangle = function(map, options) {
+    Фабричный метод для создания экземпляра инструмента измерения прямоугольника.
+  */
+  L.Measure.rectangle = function (map, options) {
     return new L.Measure.Rectangle(map, options);
   };
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения круга.
-   */
-  L.Measure.circle = function(map, options) {
+    Фабричный метод для создания экземпляра инструмента измерения круга.
+  */
+  L.Measure.circle = function (map, options) {
     return new L.Measure.Circle(map, options);
   };
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения ломаной.
-   */
-  L.Measure.polyline = function(map, options) {
+    Фабричный метод для создания экземпляра инструмента измерения ломаной.
+  */
+  L.Measure.polyline = function (map, options) {
     return new L.Measure.Polyline(map, options);
   };
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения многоугольника.
-   */
-  L.Measure.polygon = function(map, options) {
+    Фабричный метод для создания экземпляра инструмента измерения многоугольника.
+  */
+  L.Measure.polygon = function (map, options) {
     return new L.Measure.Polygon(map, options);
   };
 
   /*
-   Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
-   markerTool
-   circleTool
-   rectangleTool
-   polylineTool
-   polygonTool
-   */
+    Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
+    markerTool
+    circleTool
+    rectangleTool
+    polylineTool
+    polygonTool
+  */
   L.Map.addInitHook(function () {
     this.whenReady(function () {
       if (this.options.measured) {

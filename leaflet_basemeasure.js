@@ -23,15 +23,15 @@
   });
 
   /*
-  Фабричный метод для создания базового экземпляра.
+    Фабричный метод для создания базового экземпляра.
   */
   L.measureBase = function (map, options) {
     return new L.MeasureBase(map, options);
   };
 
   /**
-   * Класс инструмента для измерения координат.
-   */
+    Класс инструмента для измерения координат.
+  */
   L.Measure.MarkerBase = L.Measure.Marker.extend({
 
     basePopupText: {
@@ -48,31 +48,31 @@
     },
 
     /**
-     * Количество знаков после десятичного разделителя для измерений в метрах.
-     */
+      Количество знаков после десятичного разделителя для измерений в метрах.
+    */
     precision: 5,
 
     /*
-     Метод для получения маркеров инструмента редактирования, имеющих метки
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, имеющих метки
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
+    */
     _labelledMarkers: function (editor, e) {
       return [];
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, не имеющих меток
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, не имеющих меток
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
     _unlabelledMarkers: function (editor, e) {
       return [];
     },
 
     /**
-     Метод для получения текстового описания результатов измерений.
-     */
+      Метод для получения текстового описания результатов измерений.
+    */
     _getLabelContent: function (layer, latlng, e) {
       var crs = this.options.crs;
       var precision = this.options.precision || this.precision;
@@ -100,9 +100,9 @@
     },
 
     /**
-     Метод обновления основного лейбла измеряемого объекта
-     @param {Object} layer Редактируемый слой.
-     */
+      Метод обновления основного лейбла измеряемого объекта
+      @param {Object} layer Редактируемый слой.
+    */
     _updateMeasureLabel: function (layer, e) {
       if (this._getMeasureEventType(e).substr(-5) !== ':drag') {
         var text = this.basePopupText.labelPrefix + this._getLabelContent(layer, e.latlng, e) + this.basePopupText.labelPostfix;
@@ -113,16 +113,16 @@
   });
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения координат.
-   */
+    Фабричный метод для создания экземпляра инструмента измерения координат.
+  */
   L.Measure.markerBase = function (map, options) {
     return new L.Measure.MarkerBase(map, options);
   };
 
 
   /**
-   * Класс инструмента для измерения координат.
-   */
+    Класс инструмента для измерения радиуса.
+  */
   L.Measure.CircleBase = L.Measure.Circle.extend({
 
     basePopupText: {
@@ -133,7 +133,7 @@
      Метод для получения маркеров инструмента редактирования, имеющих метки
      @param {Object} editor Инструмент редактирования
      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-     */
+    */
     _labelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs();
       var markers = [];
@@ -144,14 +144,15 @@
         default:
           markers.push(latlngs[1].__vertex)
       }
+
       return markers;
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, не имеющих меток
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, не имеющих меток
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
     _unlabelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs();
       var markers = [];
@@ -162,18 +163,17 @@
           markers.push(latlngs[1].__vertex)
           break;
       }
+
       return markers;
     },
 
 
     /**
-     Метод для получения текстового описания результатов измерений.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
-     @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
-     */
+      Метод для получения текстового описания результатов измерений.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @param {Object} latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
+    */
     _getLabelContent: function (layer, latlng, e) {
-      //       var radius = layer.getRadius();
       var radiusText = this.getRadiusText(layer);
       var ret = radiusText.length > 0 ? this.basePopupText.labelPrefix + radiusText + this.basePopupText.labelPostfix : '';
       return ret;
@@ -182,22 +182,22 @@
   });
 
   /**
-   *   Фабричный метод для создания экземпляра инструмента измерения координат.
-   */
+    Фабричный метод для создания экземпляра инструмента измерения радиуса.
+  */
   L.Measure.circleBase = function (map, options) {
     return new L.Measure.CircleBase(map, options);
   };
 
   /**
-   *   Класс инструмента для измерения координат.
-   */
+    Класс инструмента для измерения площади прямоугольника.
+  */
   L.Measure.RectangleBase = L.Measure.Rectangle.extend({
 
     /*
-     *     Метод для получения маркеров инструмента редактирования, имеющих метки
-     *     @param {Object} editor Инструмент редактирования
-     *     @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, имеющих метки
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
+    */
     _labelledMarkers: function (editor) {
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
@@ -205,10 +205,10 @@
     },
 
     /*
-     *     Метод для получения маркеров инструмента редактирования, не имеющих меток
-     *     @param {Object} editor Инструмент редактирования
-     *     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, не имеющих меток
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
     _unlabelledMarkers: function (editor) {
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
@@ -219,19 +219,18 @@
     },
 
     /**
-     *     Метод для получения текстового описания результатов измерений.
-     *     @param {Object} e Аргументы метода.
-     *     @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
-     *     @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
-     */
+      Метод для получения текстового описания результатов измерений.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @param {Object} latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
+    */
     _getLabelContent: function (layer, latlng) {
       return '';
     },
 
     /**
-     *    Метод обновления основного лейбла измеряемого объекта
-     *    @param {Object} layer Редактируемый слой.
-     */
+      Метод обновления основного лейбла измеряемого объекта
+      @param {Object} layer Редактируемый слой.
+    */
     _updateMeasureLabel: function (layer, e) {
       var center = layer.getCenter();
       //       var latlngs = layer.editor.getLatLngs()[0];
@@ -243,7 +242,7 @@
   });
 
   /**
-   *   Фабричный метод для создания экземпляра инструмента измерения координат.
+   *   Фабричный метод для создания экземпляра инструмента измерения площади прямоугольника.
    */
   L.Measure.rectangleBase = function (map, options) {
     return new L.Measure.RectangleBase(map, options);
@@ -251,7 +250,7 @@
 
 
   /**
-   * Класс инструмента для измерения координат.
+   * Класс инструмента для измерения длины.
    */
   L.Measure.PolylineBase = L.Measure.Polyline.extend({
 
@@ -263,10 +262,10 @@
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, имеющих метки
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, имеющих метки
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
+    */
     _labelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs();
       var markers = [];
@@ -277,20 +276,22 @@
           marker = e.vertex;
           break;
       }
+
       for (var i = 1, len = latlngs.length; i < len; i++) {
         var pathVertex = latlngs[i].__vertex;
         if (pathVertex !== marker) {
           markers.push(pathVertex);
         }
       }
+
       return markers;
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, не имеющих меток
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, не имеющих меток.
+      @param {Object} editor Инструмент редактирования.
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
     _unlabelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs();
       var markers = [];
@@ -301,24 +302,31 @@
           if (e.vertex) {
             markers.push(e.vertex);
           }
+
           break;
       }
+
       return markers;
     },
 
     /**
-     Метод для получения текстового описания результатов измерений.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
-     @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
-     */
+      Метод для получения текстового описания результатов измерений.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @param {Object} latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
+      @param {Object} e Аргументы метода.
+    */
     _getLabelContent: function (layer, latlng, e) {
       var latlngs = layer.editor.getLatLngs().slice();
       for (var index = 0; index < latlngs.length && !latlngs[index].equals(latlng); index++);
+
       if (index === latlngs.length) {
         latlngs.push(latlng);
       }
-      if (index === 0) return '';
+
+      if (index === 0) {
+        return '';
+      }
+
       var distance = 0;
       var currentInc = 0;
       for (var i = 1; i <= index; i++) {
@@ -331,7 +339,6 @@
         distance += currentInc;
       }
 
-      //       'index='+ index + '<br>' +
       return this.basePopupText.distanceLabelPrefix +
         this.getMeasureText({
           value: distance,
@@ -345,19 +352,18 @@
         }) +
         this.basePopupText.incLabelPostfix;
     },
-
   });
 
   /**
-   *   Фабричный метод для создания экземпляра инструмента измерения координат.
-   */
+    Фабричный метод для создания экземпляра инструмента измерения длины.
+  */
   L.Measure.polylineBase = function (map, options) {
     return new L.Measure.PolylineBase(map, options);
   };
 
   /**
-   Класс инструмента для измерения координат.
-   */
+    Класс инструмента для измерения площади.
+  */
   L.Measure.PolygonBase = L.Measure.Polygon.extend({
 
     basePopupText: {
@@ -366,10 +372,10 @@
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, имеющих метки
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, имеющих метки
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
+    */
     _labelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
@@ -384,17 +390,19 @@
         default:
           marker = e.vertex ? e.vertex : latlngs[latlngs.length - 1].__vertex;
       }
+
       if (marker) {
         markers.push(marker);
       }
+
       return markers;
     },
 
     /*
-     Метод для получения маркеров инструмента редактирования, не имеющих меток
-     @param {Object} editor Инструмент редактирования
-     @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
-     */
+      Метод для получения маркеров инструмента редактирования, не имеющих меток
+      @param {Object} editor Инструмент редактирования
+      @returns {Object[]} Массив не помеченных маркеров инструмента редактирования.
+    */
     _unlabelledMarkers: function (editor, e) {
       var latlngs = editor.getLatLngs()[0];
       var markers = [];
@@ -409,59 +417,63 @@
         default:
           marker = e.vertex ? e.vertex : latlngs[latlngs.length - 1].__vertex;
       }
+
       for (var i = 0, len = latlngs.length; i < len; i++) {
         var pathVertex = latlngs[i].__vertex;
         if (pathVertex !== marker) {
           markers.push(pathVertex);
         }
       }
+
       return markers;
     },
 
     /**
-     Метод для получения текстового описания результатов измерений.
-     @param {Object} e Аргументы метода.
-     @param {Object} e.layer Слой с геометрией, представляющей производимые измерения.
-     @param {Object} e.latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
-     @returns {String} Содержимое метки
-     */
+      Метод для получения текстового описания результатов измерений.
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @param {Object} latlng Точка геометрии, для которой требуется получить текстовое описание измерений.
+      @param {Object} e Аргументы метода.
+      @returns {String} Содержимое метки
+    */
     _getLabelContent: function (layer, latlng, e) {
       var latlngs = layer.editor.getLatLngs()[0].slice();
       var mouseLatlng;
-      if (e && !e.vertex) { //Non drag
+
+      // Non drag.
+      if (e && !e.vertex) {
         eventLatlng = e.latlng;
         for (var index = 0; index < latlngs.length && !latlngs[index].equals(eventLatlng); index++);
         if (index === latlngs.length) {
           mouseLatlng = eventLatlng;
         }
       }
+
       var ret = this.basePopupText.labelPrefix + this.getAreaText(layer, mouseLatlng) + this.basePopupText.labelPostfix;
+
       return ret;
     },
-
-
   });
 
   /**
-   Фабричный метод для создания экземпляра инструмента измерения координат.
+   Фабричный метод для создания экземпляра инструмента измерения площади.
    */
   L.Measure.polygonBase = function (map, options) {
     return new L.Measure.PolygonBase(map, options);
   };
 
   /*
-   Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
-   markerBaseTool
-   circleBaseTool
-   rectangleBaseTool
-   polylineBaseTool
-   polygonBaseTool
-   markerTool
-   circleTool
-   rectangleTool
-   polylineTool
-   polygonTool
-   */
+    Метод при наличии опции basemeasured добавляет к карте свойство measureTools с инициализированными свойстами:
+    markerBaseTool
+    circleBaseTool
+    rectangleBaseTool
+    polylineBaseTool
+    polygonBaseTool
+    markerTool
+    circleTool
+    rectangleTool
+    polylineTool
+    polygonTool
+  */
   L.Map.addInitHook(function () {
     this.whenReady(function () {
       if (this.options.basemeasured) {
@@ -469,5 +481,4 @@
       }
     });
   });
-
 })(L);

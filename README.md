@@ -1,14 +1,14 @@
 # Leaflet-Measure-Editable
 Classes for measure markers, circles, rectangles, polylines, polygon  based on
-* [Leaflet_1.0.0.rc2][http://leafletjs.com/reference-1.0.0.html]
-* [Leaflet.Editable][https://github.com/Leaflet/Leaflet.Editable]
+* [Leaflet_1.0.0.rc2](http://leafletjs.com/reference-1.0.0.html)
+* [Leaflet.Editable](https://github.com/Leaflet/Leaflet.Editable)
 
 
-## API
+## API
 Leaflet-Measure-Editable is made to be fully extendable. You have three ways to customize
 the behaviour: using options, listening to events, or extending.
 
-### L.Map
+### L.Map
 
 Leaflet-Measure-Editable add events to the `L.Map` object.
 
