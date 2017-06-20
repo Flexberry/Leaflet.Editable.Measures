@@ -1,0 +1,18 @@
+{
+    "name": "leaflet.editable.measures",
+    "version": "0.1.0",
+    "homepage": "https://github.com/Flexberry/Leaflet.Editable.Measures",
+    "license": "MIT",
+    "main": [
+        "src/leaflet_measure.js",
+        "src/leaflet_measure.css"
+    ],
+    "ignore": [
+        "**/.*",
+        "bower_components"
+    ],
+    "dependencies": {
+        "leaflet": "1.0.1",
+        "leaflet.editable": "master"
+    }
+}
