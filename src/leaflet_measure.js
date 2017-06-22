@@ -47,27 +47,6 @@
     return new L.Measure(map, options);
   };
 
-  L.Measure.imagePath = (function () {
-    var scripts = document.getElementsByTagName('script'),
-      leafletRe = /[\/^]leaflet_measure\.js\??/;
-
-
-    var i, len, src, path;
-
-    for (i = 0, len = scripts.length; i < len; i++) {
-      src = scripts[i].src || '';
-
-      if (src.indexOf('ember') >= 0) {
-        return '/assets/images';
-      } else {
-        if (src.match(leafletRe)) {
-          path = src.split(leafletRe)[0];
-          return (path ? path + '../../' : '') + 'images';
-        }
-      }
-    }
-  }());
-
   /**
    * Примесь, переопределяющая базовые методы инструментов плагина Leaflet.Editable, превращая их в инструменты измерений.
    */
@@ -104,9 +83,8 @@
           pane: 'popupPane',
           className: 'leaflet-draw-tooltip'
         };
-        var imagePath = L.Measure.imagePath;
         var popupMarkerIcon = L.icon({
-          iconUrl: imagePath + '/popupMarker.png',
+          iconUrl: L.Icon.Default.imagePath + '/popupMarker.png',
           iconSize: [1, 1]
         });
         this._map._mouseMarker = L.marker(this._map.getCenter());
@@ -692,19 +670,6 @@
       */
       startMeasure: function (options) {
         this._setMouseMarker();
-        var imagePath = L.Measure.imagePath;
-        this.options = {
-          icon: L.icon({
-            iconUrl: imagePath + '/marker-icon.png',
-            iconRetinaUrl: imagePath + '/marker-icon-2x.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowUrl: imagePath + '/marker-shadow.png',
-            shadowSize: [41, 41]
-          })
-        };
-
         options = options ? L.setOptions(this, options) : this.options;
         this.measureLayer = this._map.editTools.startMarker(undefined, options);
         this.eventsOn('editable:', this.editableEventTree, true);
