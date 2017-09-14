@@ -13,6 +13,6 @@
     ],
     "dependencies": {
         "leaflet": "1.2.0",
-        "leaflet.editable": "master"
+        "leaflet.editable": "1.1.0"
     }
 }
