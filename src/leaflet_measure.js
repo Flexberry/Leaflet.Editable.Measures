@@ -1159,8 +1159,8 @@
 
     addShape: function (latlngs) {
       this._setMouseMarker();
-      var o = $.extend({}, this.options, { editOptions: { editTools: this.editTools } });
-      let polygone = new L.polygon(latlngs, o);
+      var options = $.extend({}, this.options, { editOptions: { editTools: this.editTools } });
+      let polygone = new L.polygon(latlngs, options);
       this.editTools.featuresLayer.addLayer(polygone);
       polygone.enableEdit(this._map);
       this.measureLayer = polygone;
@@ -1240,8 +1240,6 @@
       this.polygonBaseTool = L.Measure.polygonBase(map, toolOptions);
 
       this._map.on('close-polyline', (e) => {
-        console.log('close-polyline');
-
         this.polygonBaseTool.addShape(e.latlngs, toolOptions);
       });
     },
