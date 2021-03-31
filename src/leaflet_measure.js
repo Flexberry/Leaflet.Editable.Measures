@@ -369,7 +369,8 @@
 
     distanceMeasureUnit: {
       meter: ' м',
-      kilometer: ' км'
+      kilometer: ' км',
+      ha: ' га'
     },
 
     /**
@@ -565,11 +566,23 @@
       @param {Object} latlng Точка.
       @returns {Number} Текстовое представление площади.
     */
-    getAreaText: function (layer, latlng) {
-      return this.getMeasureText({
-        value: this.getArea(layer, latlng),
+    getAreaText: function (layer, latlng, ha) {
+      var value = this.getArea(layer, latlng);
+
+      var area = this.getMeasureText({
+        value: value,
         dimension: 2
       });
+
+      if (ha) {
+        value = parseFloat(value.toFixed(this.precision));
+
+        var haPrecition = this.precision + 4;
+        var valueInHa = (value / 10000).toFixed(haPrecition) + this.distanceMeasureUnit.ha;
+        area += " (" + valueInHa + ")";
+      }
+
+      return area;
     },
 
     /**
@@ -1239,6 +1252,10 @@
       this.polylineBaseTool = L.Measure.polylineBase(map, toolOptions);
       this.polygonBaseTool = L.Measure.polygonBase(map, toolOptions);
 
+      if (options.addHaArea) {
+        this.polygonBaseTool.haArea = true;
+      }
+
       this._map.on('close-polyline', (e) => {
         this.polygonBaseTool.addShape(e.latlngs, toolOptions);
       });
@@ -1629,6 +1646,8 @@
       incLabelPostfix: '</b>'
     },
 
+    haArea: false,
+
     /*
       Метод для получения маркеров инструмента редактирования, имеющих метки
       @param {Object} editor Инструмент редактирования
@@ -1706,7 +1725,7 @@
         }
       }
 
-      var ret = this.basePopupText.labelPrefix + this.getAreaText(layer, mouseLatlng) + this.basePopupText.labelPostfix;
+      var ret = this.basePopupText.labelPrefix + this.getAreaText(layer, mouseLatlng, this.haArea) + this.basePopupText.labelPostfix;
       var perimiter = this.basePopupText.perimeterLabelPrefix + this.getPerimeterText(layer, mouseLatlng) + this.basePopupText.perimeterLabelPostfix;
 
       return ret + perimiter;
