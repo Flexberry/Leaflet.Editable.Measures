@@ -8,27 +8,38 @@
       options = options || {};
       options.editOptions = options.editOptions || {};
       this.options = options;
-      if (!this._map.editTools) {
-        this._map.editTools = new L.Editable(map, options.editOptions);
+      if (!this.editTools) {
+        this.editTools = new L.Editable(map, options.editOptions);
       }
 
       if (!this._map.measureTools) {
         this._map.measureTools = this;
       }
-      this.markerTool = L.Measure.marker(map, {});
-      this.circleTool = L.Measure.circle(map, {});
-      this.rectangleTool = L.Measure.rectangle(map, {});
-      this.polylineTool = L.Measure.polyline(map, {});
-      this.polygonTool = L.Measure.polygon(map, {});
+      this.markerTool = L.Measure.marker(map, { editTools: this.editTools });
+      this.circleTool = L.Measure.circle(map, { editTools: this.editTools });
+      this.rectangleTool = L.Measure.rectangle(map, { editTools: this.editTools });
+      this.polylineTool = L.Measure.polyline(map, { editTools: this.editTools });
+      this.polygonTool = L.Measure.polygon(map, { editTools: this.editTools });
+    },
+
+    clearLayers: function () {
+      let editLayer = this.editTools.editLayer;
+      if (editLayer) {
+        editLayer.clearLayers();
+      }
+
+      let featuresLayer = this.editTools.featuresLayer;
+      if (featuresLayer) {
+        featuresLayer.clearLayers();
+      }
     },
 
     getEditTools: function () {
-      return this._map.editTools;
+      return this.editTools;
     },
 
     getMeasureLayerGroup: function () {
-      //       return this._map._measureLayerGroup;
-      this._map.editTools.featuresLayer;
+      this.editTools.featuresLayer;
     },
 
     stopMeasuring: function () {
@@ -37,7 +48,74 @@
       this.rectangleTool.stopMeasure();
       this.polylineTool.stopMeasure();
       this.polygonTool.stopMeasure();
+    },
+
+    hideMeasureResult: function () {
+      if (this.editTools && this.editTools.featuresLayer) {
+        for (layerId in this.editTools.featuresLayer._layers) {
+          var layer = this.editTools.featuresLayer._layers[layerId];
+          if (layer instanceof L.Marker && layer.getTooltip()) {
+            layer.closeTooltip();
+          }
+
+          if (layer instanceof L.Polygon) {
+            layer.editor.getLatLngs().forEach(latlngs => {
+              latlngs.forEach(latlng => {
+                if (latlng.__vertex && latlng.__vertex.getTooltip())
+                  latlng.__vertex.closeTooltip();
+              });
+            });
+          }
+          else if (layer instanceof L.Polyline || layer instanceof L.Circle) {
+            layer.editor.getLatLngs().forEach(latlng => {
+              if (latlng.__vertex && latlng.__vertex.getTooltip())
+                latlng.__vertex.closeTooltip();
+            });
+          }
+
+        }
+      }
+
+      this.markerTool._setShowMeasure(false);
+      this.circleTool._setShowMeasure(false);
+      this.rectangleTool._setShowMeasure(false);
+      this.polylineTool._setShowMeasure(false);
+      this.polygonTool._setShowMeasure(false);
+    },
+
+    showMeasureResult: function () {
+      if (this.editTools && this.editTools.featuresLayer) {
+        for (layerId in this.editTools.featuresLayer._layers) {
+          var layer = this.editTools.featuresLayer._layers[layerId];
+          if (layer instanceof L.Marker && layer.getTooltip()) {
+            layer.openTooltip();
+          }
+
+          if (layer instanceof L.Polygon) {
+            layer.editor.getLatLngs().forEach(latlngs => {
+              latlngs.forEach(latlng => {
+                if (latlng.__vertex && latlng.__vertex.getTooltip())
+                  latlng.__vertex.openTooltip();
+              });
+            });
+          }
+          else if (layer instanceof L.Polyline || layer instanceof L.Circle) {
+            layer.editor.getLatLngs().forEach(latlng => {
+              if (latlng.__vertex && latlng.__vertex.getTooltip())
+                latlng.__vertex.openTooltip();
+            });
+          }
+
+        };
+      }
+
+      this.markerTool._setShowMeasure(true);
+      this.circleTool._setShowMeasure(true);
+      this.rectangleTool._setShowMeasure(true);
+      this.polylineTool._setShowMeasure(true);
+      this.polygonTool._setShowMeasure(true);
     }
+
   });
 
   /*
@@ -58,11 +136,17 @@
     precision: 2,
 
     /**
+     * Показывать результаты измерений
+     */
+    showMeasure: true,
+
+    /**
     Инициализирует новый инструмент измерений.
     @param {Object} map Используемая карта.
      */
     initialize: function (map, options) {
       this._map = map;
+      this.editTools = options.editTools;
       this.setEvents();
     },
 
@@ -73,7 +157,7 @@
     stopMeasure: function () {
       this._hideMouseMarker();
 
-      this._map.editTools.stopDrawing();
+      this.editTools.stopDrawing();
     },
 
     _setMouseMarker: function () {
@@ -113,6 +197,10 @@
       return [];
     },
 
+    _setShowMeasure: function (val) {
+      this.showMeasure = val;
+    },
+
     /**
       Метод для обновления лейблов, содержащих результаты измерений.
       @param {Object} e Событие.
@@ -125,7 +213,7 @@
       for (var i = 0; i < unlabelledMarkers.length; i++) {
         var marker = unlabelledMarkers[i];
         if (marker && marker.getTooltip()) {
-          marker.closeTooltip();
+          marker.unbindTooltip();
         }
       }
       var labelledMarkers = this._labelledMarkers(editor, e);
@@ -152,7 +240,10 @@
       if (latlng) {
         marker._tooltip.setLatLng(latlng);
       }
-      marker.openTooltip();
+      if (this.showMeasure)
+        marker.openTooltip();
+      else if (marker.isTooltipOpen())
+        marker.closeTooltip();
     },
 
     /**
@@ -172,7 +263,7 @@
 
     _showPopup: function (text, latlng) {
       this._map._mouseMarker.setTooltipContent(text);
-      if (!this._map._mouseMarker.isTooltipOpen()) {
+      if (!this._map._mouseMarker.isTooltipOpen() && this.showMeasure) {
         this._map._mouseMarker.openTooltip();
       }
       this._map._mouseMarker.setLatLng(latlng);
@@ -200,7 +291,6 @@
       var measureEvent = 'measure:' + type;
       this._setMeasureEventType(e, measureEvent);
       if (type === 'created') {
-        //         this._map._measureLayerGroup.addLayer(layer);
         layer.on('remove', function (e) {
           this.disableEdit();
         });
@@ -279,7 +369,8 @@
 
     distanceMeasureUnit: {
       meter: ' м',
-      kilometer: ' км'
+      kilometer: ' км',
+      ha: ' га'
     },
 
     /**
@@ -432,12 +523,26 @@
       @param {Object} layer Слой с геометрией, представляющей производимые измерения.
       @returns {Number} Периметр.
     */
-    getPerimeter: function (layer) {
+    getPerimeter: function (layer, latlng) {
       var latlngs = this.getLatLngs(layer).slice();
+      if (latlng)
+        latlngs.push(latlng);
       latlngs.push(latlngs[0]);
       distance = this._getPerimeter(latlngs);
 
       return distance;
+    },
+
+    /**
+      Метод для получения периметра точек слоя
+      @param {Object} layer Слой с геометрией, представляющей производимые измерения.
+      @returns {Number} String} Текстовое представление периметра.
+    */
+    getPerimeterText: function (layer, latlng) {
+      return this.getMeasureText({
+        value: this.getPerimeter(layer, latlng),
+        dimension: 1
+      });
     },
 
     /**
@@ -461,11 +566,23 @@
       @param {Object} latlng Точка.
       @returns {Number} Текстовое представление площади.
     */
-    getAreaText: function (layer, latlng) {
-      return this.getMeasureText({
-        value: this.getArea(layer, latlng),
+    getAreaText: function (layer, latlng, ha) {
+      var value = this.getArea(layer, latlng);
+
+      var area = this.getMeasureText({
+        value: value,
         dimension: 2
       });
+
+      if (ha) {
+        value = parseFloat(value.toFixed(this.precision));
+
+        var haPrecition = this.precision + 4;
+        var valueInHa = (value / 10000).toFixed(haPrecition) + this.distanceMeasureUnit.ha;
+        area += " (" + valueInHa + ")";
+      }
+
+      return area;
     },
 
     /**
@@ -639,13 +756,14 @@
 
       _setDragend: function (e) {
         this._closePopup();
-        if (this.measureLayer.getTooltip() && !this.measureLayer.isTooltipOpen()) {
+        if (this.measureLayer.getTooltip() && !this.measureLayer.isTooltipOpen() && this.showMeasure) {
           this.measureLayer.openTooltip();
         }
 
         this.isDragging = false;
         this._fireEvent(e, 'editend');
-        e.layer.openTooltip();
+        if (this.showMeasure)
+          e.layer.openTooltip();
       },
 
       _setCommit: function (e) {
@@ -666,12 +784,12 @@
       },
 
       /**
-        Инициализация режима перемщения маркера Marker
+        Инициализация режима перемещения маркера Marker
       */
       startMeasure: function (options) {
         this._setMouseMarker();
         options = options ? L.setOptions(this, options) : this.options;
-        this.measureLayer = this._map.editTools.startMarker(undefined, options);
+        this.measureLayer = this.editTools.startMarker(undefined, options);
         this.eventsOn('editable:', this.editableEventTree, true);
         this.isDragging = false;
       }
@@ -752,7 +870,8 @@
 
       this.create = false;
       this.isDragging = false;
-      e.vertex.openTooltip();
+      if (this.showMeasure)
+        e.vertex.openTooltip();
     },
 
     _setDrag: function (e) {
@@ -794,7 +913,7 @@
     startMeasure: function (options) {
       this._setMouseMarker();
       options = options || this.options;
-      this.measureLayer = this._map.editTools.startCircle(undefined, options);
+      this.measureLayer = this.editTools.startCircle(undefined, options);
       this.measureLayer.setRadius(-1);
       this.eventsOn('editable:', this.editableEventTree, true);
       this.create = false;
@@ -827,7 +946,7 @@
     startMeasure: function (options) {
       this._setMouseMarker();
       options = options ? L.setOptions(this, options) : this.options;
-      this.measureLayer = this._map.editTools.startRectangle(undefined, options);
+      this.measureLayer = this.editTools.startRectangle(undefined, options);
       this.eventsOn('editable:', this.editableEventTree, true);
       this.create = false;
       this.isDrawing = false;
@@ -923,7 +1042,7 @@
       this._closePopup();
       this._fireEvent(e, 'editend');
       this.isDragging = false;
-      if (e.vertex.getTooltip()) {
+      if (e.vertex.getTooltip() && this.showMeasure) {
         e.vertex.openTooltip();
       }
     },
@@ -997,8 +1116,25 @@
     startMeasure: function (options) {
       this._setMouseMarker();
       options = options ? L.setOptions(this, options) : this.options;
-      this.measureLayer = this._map.editTools.startPolyline(undefined, options);
+      this.measureLayer = this.editTools.startPolyline(undefined, options);
       this.eventsOn('editable:', this.editableEventTree, true);
+
+      this.measureLayer.on('editable:vertex:click', (e) => {
+        if (e.vertex.getIndex() == 0) {
+          e.cancel();
+
+          let latlngs = e.layer._latlngs;
+          latlngs.push(latlngs[0]);
+
+          this.editTools.stopDrawing();
+          this.editTools.featuresLayer.removeLayer(this.measureLayer);
+
+          this._map.fire('close-polyline', {
+            latlngs: latlngs
+          });
+        }
+      });
+
       this.isDragging = false;
     }
   });
@@ -1028,9 +1164,27 @@
     startMeasure: function (options) {
       this._setMouseMarker();
       options = options ? L.setOptions(this, options) : this.options;
-      this.measureLayer = this._map.editTools.startPolygon(undefined, options);
+      this.measureLayer = this.editTools.startPolygon(undefined, options);
+
       this.isDragging = false;
       this.eventsOn('editable:', this.editableEventTree, true);
+    },
+
+    addShape: function (latlngs) {
+      this._setMouseMarker();
+      var options = $.extend({}, this.options, { editOptions: { editTools: this.editTools } });
+      let polygone = new L.polygon(latlngs, options);
+      this.editTools.featuresLayer.addLayer(polygone);
+      polygone.enableEdit(this._map);
+      this.measureLayer = polygone;
+
+      this.isDragging = false;
+      this.eventsOn('editable:', this.editableEventTree, true);
+
+      this._map.fire('measure:created');
+
+      this._fireEvent({ layer: this.measureLayer }, 'edit');
+      this._fireEvent({ layer: this.measureLayer }, 'editend');
     }
   });
 
@@ -1089,11 +1243,22 @@
   L.MeasureBase = L.Measure.extend({
     initialize: function (map, options) {
       L.Measure.prototype.initialize.call(this, map, options);
-      this.markerBaseTool = L.Measure.markerBase(map, options);
-      this.circleBaseTool = L.Measure.circleBase(map, options);
-      this.rectangleBaseTool = L.Measure.rectangleBase(map, options);
-      this.polylineBaseTool = L.Measure.polylineBase(map, options);
-      this.polygonBaseTool = L.Measure.polygonBase(map, options);
+
+      let toolOptions = $.extend({}, options, { editTools: this.editTools });
+
+      this.markerBaseTool = L.Measure.markerBase(map, toolOptions);
+      this.circleBaseTool = L.Measure.circleBase(map, toolOptions);
+      this.rectangleBaseTool = L.Measure.rectangleBase(map, toolOptions);
+      this.polylineBaseTool = L.Measure.polylineBase(map, toolOptions);
+      this.polygonBaseTool = L.Measure.polygonBase(map, toolOptions);
+
+      if (options.addHaArea) {
+        this.polygonBaseTool.haArea = true;
+      }
+
+      this._map.on('close-polyline', (e) => {
+        this.polygonBaseTool.addShape(e.latlngs, toolOptions);
+      });
     },
 
     stopMeasuring: function () {
@@ -1104,6 +1269,26 @@
       this.rectangleBaseTool.stopMeasure();
       this.polylineBaseTool.stopMeasure();
       this.polygonBaseTool.stopMeasure();
+    },
+
+    hideMeasureResult: function () {
+      L.Measure.prototype.hideMeasureResult.call(this);
+
+      this.markerBaseTool._setShowMeasure(false);
+      this.circleBaseTool._setShowMeasure(false);
+      this.rectangleBaseTool._setShowMeasure(false);
+      this.polylineBaseTool._setShowMeasure(false);
+      this.polygonBaseTool._setShowMeasure(false);
+    },
+
+    showMeasureResult: function () {
+      L.Measure.prototype.showMeasureResult.call(this);
+
+      this.markerBaseTool._setShowMeasure(true);
+      this.circleBaseTool._setShowMeasure(true);
+      this.rectangleBaseTool._setShowMeasure(true);
+      this.polylineBaseTool._setShowMeasure(true);
+      this.polygonBaseTool._setShowMeasure(true);
     }
   });
 
@@ -1284,7 +1469,6 @@
       @returns {Object[]} Массив помеченных маркеров инструмента редактирования.
     */
     _labelledMarkers: function (editor) {
-      var latlngs = editor.getLatLngs()[0];
       var markers = [];
       return markers;
     },
@@ -1436,7 +1620,7 @@
           dimension: 1
         }) +
         this.basePopupText.incLabelPostfix;
-    },
+    }
   });
 
   /**
@@ -1453,8 +1637,16 @@
 
     basePopupText: {
       labelPrefix: '<b>Площадь: ',
-      labelPostfix: '</b>',
+      labelPostfix: '</b><br/>',
+      perimeterLabelPrefix: '<b>Периметр',
+      perimeterLabelPostfix: '</b>',
+      distanceLabelPrefix: '<b>',
+      distanceLabelPostfix: '</b>',
+      incLabelPrefix: '<br/>+',
+      incLabelPostfix: '</b>'
     },
+
+    haArea: false,
 
     /*
       Метод для получения маркеров инструмента редактирования, имеющих метки
@@ -1473,7 +1665,7 @@
           marker = latlngs[latlngs.length - 1].__vertex;
           break;
         default:
-          marker = e.vertex ? e.vertex : latlngs[latlngs.length - 1].__vertex;
+          marker = e.vertex && e.type != 'editable:vertex:deleted' ? e.vertex : latlngs[latlngs.length - 1].__vertex;
       }
 
       if (marker) {
@@ -1500,7 +1692,7 @@
           marker = latlngs[latlngs.length - 1].__vertex;
           break;
         default:
-          marker = e.vertex ? e.vertex : latlngs[latlngs.length - 1].__vertex;
+          marker = e.vertex && e.type != 'editable:vertex:deleted' ? e.vertex : latlngs[latlngs.length - 1].__vertex;
       }
 
       for (var i = 0, len = latlngs.length; i < len; i++) {
@@ -1533,10 +1725,11 @@
         }
       }
 
-      var ret = this.basePopupText.labelPrefix + this.getAreaText(layer, mouseLatlng) + this.basePopupText.labelPostfix;
+      var ret = this.basePopupText.labelPrefix + this.getAreaText(layer, mouseLatlng, this.haArea) + this.basePopupText.labelPostfix;
+      var perimiter = this.basePopupText.perimeterLabelPrefix + this.getPerimeterText(layer, mouseLatlng) + this.basePopupText.perimeterLabelPostfix;
 
-      return ret;
-    },
+      return ret + perimiter;
+    }
   });
 
   /**
