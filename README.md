@@ -1,6 +1,6 @@
 # Leaflet.Editable.Measures
 Classes for measure markers, circles, rectangles, polylines, polygon  based on
-* [Leaflet#1.3.1](https://leafletjs.com/reference-1.3.0.html)
+* [Leaflet#1.7.1](https://leafletjs.com/reference-1.7.1.html)
 * [Leaflet.Editable#1.1.0](https://github.com/Leaflet/Leaflet.Editable)
 
 
